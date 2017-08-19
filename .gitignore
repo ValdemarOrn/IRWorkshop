@@ -19,6 +19,7 @@ Thumbs.db
 *.log
 *.sdf
 *.vsp
+*.dll
 *.opensdf
 *.o
 [Bb]in

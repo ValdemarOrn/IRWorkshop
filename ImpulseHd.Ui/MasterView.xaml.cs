@@ -16,14 +16,13 @@ using System.Windows.Shapes;
 namespace ImpulseHd.Ui
 {
 	/// <summary>
-	/// Interaction logic for MainWindow.xaml
+	/// Interaction logic for MasterView.xaml
 	/// </summary>
-	public partial class MainWindow : Window
+	public partial class MasterView : UserControl
 	{
-		public MainWindow()
+		public MasterView()
 		{
 			InitializeComponent();
-			DataContext = new MainViewModel();
 		}
 	}
 }

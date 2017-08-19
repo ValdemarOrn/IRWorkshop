@@ -25,11 +25,10 @@ namespace ImpulseHd
 			var testSnd = Enumerable.Range(0, 500).Select(x => rand.NextDouble() * 2 - 1).Concat(new double[3500]).ToArray();
 			WaveFiles.WriteWaveFile(new double[][] { testSnd }, WaveFiles.WaveFormat.PCM24Bit, 48000, file);
 
-			var config = new ImpulseConfig()
+			var config = new ImpulseConfig
 			{
 				FilePath = file,
-				GainLeft = 1,
-				GainRight = 1,
+				OutputStage = { Gain = 1 },
 				SampleSize = 8192,
 				Samplerate = 48000,
 			};

@@ -1,0 +1,92 @@
+﻿<UserControl x:Class="ImpulseHd.Ui.OutputStageView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:ImpulseHd.Ui"
+             mc:Ignorable="d" 
+             d:DesignHeight="466" d:DesignWidth="603">
+	<Grid>
+		<Grid.ColumnDefinitions>
+			<ColumnDefinition Width="Auto" />
+			<ColumnDefinition Width="*" />
+			<ColumnDefinition Width="90" />
+
+		</Grid.ColumnDefinitions>
+		<Grid.RowDefinitions>
+			<RowDefinition Height="Auto" />
+			<RowDefinition Height="Auto" />
+			<RowDefinition Height="Auto" />
+			<RowDefinition Height="Auto" />
+			<RowDefinition Height="Auto" />
+			<RowDefinition Height="Auto" />
+			<RowDefinition Height="Auto" />
+			<RowDefinition Height="Auto" />
+			<RowDefinition Height="Auto" />
+			<RowDefinition Height="Auto" />
+			<RowDefinition Height="Auto" />
+			<RowDefinition Height="Auto" />
+			<RowDefinition Height="Auto" />
+			<RowDefinition Height="Auto" />
+			<RowDefinition Height="Auto" />
+			<RowDefinition Height="Auto" />
+			<RowDefinition Height="Auto" />
+			<RowDefinition Height="Auto" />
+			<RowDefinition Height="Auto" />
+			<RowDefinition Height="Auto" />
+			<RowDefinition Height="Auto" />
+			<RowDefinition Height="Auto" />
+			<RowDefinition Height="Auto" />
+			<RowDefinition Height="Auto" />
+			<RowDefinition Height="Auto" />
+			<RowDefinition Height="Auto" />
+			<RowDefinition Height="Auto" />
+			<RowDefinition Height="Auto" />
+			<RowDefinition Height="Auto" />
+			<RowDefinition Height="Auto" />
+			<RowDefinition Height="Auto" />
+			<RowDefinition Height="Auto" />
+			<RowDefinition Height="Auto" />
+			<RowDefinition Height="Auto" />
+		</Grid.RowDefinitions>
+		<Label Grid.Row="0" Grid.Column="0">Gain</Label>
+		<Label Grid.Row="1" Grid.Column="0">Delay Left</Label>
+		<Label Grid.Row="2" Grid.Column="0">Delay Right</Label>
+		<Label Grid.Row="3" Grid.Column="0">Pan</Label>
+		<Label Grid.Row="4" Grid.Column="0">Invert Phase Left</Label>
+		<Label Grid.Row="5" Grid.Column="0">Invert Phase Right</Label>
+		<Label Grid.Row="6" Grid.Column="0">Low Cut Left</Label>
+		<Label Grid.Row="7" Grid.Column="0">Low Cut Right</Label>
+		<Label Grid.Row="8" Grid.Column="0">High Cut Left</Label>
+		<Label Grid.Row="9" Grid.Column="0">High Cut Right</Label>
+		<Label Grid.Row="10" Grid.Column="0">Window Method</Label>
+		<Label Grid.Row="11" Grid.Column="0">Window Length</Label>
+
+		<Slider Grid.Column="1" Grid.Row="0" />
+		<Slider Grid.Column="1" Grid.Row="1" />
+		<Slider Grid.Column="1" Grid.Row="2" />
+		<Slider Grid.Column="1" Grid.Row="3" />
+		<CheckBox Grid.Column="1" Grid.Row="4" VerticalAlignment="Center" />
+		<CheckBox Grid.Column="1" Grid.Row="5" VerticalAlignment="Center" />
+		<Slider Grid.Column="1" Grid.Row="6" />
+		<Slider Grid.Column="1" Grid.Row="7" />
+		<Slider Grid.Column="1" Grid.Row="8" />
+		<Slider Grid.Column="1" Grid.Row="9" />
+		<Slider Grid.Column="1" Grid.Row="10" />
+		<Slider Grid.Column="1" Grid.Row="11" />
+		
+		<Label Grid.Row="0" Grid.Column="2">0.0dB</Label>
+		<Label Grid.Row="1" Grid.Column="2">133 Samples</Label>
+		<Label Grid.Row="2" Grid.Column="2">0 Samples</Label>
+		<Label Grid.Row="3" Grid.Column="2">23% Left</Label>
+		<Label Grid.Row="4" Grid.Column="2"></Label>
+		<Label Grid.Row="5" Grid.Column="2"></Label>
+		<Label Grid.Row="6" Grid.Column="2">134 Hz</Label>
+		<Label Grid.Row="7" Grid.Column="2">134 Hz</Label>
+		<Label Grid.Row="8" Grid.Column="2">8520 Hz</Label>
+		<Label Grid.Row="9" Grid.Column="2">8520 Hz</Label>
+		<Label Grid.Row="10" Grid.Column="2">Cosine</Label>
+		<Label Grid.Row="11" Grid.Column="2">2.2%</Label>
+	</Grid>
+</UserControl>
+

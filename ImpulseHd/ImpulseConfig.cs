@@ -9,45 +9,43 @@ namespace ImpulseHd
 	public class ImpulseConfig
 	{
 		public const int SpectrumStageCount = 8;
-		public const int SourceCount = 8;
 
 		public ImpulseConfig()
 		{
 			SpectrumStages = Enumerable.Range(0, SpectrumStageCount).Select(x => new SpectrumStage()).ToArray();
-			Sources = Enumerable.Range(0, SourceCount).Select(x => new StereoSource()).ToArray();
+			OutputStage = new OutputStage();
 		}
 
+		public string Name { get; set; }
 		public string FilePath { get; set; }
 		public int SampleSize { get; set; }
 		public double Samplerate { get; set; }
 		public bool ZeroPhase { get; set; }
 
 		public SpectrumStage[] SpectrumStages { get; private set; }
-
-		public double LowCut { get; set; }
-		public double HighCut { get; set; }
-
-		public StereoSource[] Sources { get; private set; }
-
-		public double DelayLeft { get; set; }
-		public double DelayRight { get; set; }
-		public double GainLeft { get; set; }
-		public double GainRight { get; set; }
+		public OutputStage OutputStage { get; private set; }
 	}
 
-	public class StereoSource
+	public class OutputStage
 	{
-		public double Angle { get; set; }
-		public double Distance { get; set; }
 		public double Gain { get; set; }
-		public double PhaseInvert { get; set; }
-		public double LowCut { get; set; }
-		public double HighCut { get; set; }
+		public double SampleDelayL { get; set; }
+		public double SampleDelayR { get; set; } // additional delay, <0 := left channel delayed more, >0 right channel delayed more
+		public double Pan { get; set; }
+		public bool InvertPhaseLeft { get; set; }
+		public bool InvertPhaseRight { get; set; }
+		public double LowCutLeft { get; set; }
+		public double LowCutRight { get; set; }
+		public double HighCutLeft { get; set; }
+		public double HighCutRight { get; set; }
+		public double WindowMethod { get; set; }
+		public double WindowLength { get; set; }
 	}
 
 	public class SpectrumStage
 	{
 		public bool IsEnabled { get; set; }
+		public bool Solo { get; set; } // mutes out all frequency bands not in range
 
 		public double MinFreq { get; set; }
 		public double MaxFreq { get; set; }

@@ -5,12 +5,54 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:ImpulseHd.Ui"
         mc:Ignorable="d"
-        Title="MainWindow" Height="350" Width="525">
-    <Grid>
-		<TabControl TabStripPlacement="Left">
-			<TabItem Header="Impulse 1">
-				
-			</TabItem>
-		</TabControl>
-    </Grid>
+		ResizeMode="NoResize"
+        Title="MainWindow" Height="680" Width="1200">
+	<DockPanel>
+		<Menu DockPanel.Dock="Top">
+			<MenuItem Header="_File">
+				<MenuItem Header="New"></MenuItem>
+				<MenuItem Header="Open"></MenuItem>
+				<MenuItem Header="Save"></MenuItem>
+				<Separator></Separator>
+				<MenuItem Header="Export Wav"></MenuItem>
+				<Separator></Separator>
+				<MenuItem Header="Exit"></MenuItem>
+			</MenuItem>
+			<MenuItem Header="_Edit">
+				<MenuItem Header="Add Impulse"></MenuItem>
+				<MenuItem Header="Remove Impulse"></MenuItem>
+				<Separator></Separator>
+				<MenuItem Header="Add Stage"></MenuItem>
+				<MenuItem Header="Remove Stage"></MenuItem>
+				<Separator></Separator>
+				<MenuItem Header="Move Stage Left"></MenuItem>
+				<MenuItem Header="Move Stage Right"></MenuItem>
+				<Separator></Separator>
+				<MenuItem Header="Audio Setup" Command="{Binding AudioSetupCommand}"></MenuItem>
+			</MenuItem>
+			<MenuItem Header="_About">
+				<MenuItem Header="About Impulse HD"></MenuItem>
+				<MenuItem Header="Check for Updates"></MenuItem>
+			</MenuItem>
+			
+		</Menu>
+		<Grid>
+			<Grid.ColumnDefinitions>
+				<ColumnDefinition Width="2*" />
+				<ColumnDefinition Width="0*" />
+			</Grid.ColumnDefinitions>
+			<Grid.RowDefinitions>
+				<RowDefinition Height="*" />
+				<RowDefinition Height="*" />
+			</Grid.RowDefinitions>
+			<TabControl TabStripPlacement="Left" Grid.Column="0" Grid.RowSpan="2">
+				<TabItem Header="Master" Width="130">
+					<local:MasterView></local:MasterView>
+				</TabItem>
+				<TabItem Header="Impulse 0" IsSelected="True">
+					<local:ImpulseConfigView Background="#eee" DataContext="{Binding ImpulseConfig[0]}"></local:ImpulseConfigView>
+				</TabItem>
+			</TabControl>
+		</Grid>
+	</DockPanel>
 </Window>

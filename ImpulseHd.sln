@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26228.4
+VisualStudioVersion = 15.0.26430.15
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ImpulseHd", "ImpulseHd\ImpulseHd.csproj", "{EBC0D0F9-20CB-495E-A85D-D973A6111089}"
 EndProject
@@ -12,6 +12,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LowProfile.Visuals", "..\..\Libraries\LowProfile.Common\LowProfile.Visuals\LowProfile.Visuals.csproj", "{4CD32A63-494F-4769-A07D-802F1E9945A7}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ImpulseHd.Ui", "ImpulseHd.Ui\ImpulseHd.Ui.csproj", "{12D0DAC1-49E5-400A-A38C-F5F8B8D78AD6}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LowProfile.Core", "..\..\Libraries\LowProfile.Common\LowProfile.Core\LowProfile.Core.csproj", "{6F6A3FB4-5E5F-4076-B91A-F8C7FE84E37C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -83,6 +85,18 @@ Global
 		{12D0DAC1-49E5-400A-A38C-F5F8B8D78AD6}.Release|x64.Build.0 = Release|Any CPU
 		{12D0DAC1-49E5-400A-A38C-F5F8B8D78AD6}.Release|x86.ActiveCfg = Release|Any CPU
 		{12D0DAC1-49E5-400A-A38C-F5F8B8D78AD6}.Release|x86.Build.0 = Release|Any CPU
+		{6F6A3FB4-5E5F-4076-B91A-F8C7FE84E37C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6F6A3FB4-5E5F-4076-B91A-F8C7FE84E37C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6F6A3FB4-5E5F-4076-B91A-F8C7FE84E37C}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{6F6A3FB4-5E5F-4076-B91A-F8C7FE84E37C}.Debug|x64.Build.0 = Debug|Any CPU
+		{6F6A3FB4-5E5F-4076-B91A-F8C7FE84E37C}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{6F6A3FB4-5E5F-4076-B91A-F8C7FE84E37C}.Debug|x86.Build.0 = Debug|Any CPU
+		{6F6A3FB4-5E5F-4076-B91A-F8C7FE84E37C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6F6A3FB4-5E5F-4076-B91A-F8C7FE84E37C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6F6A3FB4-5E5F-4076-B91A-F8C7FE84E37C}.Release|x64.ActiveCfg = Release|Any CPU
+		{6F6A3FB4-5E5F-4076-B91A-F8C7FE84E37C}.Release|x64.Build.0 = Release|Any CPU
+		{6F6A3FB4-5E5F-4076-B91A-F8C7FE84E37C}.Release|x86.ActiveCfg = Release|Any CPU
+		{6F6A3FB4-5E5F-4076-B91A-F8C7FE84E37C}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
