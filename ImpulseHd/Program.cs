@@ -29,7 +29,6 @@ namespace ImpulseHd
 			{
 				FilePath = file,
 				OutputStage = { Gain = 1 },
-				SampleSize = 8192,
 				Samplerate = 48000,
 			};
 
@@ -46,7 +45,7 @@ namespace ImpulseHd
 			stage.DelaySamples = 1000;
 
 
-			var proc = new ImpulseProcessor(config);
+			var proc = new ImpulseConfigProcessor(config);
 
 			foreach (var st in proc.Stages)
 			{

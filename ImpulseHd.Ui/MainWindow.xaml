@@ -14,7 +14,7 @@
 				<MenuItem Header="Open"></MenuItem>
 				<MenuItem Header="Save"></MenuItem>
 				<Separator></Separator>
-				<MenuItem Header="Export Wav"></MenuItem>
+				<MenuItem Header="Export Wav" Command="{Binding ExportWavCommand}"></MenuItem>
 				<Separator></Separator>
 				<MenuItem Header="Exit"></MenuItem>
 			</MenuItem>
@@ -49,7 +49,7 @@
 				<TabItem Header="Master" Width="130">
 					<local:MasterView></local:MasterView>
 				</TabItem>
-				<TabItem Header="Impulse 0" IsSelected="True">
+				<TabItem Header="Impulse 0">
 					<local:ImpulseConfigView Background="#eee" DataContext="{Binding ImpulseConfig[0]}"></local:ImpulseConfigView>
 				</TabItem>
 			</TabControl>

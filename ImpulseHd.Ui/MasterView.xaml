@@ -37,33 +37,59 @@
 						<RowDefinition Height="Auto" />
 						<RowDefinition Height="Auto" />
 						<RowDefinition Height="Auto" />
+						<RowDefinition Height="Auto" />
+						<RowDefinition Height="Auto" />
+						<RowDefinition Height="Auto" />
+						<RowDefinition Height="Auto" />
+						<RowDefinition Height="Auto" />
+						<RowDefinition Height="Auto" />
+						<RowDefinition Height="Auto" />
+						<RowDefinition Height="Auto" />
+						<RowDefinition Height="Auto" />
 
 					</Grid.RowDefinitions>
 					<Label Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3" FontWeight="Bold">Audio IO</Label>
-					<Label Grid.Row="1" Grid.Column="0">Input Left</Label>
-					<Label Grid.Row="2" Grid.Column="0">Input Right</Label>
-					<Label Grid.Row="3" Grid.Column="0">Output Left</Label>
-					<Label Grid.Row="4" Grid.Column="0">Output Right</Label>
-
-					<Label Grid.Row="5" Grid.Column="0" Grid.ColumnSpan="3" FontWeight="Bold">Output Configuration</Label>
-					<Label Grid.Row="6" Grid.Column="0">Samplerate</Label>
-					<Label Grid.Row="7" Grid.Column="0">Impulse Length</Label>
-					<Label Grid.Row="8" Grid.Column="0">Window Type</Label>
-					<Label Grid.Row="9" Grid.Column="0">Window Type</Label>
-
-					<ComboBox Grid.Row="1" Grid.Column="1" Margin="2"></ComboBox>
-					<ComboBox Grid.Row="2" Grid.Column="1" Margin="2"></ComboBox>
-					<ComboBox Grid.Row="3" Grid.Column="1" Margin="2"></ComboBox>
-					<ComboBox Grid.Row="4" Grid.Column="1" Margin="2"></ComboBox>
+					<Label Grid.Row="1" Grid.Column="0">Device Settings</Label>
+					<Label Grid.Row="2" Grid.Column="0">Input Left</Label>
+					<Label Grid.Row="3" Grid.Column="0">Input Right</Label>
+					<Label Grid.Row="4" Grid.Column="0">Output Left</Label>
+					<Label Grid.Row="5" Grid.Column="0">Output Right</Label>
+					<Label Grid.Row="6" Grid.Column="0">Volume</Label>
+					<Label Grid.Row="7" Grid.Column="0">Clipping</Label>
 					
-					<TextBox Grid.Column="1" Grid.Row="6" Margin="3" Width="80" HorizontalAlignment="Left" IsEnabled="False" />
-					<Slider Grid.Column="1" Grid.Row="7" />
-					<Slider Grid.Column="1" Grid.Row="8" />
-					<Slider Grid.Column="1" Grid.Row="9" />
+					<Label Grid.Row="10" Grid.Column="0" Grid.ColumnSpan="3" FontWeight="Bold">Impulse Generation</Label>
 
-					<Label Grid.Row="7" Grid.Column="2">2048 (42.7ms)</Label>
-					<Label Grid.Row="8" Grid.Column="2">Cosine</Label>
-					<Label Grid.Row="9" Grid.Column="2">2.4%</Label>
+					<Label Grid.Row="11" Grid.Column="0">Samplerate</Label>
+					<Label Grid.Row="12" Grid.Column="0">Impulse Length</Label>
+					<Label Grid.Row="13" Grid.Column="0">Window Type</Label>
+					<Label Grid.Row="14" Grid.Column="0">Window Length</Label>
+
+					<Button Grid.Row="1" Grid.Column="1" Margin="2" Width="100" HorizontalAlignment="Left" Command="{Binding AudioSetupCommand}">Edit</Button>
+					<ComboBox Grid.Row="2" Grid.Column="1" Margin="2" ItemsSource="{Binding InputNames}" SelectedIndex="{Binding SelectedInputL}" />
+					<ComboBox Grid.Row="3" Grid.Column="1" Margin="2" ItemsSource="{Binding InputNames}" SelectedIndex="{Binding SelectedInputR}" />
+					<ComboBox Grid.Row="4" Grid.Column="1" Margin="2" ItemsSource="{Binding OutputNames}" SelectedIndex="{Binding SelectedOutputL}" />
+					<ComboBox Grid.Row="5" Grid.Column="1" Margin="2" ItemsSource="{Binding OutputNames}" SelectedIndex="{Binding SelectedOutputR}" />
+					<Slider Grid.Row="6" Grid.Column="1" Value="{Binding VolumeSlider}" Maximum="1"  SmallChange="0.1" LargeChange="0.2" />
+					<StackPanel Grid.Row="7" Grid.Column="1" HorizontalAlignment="Left" VerticalAlignment="Center" Orientation="Horizontal" Margin="2">
+						<Border BorderThickness="1" BorderBrush="Black" Background="{Binding ClipLBrush,FallbackValue=Red}" Width="12" Height="12"></Border>
+						<Label>Left Channel</Label>
+						<Border BorderThickness="1" BorderBrush="Black" Background="{Binding ClipRBrush,FallbackValue=Transparent}" Width="12" Height="12" Margin="15,0,0,0"></Border>
+						<Label>Right Channel</Label>
+					</StackPanel>
+					
+					
+					<Slider Grid.Row="11"  Grid.Column="1" Value="{Binding SamplerateSlider}" Maximum="1" TickFrequency="0.33" SmallChange="0.25" LargeChange="0.25" IsSnapToTickEnabled="True" />
+					<Slider Grid.Row="12"  Grid.Column="1" Value="{Binding ImpulseLengthSlider}" Maximum="1" TickFrequency="0.25" SmallChange="0.2" LargeChange="0.2" IsSnapToTickEnabled="True" />
+					<Slider Grid.Row="13" Grid.Column="1" Maximum="1" />
+					<Slider Grid.Row="14" Grid.Column="1" Maximum="1" />
+
+					<Label Grid.Row="6" Grid.Column="2" Content="{Binding VolumeReadout, FallbackValue=0.0dB, Mode=OneWay}" />
+					<Label Grid.Row="11" Grid.Column="2" Content="{Binding SamplerateReadout, FallbackValue=x, Mode=OneWay}" />
+					<Label Grid.Row="12" Grid.Column="2" Content="{Binding ImpulseLengthReadout, FallbackValue=x, Mode=OneWay}" />
+					<Label Grid.Row="13" Grid.Column="2">Cosine</Label>
+					<Label Grid.Row="14" Grid.Column="2">2.4%</Label>
+
+					<Label Grid.Row="20" Grid.Column="0" Grid.ColumnSpan="3" FontWeight="Bold" Foreground="Red" Content="{Binding SamplerateWarning, FallbackValue=Warning message}" />
 				</Grid>
 			</ScrollViewer>
 		</Border>
@@ -73,8 +99,8 @@
 				<RowDefinition Height="Auto" />
 				<RowDefinition Height="Auto" />
 			</Grid.RowDefinitions>
-			<oxy:PlotView Height="300" Grid.Row="0" Margin="2" Model="{Binding Plot1}"></oxy:PlotView>
-			<oxy:PlotView Height="300" Grid.Row="1" Margin="2" Model="{Binding Plot2}"></oxy:PlotView>
+			<oxy:PlotView Height="300" Grid.Row="0" Margin="2" Model="{Binding PlotImpulseLeft}"></oxy:PlotView>
+			<oxy:PlotView Height="300" Grid.Row="1" Margin="2" Model="{Binding PlotImpulseRight}"></oxy:PlotView>
 		</Grid>
 	</Grid>
 </UserControl>

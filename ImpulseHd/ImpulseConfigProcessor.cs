@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace ImpulseHd
 {
-	public class ImpulseProcessor
+	public class ImpulseConfigProcessor
 	{
 		private readonly ImpulseConfig config;
 		private readonly Complex[] fftSignal;
@@ -17,19 +17,17 @@ namespace ImpulseHd
 		private readonly int sampleCount;
 		private readonly double samplerate;
 
-		public ImpulseProcessor(ImpulseConfig config)
+		public ImpulseConfigProcessor(ImpulseConfig config)
 		{
 			this.config = config;
-			var wavData = AudioLib.WaveFiles.ReadWaveFile(config.FilePath);
-			sampleCount = config.SampleSize;
+			sampleCount = ImpulseConfig.MaxSampleLength;
 			samplerate = config.Samplerate;
 
-			var wav = wavData[0].ToList();
-			while (wav.Count < sampleCount)
-				wav.Add(0.0);
+			if (config.RawSampleData == null)
+				config.LoadSampleData();
 
 			this.fftTransform = new Transform(sampleCount);
-			var input = wav.Select(x => (Complex)x).ToArray();
+			var input = config.RawSampleData.Select(x => (Complex)x).ToArray();
 
 			fftSignal = new Complex[input.Length];
 			fftTransform.FFT(input, fftSignal);
@@ -51,6 +49,8 @@ namespace ImpulseHd
 
 		public void ProcessStage(SpectrumStage stage)
 		{
+			// todo: fill in features
+
 			if (!stage.IsEnabled)
 				return;
 
@@ -66,10 +66,16 @@ namespace ImpulseHd
 
 			for (int i = minIndex; i <= maxIndex; i++)
 			{
-				var newVal = fftSignal[i] * Complex.CExp(-2 * Math.PI * i * stage.DelaySamples / (double)config.SampleSize);
+				var newVal = fftSignal[i] * Complex.CExp(-2 * Math.PI * i * stage.DelaySamples / (double)ImpulseConfig.MaxSampleLength);
 				fftSignal[i] = newVal;
 				fftSignal[fftSignal.Length - i].Arg = -newVal.Arg;
 			}
+		}
+
+		public double[][] ProcessOutputStage()
+		{
+			// todo: process output properly
+			return new[] { TimeSignal.Select(x => x).ToArray(), TimeSignal.Select(x => x).ToArray() };
 		}
 	}
 }

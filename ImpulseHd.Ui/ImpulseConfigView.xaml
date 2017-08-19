@@ -23,11 +23,11 @@
 			<RowDefinition Height="200" />
 		</Grid.RowDefinitions>
 		<Label Grid.Column="1" Grid.Row="1">Sample:</Label>
-		<TextBox Grid.Column="2" Grid.Row="1" Margin="2,2,100,2" Text="{Binding FilePath}" IsReadOnly="True" />
-		<Button Grid.Column="2" Grid.Row="1" HorizontalAlignment="Right" Width="90" Padding="0" Height="22" Command="{Binding LoadSampleCommand}">Select</Button>
+		<TextBox Grid.Column="2" Grid.Row="1" Margin="2,2,98,2" Text="{Binding FilePath}" IsReadOnly="True" />
+		<Button Grid.Column="2" Grid.Row="1" HorizontalAlignment="Right" Width="90" Padding="0" Margin="2" Height="22" Command="{Binding LoadSampleCommand}">Select</Button>
 
 		<Label Grid.Column="1" Grid.Row="2">Name:</Label>
-		<TextBox Grid.Column="2" Grid.Row="2" Margin="2,2,0,2" Text="{Binding Name}" />
+		<TextBox Grid.Column="2" Grid.Row="2" Margin="2,2,2,2" Text="{Binding Name}" />
 
 		<TabControl Grid.Column="1" Grid.ColumnSpan="2" Grid.Row="4">
 

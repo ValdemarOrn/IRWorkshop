@@ -3,27 +3,39 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using AudioLib;
 
 namespace ImpulseHd
 {
 	public class ImpulseConfig
 	{
-		public const int SpectrumStageCount = 8;
+		public const int MaxSampleLength = 65536;
 
 		public ImpulseConfig()
 		{
-			SpectrumStages = Enumerable.Range(0, SpectrumStageCount).Select(x => new SpectrumStage()).ToArray();
+			SpectrumStages = new SpectrumStage[0];
 			OutputStage = new OutputStage();
 		}
 
 		public string Name { get; set; }
 		public string FilePath { get; set; }
-		public int SampleSize { get; set; }
 		public double Samplerate { get; set; }
-		public bool ZeroPhase { get; set; }
+
+		public double[] RawSampleData { get; set; }
 
 		public SpectrumStage[] SpectrumStages { get; private set; }
 		public OutputStage OutputStage { get; private set; }
+
+		public void LoadSampleData()
+		{
+			var format = WaveFiles.ReadWaveFormat(FilePath);
+			if (format.SampleRate != 48000)
+				throw new Exception("Only 48Khz files supported currently");
+
+			Samplerate = format.SampleRate;
+			RawSampleData = WaveFiles.ReadWaveFile(FilePath)[0].Take(MaxSampleLength).ToArray();
+			RawSampleData = RawSampleData.Concat(new double[MaxSampleLength - RawSampleData.Length]).ToArray();
+		}
 	}
 
 	public class OutputStage
@@ -38,7 +50,8 @@ namespace ImpulseHd
 		public double LowCutRight { get; set; }
 		public double HighCutLeft { get; set; }
 		public double HighCutRight { get; set; }
-		public double WindowMethod { get; set; }
+
+		public WindowMethod WindowMethod { get; set; }
 		public double WindowLength { get; set; }
 	}
 
@@ -103,6 +116,12 @@ namespace ImpulseHd
 				FrequencySkewMode = FreqSkewMode.Zero,
 			};
 		}
+	}
+
+	public enum WindowMethod
+	{
+		Truncate,
+		Cosine,
 	}
 
 	public enum FreqSkewMode

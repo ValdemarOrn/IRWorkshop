@@ -1,52 +1,285 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Globalization;
+using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Input;
+using System.Windows.Media;
+using AudioLib;
 using AudioLib.PortAudioInterop;
 using LowProfile.Core.Ui;
 using LowProfile.Fourier.Double;
+using LowProfile.Visuals;
+using Microsoft.Win32;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using OxyPlot;
 
 namespace ImpulseHd.Ui
 {
     class MainViewModel : ViewModelBase
     {
-	    private RealtimeHost host;
+	    private readonly ImpulsePreset preset;
+		private readonly RealtimeHost host;
+	    private readonly string settingsFile;
+	    private readonly AutoResetEvent updateEvent;
+
+	    private string[] inputNames;
+	    private string[] outputNames;
+	    
+	    private double samplerateSlider;
+	    private double impulseLengthSlider;
+	    private int selectedInputL;
+	    private int selectedInputR;
+	    private int selectedOutputL;
+	    private int selectedOutputR;
+	    private string loadSampleDirectory;
+	    private string saveSampleDirectory;
+	    private DateTime clipTimeLeft;
+	    private DateTime clipTimeRight;
 
 		public MainViewModel()
-	    {
-			
-			ImpulseConfig = new ObservableCollection<ImpulseConfigViewModel>();
-			ImpulseConfig.Add(new ImpulseConfigViewModel() { Name = "My Impulse 123", FilePath = @"E:\Sound\Samples\Impulses\OwnHammer\_Best Picks 500ms 48Khz\OH 412 ENG 12C+V30 JS.wav" });
-			ImpulseConfig[0].LoadSampleData();
+		{
+			settingsFile = Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), "settings.json");
+			updateEvent = new AutoResetEvent(true);
 
-		    // The host lives in a singleton withing. It can not be created directly 
-		    // and only one host can exists within an application context
-		    host = RealtimeHost.Host;
+			var ic = new ImpulseConfig() {Name = "My Impulse 123", Samplerate = 48000, FilePath = @"E:\Sound\Samples\Impulses\catharsis-awesometime-fredman\48Khz\2off-pres5.wav" };
+			preset = new ImpulsePreset();
+		    preset.ImpulseConfig = new[] {ic};
+			ImpulseLengthSlider = 0.5;
+			SamplerateSlider = 0.4;
+
+			ImpulseConfig = new ObservableCollection<ImpulseConfigViewModel>();
+			ImpulseConfig.Add(new ImpulseConfigViewModel(ic)
+			{
+				OnUpdateCallback = UpdateSample,
+				OnLoadSampleCallback = dir => loadSampleDirectory = Path.GetDirectoryName(dir)
+			});
+			ImpulseConfig[0].LoadSampleData();
+			
+
+			// The host lives in a singleton withing. It can not be created directly 
+			// and only one host can exists within an application context
+			host = RealtimeHost.Host;
 
 		    // host.Process is the callback method that processes audio data. 
 		    // Assign the static process method in this class to be the callback
 		    host.Process = ProcessAudio;
 
 		    AudioSetupCommand = new DelegateCommand(_ => AudioSetup());
-		}
+			ExportWavCommand = new DelegateCommand(_ => ExportWav());
+			selectedInputL = -1;
+		    selectedInputR = -1;
+		    selectedOutputL = -1;
+		    selectedOutputR = -1;
 
-	    private void AudioSetup()
+			LoadSettings();
+
+		    var t = new Thread(SaveSettings) {IsBackground = true};
+			t.Priority = ThreadPriority.Lowest;
+			t.Start();
+
+			var t2 = new Thread(UpdateSampleLoop) { IsBackground = true };
+			t2.Priority = ThreadPriority.Lowest;
+			t2.Start();
+
+			var t3 = new Thread(UpdateClipIndicators) { IsBackground = true };
+			t3.Priority = ThreadPriority.Lowest;
+			t3.Start();
+		}
+		
+	    public ObservableCollection<ImpulseConfigViewModel> ImpulseConfig { get; private set; }
+
+	    public ICommand AudioSetupCommand { get; private set; }
+		public ICommand ExportWavCommand { get; private set; }
+
+		public string[] InputNames
+	    {
+		    get { return inputNames; }
+		    private set { inputNames = value; NotifyPropertyChanged(); }
+	    }
+
+	    public string[] OutputNames
+	    {
+		    get { return outputNames; }
+		    private set { outputNames = value; NotifyPropertyChanged(); }
+	    }
+
+	    public double SamplerateSlider
+		{
+		    get { return samplerateSlider; }
+		    set
+			{
+				samplerateSlider = value;
+
+				if (value < 0.25)
+					preset.Samplerate = 44100;
+				else if (value < 0.5)
+					preset.Samplerate = 48000;
+				else if (value < 0.75)
+					preset.Samplerate = 44100 * 2;
+				else
+					preset.Samplerate = 96000;
+
+				NotifyPropertyChanged();
+				NotifyPropertyChanged(nameof(SamplerateReadout));
+				NotifyPropertyChanged(nameof(SamplerateWarning));
+			}
+	    }
+
+	    public string SamplerateReadout => preset.Samplerate.ToString();
+
+	    public double ImpulseLengthSlider
+	    {
+		    get { return impulseLengthSlider; }
+		    set
+		    {
+			    impulseLengthSlider = value;
+			    var iVal = (int)((value - 0.0001) * 5);
+			    if (iVal == 0)
+				    preset.ImpulseLength = 256;
+			    else if (iVal == 1)
+				    preset.ImpulseLength = 512;
+			    else if (iVal == 2)
+				    preset.ImpulseLength = 1024;
+			    else if (iVal == 3)
+				    preset.ImpulseLength = 2048;
+			    else if (iVal == 4)
+				    preset.ImpulseLength = 4096;
+
+				NotifyPropertyChanged();
+			    NotifyPropertyChanged(nameof(ImpulseLengthReadout));
+				UpdateSample();
+			}
+	    }
+
+	    public string ImpulseLengthReadout => preset.ImpulseLength + " - " + string.Format("{0:0.0}ms", preset.ImpulseLength / (double)preset.Samplerate * 1000);
+
+	    public double VolumeSlider
+	    {
+		    get { return volumeSlider; }
+		    set
+		    {
+			    volumeSlider = value;
+			    NotifyPropertyChanged(nameof(VolumeReadout));
+			}
+	    }
+
+	    public double VolumeDb => (VolumeSlider * 80 - 60);
+		
+		public string VolumeReadout => $"{VolumeDb:0.0}dB";
+
+	    public string SamplerateWarning => (host.Config != null && host.Config.Samplerate != preset.Samplerate)
+		    ? "For accurate results, impulse samplerate should match\r\naudio device samplerate"
+		    : "";
+
+	    public int SelectedInputL
+	    {
+		    get { return selectedInputL; }
+		    set { selectedInputL = value; }
+	    }
+
+	    public int SelectedInputR
+	    {
+		    get { return selectedInputR; }
+		    set { selectedInputR = value; }
+	    }
+
+	    public int SelectedOutputL
+	    {
+		    get { return selectedOutputL; }
+		    set { selectedOutputL = value; }
+	    }
+
+	    public int SelectedOutputR
+	    {
+		    get { return selectedOutputR; }
+		    set { selectedOutputR = value; }
+	    }
+
+	    public PlotModel PlotImpulseLeft
+	    {
+		    get { return plotImpulseLeft; }
+		    set { plotImpulseLeft = value; NotifyPropertyChanged(); }
+	    }
+
+	    public PlotModel PlotImpulseRight
+	    {
+		    get { return plotImpulseRight; }
+		    set { plotImpulseRight = value; NotifyPropertyChanged(); }
+	    }
+
+	    public Brush ClipLBrush
+	    {
+		    get { return clipLBrush; }
+		    set { clipLBrush = value; NotifyPropertyChanged(); }
+	    }
+
+	    public Brush ClipRBrush
+	    {
+		    get { return clipRBrush; }
+		    set { clipRBrush = value; NotifyPropertyChanged(); }
+	    }
+
+
+	    private void ExportWav()
+	    {
+			var saveFileDialog = new SaveFileDialog();
+		    saveFileDialog.Filter = "Wav file (*.wav)|*.wav";
+		    saveFileDialog.RestoreDirectory = true;
+		    saveFileDialog.InitialDirectory = saveSampleDirectory;
+
+			if (saveFileDialog.ShowDialog() == true)
+		    {
+			    var doubleIr = new[] {ir[0].Select(x => (double)x).ToArray(), ir[1].Select(x => (double)x).ToArray()};
+			    var fileWithoutExt = saveFileDialog.FileName.Substring(0, saveFileDialog.FileName.Length - 4);
+			    saveSampleDirectory = Path.GetDirectoryName(saveFileDialog.FileName);
+
+				WaveFiles.WriteWaveFile(doubleIr, WaveFiles.WaveFormat.PCM24Bit, preset.Samplerate, saveFileDialog.FileName);
+			    WaveFiles.WriteWaveFile(new[] {doubleIr[0]}, WaveFiles.WaveFormat.PCM24Bit, preset.Samplerate, fileWithoutExt + "-L.wav");
+			    WaveFiles.WriteWaveFile(new[] {doubleIr[1]}, WaveFiles.WaveFormat.PCM24Bit, preset.Samplerate, fileWithoutExt + "-R.wav");
+		    }
+	    }
+
+		private void AudioSetup()
 	    {
 		    StopAudio();
 
 			// Use the graphical editor to create a new config
-		    var config = RealtimeHostConfig.CreateConfig();
-		    if (config != null)
+		    var config = RealtimeHostConfig.CreateConfig(host.Config);
+		    LoadAudioConfig(config);
+	    }
+
+	    private void LoadAudioConfig(RealtimeHostConfig config)
+	    {
+		    try
 		    {
-			    host.SetConfig(config);
-			    GetChannelNames(config);
+			    if (config != null)
+			    {
+				    host.SetConfig(config);
+				    GetChannelNames(config);
+			    }
+
+			    if (host.Config != null)
+			    {
+				    StartAudio();
+				    StopAudio();
+				    StartAudio();
+			    }
+		    }
+		    catch (Exception ex)
+		    {
+			    MessageBox.Show("Unable to start audio engine: " + ex.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
 		    }
 
-		    if (host.Config != null)
-				StartAudio();
+		    NotifyPropertyChanged(nameof(SamplerateWarning));
 		}
 
 	    private void GetChannelNames(RealtimeHostConfig config)
@@ -54,21 +287,21 @@ namespace ImpulseHd.Ui
 			var inputDeviceInfo = PortAudio.Pa_GetDeviceInfo(config.InputDeviceID);
 		    var outputDeviceInfo = PortAudio.Pa_GetDeviceInfo(config.OutputDeviceID);
 
-			var inputNames = Enumerable.Range(0, inputDeviceInfo.maxInputChannels)
+			InputNames = Enumerable.Range(0, inputDeviceInfo.maxInputChannels)
 			    .Select(ch =>
 			    {
 				    string chName = null;
 				    PortAudio.PaAsio_GetInputChannelName((PortAudio.PaDeviceIndex)config.InputDeviceID, ch, ref chName);
-				    return chName;
+				    return (ch+1) + ": " + chName;
 			    })
 			    .ToArray();
 
-		    var outputNames = Enumerable.Range(0, outputDeviceInfo.maxOutputChannels)
+		    OutputNames = Enumerable.Range(0, outputDeviceInfo.maxOutputChannels)
 			    .Select(ch =>
 			    {
 				    string chName = null;
 				    PortAudio.PaAsio_GetOutputChannelName((PortAudio.PaDeviceIndex)config.OutputDeviceID, ch, ref chName);
-				    return chName;
+				    return (ch + 1) + ": " + chName;
 			    })
 			    .ToArray();
 		}
@@ -77,7 +310,7 @@ namespace ImpulseHd.Ui
 	    {
 			if (host.StreamState == StreamState.Started)
 				host.StopStream();
-			if (host.StreamState == StreamState.Open)
+			if (host.StreamState == StreamState.Stopped)
 				host.CloseStream();
 		}
 
@@ -88,14 +321,238 @@ namespace ImpulseHd.Ui
 			if (host.StreamState == StreamState.Open)
 				host.StartStream();
 		}
-
-	    private void ProcessAudio(float[][] arg1, float[][] arg2)
+		
+	    private void UpdateSample()
 	    {
+		    updateEvent.Set();
+		}
+
+		private void UpdateClipIndicators()
+	    {
+		    while (true)
+		    {
+			    if ((DateTime.UtcNow - clipTimeLeft).TotalMilliseconds < 500)
+			    {
+					if (ClipLBrush == Brushes.Transparent)
+					    ClipLBrush = Brushes.Red;
+				}
+			    else
+				    ClipLBrush = Brushes.Transparent;
+
+			    if ((DateTime.UtcNow - clipTimeRight).TotalMilliseconds < 500)
+			    {
+					if (ClipRBrush == Brushes.Transparent)
+						ClipRBrush = Brushes.Red;
+			    }
+			    else
+				    ClipRBrush = Brushes.Transparent;
+
+			    Thread.Sleep(20);
+		    }
 
 	    }
 
-	    public ObservableCollection<ImpulseConfigViewModel> ImpulseConfig { get; private set; }
+		private void UpdateSampleLoop()
+	    {
+		    while (true)
+		    {
+			    updateEvent.WaitOne();
+					
+				var processor = new ImpulsePresetProcessor(preset);
+				var output = processor.Process();
+				ir = new[] {output[0].Select(x => (float)x).ToArray(), output[1].Select(x => (float)x).ToArray()};
+			    var millis = Utils.Linspace(0, preset.ImpulseLength / (double)preset.Samplerate * 1000, preset.ImpulseLength).ToArray();
 
-		public ICommand AudioSetupCommand { get; private set; }
-	}
+				// Left
+				var pm = new PlotModel();
+
+			    var line = pm.AddLine(millis, millis.Select(x => 0.0));
+			    line.StrokeThickness = 1.0;
+			    line.Color = OxyColor.FromArgb(50, 0, 0, 0);
+
+				line = pm.AddLine(millis, ir[0].Select(x => (double)x));
+			    line.StrokeThickness = 1.0;
+			    line.Color = OxyColors.Black;
+
+				PlotImpulseLeft = pm;
+
+				// Right
+			    pm = new PlotModel();
+
+			    line = pm.AddLine(millis, millis.Select(x => 0.0));
+			    line.StrokeThickness = 1.0;
+			    line.Color = OxyColor.FromArgb(50, 0, 0, 0);
+
+			    line = pm.AddLine(millis, ir[1].Select(x => (double)x));
+			    line.StrokeThickness = 1.0;
+			    line.Color = OxyColors.Black;
+
+			    PlotImpulseRight = pm;
+
+				Thread.Sleep(100);
+		    }
+	    }
+
+	    private void LoadSettings()
+	    {
+		    try
+		    {
+
+			    if (File.Exists(settingsFile))
+			    {
+				    var jsonString = File.ReadAllText(settingsFile);
+				    var dict = JsonConvert.DeserializeObject<Dictionary<string, string>>(jsonString);
+
+				    if (dict.ContainsKey("AudioSettings"))
+				    {
+					    var config = RealtimeHostConfig.Deserialize(dict["AudioSettings"]);
+					    LoadAudioConfig(config);
+				    }
+
+				    if (dict.ContainsKey(nameof(SelectedInputL)))
+						SelectedInputL = int.Parse(dict[nameof(SelectedInputL)]);
+
+				    if (dict.ContainsKey(nameof(SelectedInputR)))
+						SelectedInputR = int.Parse(dict[nameof(SelectedInputR)]);
+
+				    if (dict.ContainsKey(nameof(SelectedOutputL)))
+						SelectedOutputL = int.Parse(dict[nameof(SelectedOutputL)]);
+
+				    if (dict.ContainsKey(nameof(SelectedOutputR)))
+						SelectedOutputR = int.Parse(dict[nameof(SelectedOutputR)]);
+
+				    if (dict.ContainsKey(nameof(loadSampleDirectory)))
+						loadSampleDirectory = dict[nameof(loadSampleDirectory)];
+
+				    if (dict.ContainsKey(nameof(saveSampleDirectory)))
+						saveSampleDirectory = dict[nameof(saveSampleDirectory)];
+
+				    if (dict.ContainsKey(nameof(VolumeSlider)))
+					    VolumeSlider = double.Parse(dict[nameof(VolumeSlider)], CultureInfo.InvariantCulture);
+			    }
+
+		    }
+		    catch (Exception e)
+		    {
+			    MessageBox.Show("Failed to load user settings, resetting to default", "Error", MessageBoxButton.OK, MessageBoxImage.Exclamation);
+				File.Delete(settingsFile);
+		    }
+	    }
+
+		private void SaveSettings()
+	    {
+		    string currentJson = null;
+		    Action create = () =>
+		    {
+			    var dict = new Dictionary<string, string>();
+			    dict["AudioSettings"] = host.Config != null ? host.Config.Serialize() : "";
+			    dict[nameof(SelectedInputL)] = SelectedInputL.ToString();
+			    dict[nameof(SelectedInputR)] = SelectedInputR.ToString();
+			    dict[nameof(SelectedOutputL)] = SelectedOutputL.ToString();
+			    dict[nameof(SelectedOutputR)] = SelectedOutputR.ToString();
+			    dict[nameof(loadSampleDirectory)] = loadSampleDirectory;
+			    dict[nameof(saveSampleDirectory)] = saveSampleDirectory;
+			    dict[nameof(VolumeSlider)] = VolumeSlider.ToString("0.000", CultureInfo.InvariantCulture);
+				var jsonString = JsonConvert.SerializeObject(dict, Formatting.Indented);
+			    if (jsonString != currentJson)
+			    {
+					if (currentJson != null) // don't save on the first round, only compute the value you indend to save. This is so we don't touch the config every time the app opens
+						File.WriteAllText(settingsFile, jsonString);
+
+					currentJson = jsonString;
+					
+			    }
+		    };
+
+
+			while (true)
+			{
+				create();
+				Thread.Sleep(5000);
+			}
+	    }
+
+		// ---------------------------------------------- Audio Processing ----------------------------------------
+
+		private float[][] ir;
+	    private int idxL, idxR;
+		private float[] bufferL = new float[65536 * 2];
+	    private float[] bufferR = new float[65536 * 2];
+	    private double volumeSlider;
+	    private PlotModel plotImpulseLeft;
+	    private PlotModel plotImpulseRight;
+	    private Brush clipLBrush;
+	    private Brush clipRBrush;
+
+	    private void ProcessAudio(float[][] inputs, float[][] outputs)
+		{
+			if (ir == null)
+				return;
+
+			var selInL = selectedInputL;
+			var selInR = selectedInputR;
+			var selOutL = selectedOutputL;
+			var selOutR = selectedOutputR;
+
+			if (selInL >= 0 && selInL < inputs.Length)
+		    {
+			    if (selOutL >= 0 && selOutL < outputs.Length)
+			    {
+				    bool clipped = false;
+				    ProcessAudioChannel(inputs[selInL], outputs[selOutL], ref idxL, ir[0], bufferL, ref clipped);
+					if (clipped)
+						clipTimeLeft = DateTime.UtcNow;
+
+				}
+		    }
+
+			if (selInR >= 0 && selInR < inputs.Length)
+			{
+				if (selOutR >= 0 && selOutR < outputs.Length)
+				{
+					bool clipped = false;
+					ProcessAudioChannel(inputs[selInR], outputs[selOutR], ref idxR, ir[1], bufferR, ref clipped);
+					if (clipped)
+						clipTimeRight = DateTime.UtcNow;
+				}
+			}
+		}
+
+	    private void ProcessAudioChannel(float[] input, float[] output, ref int idx, float[] ir, float[] buffer, ref bool clipped)
+	    {
+		    var gain = (float)Utils.DB2gain(VolumeDb);
+		    var size = buffer.Length - 1;
+		    var ix = idx;
+
+		    for (int i = 0; i < output.Length; i++)
+		    {
+			    var readPos = (ix + i) & size;
+			    var sample = input[i];
+
+				for (int j = 0; j < ir.Length; j++)
+			    {
+					var writePos = (readPos + j) & size;
+				    buffer[writePos] += sample * ir[j] * gain;
+			    }
+
+			    var outputSample = buffer[readPos];
+			    buffer[readPos] = 0.0f;
+			    if (outputSample < -0.98f)
+			    {
+				    outputSample = -0.98f;
+				    clipped = true;
+			    }
+			    if (outputSample > 0.98f)
+			    {
+				    outputSample = 0.98f;
+				    clipped = true;
+			    }
+			    output[i] = outputSample;
+		    }
+
+		    idx += output.Length;
+		    if (idx > buffer.Length)
+			    idx -= buffer.Length;
+	    }
+    }
 }

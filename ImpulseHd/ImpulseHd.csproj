@@ -55,7 +55,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ImpulseConfig.cs" />
-    <Compile Include="ImpulseProcessor.cs" />
+    <Compile Include="ImpulsePreset.cs" />
+    <Compile Include="ImpulseConfigProcessor.cs" />
+    <Compile Include="ImpulsePresetProcessor.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

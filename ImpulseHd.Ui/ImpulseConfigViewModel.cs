@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
@@ -18,56 +19,56 @@ namespace ImpulseHd.Ui
 {
     class ImpulseConfigViewModel : ViewModelBase
     {
-	    private string name;
-	    private string filePath;
-	    private int sampleSize;
-	    private double samplerate;
-	    private bool zeroPhase;
-	    private readonly SpectrumStage[] spectrumStages;
-	    private readonly OutputStage outputStage;
-	    private PlotModel plotModel;
-	    private double[] rawSample;
+	    private readonly ImpulseConfig impulseConfig;
+
+	    //private SpectrumStage[] spectrumStages;
+	    //private OutputStage outputStage;
+
+	    private string loadSampleDirectory;
+		private PlotModel plotModel;
 	    private Complex[] complexOutput;
 	    private Complex[] realOutput;
 	    private PlotModel plot2;
-
-	    public ImpulseConfigViewModel()
+	    
+	    public ImpulseConfigViewModel(ImpulseConfig config)
 	    {
-			LoadSampleCommand = new DelegateCommand(_ => LoadSample());
+		    this.impulseConfig = config;
+			LoadSampleCommand = new DelegateCommand(_ => LoadSampleDialog());
 
-		}
+		    LoadSampleData();
+	    }
 	
 	    public string Name
 	    {
-		    get { return name; }
-		    set { name = value; NotifyPropertyChanged(); }
+		    get { return impulseConfig.Name; }
+		    set
+		    {
+			    impulseConfig.Name = value;
+				NotifyPropertyChanged();
+		    }
 	    }
 
 	    public string FilePath
 	    {
-		    get { return filePath; }
-		    set { filePath = value; NotifyPropertyChanged(); }
-		}
-
-	    public int SampleSize
-	    {
-		    get { return sampleSize; }
-		    set { sampleSize = value; NotifyPropertyChanged(); }
+		    get { return impulseConfig.FilePath; }
+		    set
+		    {
+			    impulseConfig.FilePath = value;
+				base.NotifyPropertyChanged();
+		    }
 		}
 
 	    public double Samplerate
 	    {
-		    get { return samplerate; }
-		    set { samplerate = value; NotifyPropertyChanged(); }
+		    get { return impulseConfig.Samplerate; }
+		    set
+			{
+				impulseConfig.Samplerate = value;
+				NotifyPropertyChanged();
+			}
 		}
 
-	    public bool ZeroPhase
-	    {
-		    get { return zeroPhase; }
-		    set { zeroPhase = value; NotifyPropertyChanged(); }
-		}
-
-	    public SpectrumStage[] SpectrumStages
+	    /*public SpectrumStage[] SpectrumStages
 	    {
 		    get { return spectrumStages; }
 	    }
@@ -75,7 +76,7 @@ namespace ImpulseHd.Ui
 	    public OutputStage OutputStage
 	    {
 		    get { return outputStage; }
-	    }
+	    }*/
 
 	    public PlotModel Plot1
 	    {
@@ -91,25 +92,15 @@ namespace ImpulseHd.Ui
 
 	    public ICommand LoadSampleCommand { get; private set; }
 
+		public Action OnUpdateCallback { get; set; }
+	    public Action<string> OnLoadSampleCallback { get; set; }
 
-	    private void LoadSample()
+		public void LoadSampleData()
 	    {
-			var openFileDialog = new OpenFileDialog();
-		    if (openFileDialog.ShowDialog() == true)
-			    FilePath = openFileDialog.FileName;
+		    if (string.IsNullOrWhiteSpace(FilePath) || !File.Exists(FilePath))
+			    return;
 
-		    LoadSampleData();
-	    }
-
-	    public void LoadSampleData()
-	    {
-			var format = WaveFiles.ReadWaveFormat(FilePath);
-		    if (format.SampleRate != 48000)
-			    throw new Exception("Only 48Khz files supported currently");
-
-		    Samplerate = format.SampleRate;
-			this.rawSample = WaveFiles.ReadWaveFile(FilePath)[0];
-		    this.rawSample = rawSample.Concat(new double[65536 - rawSample.Length]).ToArray();
+			impulseConfig.LoadSampleData();
 		    Update();
 		}
 
@@ -119,18 +110,35 @@ namespace ImpulseHd.Ui
 		    Update();
 	    }
 
-	    private void Update()
+	    private void LoadSampleDialog()
+	    {
+		    var openFileDialog = new OpenFileDialog();
+		    openFileDialog.RestoreDirectory = true;
+		    openFileDialog.InitialDirectory = loadSampleDirectory;
+
+			if (openFileDialog.ShowDialog() == true)
+		    {
+			    FilePath = openFileDialog.FileName;
+			    loadSampleDirectory = Path.GetDirectoryName(FilePath);
+				OnLoadSampleCallback?.Invoke(FilePath);
+			}
+
+		    LoadSampleData();
+	    }
+
+		private void Update()
 	    {
 		    ComputeFft();
-	    }
+			OnUpdateCallback?.Invoke();
+		}
 
 	    private void ComputeFft()
 	    {
-		    if (rawSample == null)
+		    if (impulseConfig.RawSampleData == null)
 			    return;
 
-		    var fft = new LowProfile.Fourier.Double.Transform(65536);
-		    var values = rawSample.Select(x => new Complex(x, 0)).ToArray();
+		    var fft = new Transform(65536);
+		    var values = impulseConfig.RawSampleData.Select(x => new Complex(x, 0)).ToArray();
 		    realOutput = new Complex[values.Length];
 
 			complexOutput = new Complex[values.Length];
@@ -148,11 +156,16 @@ namespace ImpulseHd.Ui
 			var realData = data.Select(x => x.Real).Take(sampleCount).ToArray();
 		    var millis = Utils.Linspace(0, time, realData.Length).ToArray();
 		    var pm = new PlotModel();
-		    var line = pm.AddLine(millis, realData);
+
+			var line = pm.AddLine(millis, millis.Select(x => 0.0));
+		    line.StrokeThickness = 1.0;
+		    line.Color = OxyColor.FromArgb(50, 0, 0, 0);
+
+			line = pm.AddLine(millis, realData);
 		    line.StrokeThickness = 1.0;
 			line.Color = OxyColors.Black;
-		    return pm;
-
+			
+			return pm;
 		}
 
 	    private PlotModel PlotFft(Complex[] data)
