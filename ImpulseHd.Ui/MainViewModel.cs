@@ -10,6 +10,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using AudioLib;
@@ -95,7 +96,23 @@ namespace ImpulseHd.Ui
 			t3.Start();
 		}
 		
-	    public ObservableCollection<ImpulseConfigViewModel> ImpulseConfig { get; private set; }
+	    public ObservableCollection<ImpulseConfigViewModel> ImpulseConfig
+		{
+			get;
+			private set;
+		}
+
+	    public ImpulseConfigViewModel SelectedImpulse
+	    {
+		    get { return selectedImpulse; }
+		    set
+		    {
+			    selectedImpulse = value;
+				NotifyPropertyChanged();
+			    NotifyPropertyChanged(nameof(PlotTop));
+			    NotifyPropertyChanged(nameof(PlotBottom));
+			}
+	    }
 
 	    public ICommand AudioSetupCommand { get; private set; }
 		public ICommand ExportWavCommand { get; private set; }
@@ -207,13 +224,23 @@ namespace ImpulseHd.Ui
 	    public PlotModel PlotImpulseLeft
 	    {
 		    get { return plotImpulseLeft; }
-		    set { plotImpulseLeft = value; NotifyPropertyChanged(); }
+		    set
+		    {
+			    plotImpulseLeft = value;
+				NotifyPropertyChanged();
+			    NotifyPropertyChanged(nameof(PlotTop));
+			}
 	    }
 
 	    public PlotModel PlotImpulseRight
 	    {
 		    get { return plotImpulseRight; }
-		    set { plotImpulseRight = value; NotifyPropertyChanged(); }
+		    set
+		    {
+			    plotImpulseRight = value;
+				NotifyPropertyChanged();
+			    NotifyPropertyChanged(nameof(PlotBottom));
+			}
 	    }
 
 	    public Brush ClipLBrush
@@ -228,8 +255,22 @@ namespace ImpulseHd.Ui
 		    set { clipRBrush = value; NotifyPropertyChanged(); }
 	    }
 
+	    public TabItem SelectedTab
+	    {
+		    get { return selectedTab; }
+		    set
+		    {
+			    selectedTab = value;
+				NotifyPropertyChanged();
+				NotifyPropertyChanged(nameof(PlotTop));
+			    NotifyPropertyChanged(nameof(PlotBottom));
+			}
+	    }
 
-	    private void ExportWav()
+	    public PlotModel PlotTop => selectedTab?.Header?.ToString() == "Master" ? PlotImpulseLeft : SelectedImpulse?.Plot1;
+	    public PlotModel PlotBottom => selectedTab?.Header?.ToString() == "Master" ? PlotImpulseRight : SelectedImpulse?.Plot2;
+
+		private void ExportWav()
 	    {
 			var saveFileDialog = new SaveFileDialog();
 		    saveFileDialog.Filter = "Wav file (*.wav)|*.wav";
@@ -483,6 +524,8 @@ namespace ImpulseHd.Ui
 	    private PlotModel plotImpulseRight;
 	    private Brush clipLBrush;
 	    private Brush clipRBrush;
+	    private TabItem selectedTab;
+	    private ImpulseConfigViewModel selectedImpulse;
 
 	    private void ProcessAudio(float[][] inputs, float[][] outputs)
 		{
