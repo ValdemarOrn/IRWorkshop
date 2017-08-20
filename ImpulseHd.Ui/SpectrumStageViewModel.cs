@@ -10,10 +10,12 @@ namespace ImpulseHd.Ui
 	public class SpectrumStageViewModel : ViewModelBase
 	{
 		private readonly SpectrumStage stage;
+		private readonly Action onUpdateCallback;
 
-		public SpectrumStageViewModel(SpectrumStage stage, int index)
+		public SpectrumStageViewModel(SpectrumStage stage, int index, Action onUpdateCallback)
 		{
 			this.stage = stage;
+			this.onUpdateCallback = onUpdateCallback;
 			Index = index;
 		}
 
@@ -22,19 +24,19 @@ namespace ImpulseHd.Ui
 		public bool IsEnabled
 		{
 			get { return stage.IsEnabled; }
-			set { stage.IsEnabled = value; NotifyPropertyChanged(); }
+			set { stage.IsEnabled = value; NotifyPropertyChanged(); onUpdateCallback(); }
 		}
 
 		public bool Solo
 		{
 			get { return stage.Solo; }
-			set { stage.Solo = value; NotifyPropertyChanged(); }
+			set { stage.Solo = value; NotifyPropertyChanged(); onUpdateCallback(); }
 		}
 
 		public bool MinimumPhase
 		{
 			get { return stage.MinimumPhase; }
-			set { stage.MinimumPhase = value; NotifyPropertyChanged(); }
+			set { stage.MinimumPhase = value; NotifyPropertyChanged(); onUpdateCallback(); }
 		}
 
 
@@ -42,37 +44,37 @@ namespace ImpulseHd.Ui
 		public double MinFreq
 		{
 			get { return stage.MinFreq; }
-			set { stage.MinFreq = value; NotifyPropertyChanged(); NotifyPropertyChanged(nameof(MinFreqReadout)); }
+			set { stage.MinFreq = value; NotifyPropertyChanged(); NotifyPropertyChanged(nameof(MinFreqReadout)); onUpdateCallback(); }
 		}
 
 		public double MaxFreq
 		{
 			get { return stage.MaxFreq; }
-			set { stage.MaxFreq = value; NotifyPropertyChanged(); NotifyPropertyChanged(nameof(MaxFreqReadout)); }
+			set { stage.MaxFreq = value; NotifyPropertyChanged(); NotifyPropertyChanged(nameof(MaxFreqReadout)); onUpdateCallback(); }
 		}
 
 		public double LowBlendOcts
 		{
 			get { return stage.LowBlendOcts; }
-			set { stage.LowBlendOcts = value; NotifyPropertyChanged(); NotifyPropertyChanged(nameof(LowBlendOctsReadout)); }
+			set { stage.LowBlendOcts = value; NotifyPropertyChanged(); NotifyPropertyChanged(nameof(LowBlendOctsReadout)); onUpdateCallback(); }
 		}
 
 		public double HighBlendOcts
 		{
 			get { return stage.HighBlendOcts; }
-			set { stage.HighBlendOcts = value; NotifyPropertyChanged(); NotifyPropertyChanged(nameof(HighBlendOctsReadout)); }
+			set { stage.HighBlendOcts = value; NotifyPropertyChanged(); NotifyPropertyChanged(nameof(HighBlendOctsReadout)); onUpdateCallback(); }
 		}
 
 		public double Gain
 		{
 			get { return stage.Gain; }
-			set { stage.Gain = value; NotifyPropertyChanged(); NotifyPropertyChanged(nameof(GainReadout)); }
+			set { stage.Gain = value; NotifyPropertyChanged(); NotifyPropertyChanged(nameof(GainReadout)); onUpdateCallback(); }
 		}
 
 		public double DelaySamples
 		{
 			get { return stage.DelaySamples; }
-			set { stage.DelaySamples = value; NotifyPropertyChanged(); NotifyPropertyChanged(nameof(DelaySamplesReadout)); }
+			set { stage.DelaySamples = value; NotifyPropertyChanged(); NotifyPropertyChanged(nameof(DelaySamplesReadout)); onUpdateCallback(); }
 		}
 
 
@@ -80,50 +82,50 @@ namespace ImpulseHd.Ui
 		public double GainSmoothingSamples
 		{
 			get { return stage.GainSmoothingSamples; }
-			set { stage.GainSmoothingSamples = value; NotifyPropertyChanged(); NotifyPropertyChanged(nameof(GainSmoothingSamplesReadout)); }
+			set { stage.GainSmoothingSamples = value; NotifyPropertyChanged(); NotifyPropertyChanged(nameof(GainSmoothingSamplesReadout)); onUpdateCallback(); }
 		}
 
 		public double GainSmoothingAmount
 		{
 			get { return stage.GainSmoothingAmount; }
-			set { stage.GainSmoothingAmount = value; NotifyPropertyChanged(); NotifyPropertyChanged(nameof(GainSmoothingAmountReadout)); }
+			set { stage.GainSmoothingAmount = value; NotifyPropertyChanged(); NotifyPropertyChanged(nameof(GainSmoothingAmountReadout)); onUpdateCallback(); }
 		}
 
 		public double GainStretchMode
 		{
 			get { return stage.GainStretchMode; }
-			set { stage.GainStretchMode = value; NotifyPropertyChanged(); NotifyPropertyChanged(nameof(GainStretchModeReadout)); }
+			set { stage.GainStretchMode = value; NotifyPropertyChanged(); NotifyPropertyChanged(nameof(GainStretchModeReadout)); onUpdateCallback(); }
 		}
 
 
 		public double RandomGainSmoothingSamples
 		{
 			get { return stage.RandomGainSmoothingSamples; }
-			set { stage.RandomGainSmoothingSamples = value; NotifyPropertyChanged(); NotifyPropertyChanged(nameof(RandomGainSmoothingSamplesReadout)); }
+			set { stage.RandomGainSmoothingSamples = value; NotifyPropertyChanged(); NotifyPropertyChanged(nameof(RandomGainSmoothingSamplesReadout)); onUpdateCallback(); }
 		}
 
 		public double RandomGainSeed
 		{
 			get { return stage.RandomGainSeed; }
-			set { stage.RandomGainSeed = value; NotifyPropertyChanged(); NotifyPropertyChanged(nameof(RandomGainSeedReadout)); }
+			set { stage.RandomGainSeed = value; NotifyPropertyChanged(); NotifyPropertyChanged(nameof(RandomGainSeedReadout)); onUpdateCallback(); }
 		}
 
 		public double RandomGainAmount
 		{
 			get { return stage.RandomGainAmount; }
-			set { stage.RandomGainAmount = value; NotifyPropertyChanged(); NotifyPropertyChanged(nameof(RandomGainAmountReadout)); }
+			set { stage.RandomGainAmount = value; NotifyPropertyChanged(); NotifyPropertyChanged(nameof(RandomGainAmountReadout)); onUpdateCallback(); }
 		}
 
 		public double RandomSkewAmount
 		{
 			get { return stage.RandomSkewAmount; }
-			set { stage.RandomSkewAmount = value; NotifyPropertyChanged(); NotifyPropertyChanged(nameof(RandomSkewAmountReadout)); }
+			set { stage.RandomSkewAmount = value; NotifyPropertyChanged(); NotifyPropertyChanged(nameof(RandomSkewAmountReadout)); onUpdateCallback(); }
 		}
 
 		public double RandomGainMode
 		{
 			get { return stage.RandomGainMode; }
-			set { stage.RandomGainMode = value; NotifyPropertyChanged(); NotifyPropertyChanged(nameof(RandomGainModeReadout)); }
+			set { stage.RandomGainMode = value; NotifyPropertyChanged(); NotifyPropertyChanged(nameof(RandomGainModeReadout)); onUpdateCallback(); }
 		}
 
 
@@ -131,19 +133,19 @@ namespace ImpulseHd.Ui
 		public double FrequencySkew
 		{
 			get { return stage.FrequencySkew; }
-			set { stage.FrequencySkew = value; NotifyPropertyChanged(); NotifyPropertyChanged(nameof(FrequencySkewReadout)); }
+			set { stage.FrequencySkew = value; NotifyPropertyChanged(); NotifyPropertyChanged(nameof(FrequencySkewReadout)); onUpdateCallback(); }
 		}
 
 		public double FrequencySkewMode
 		{
 			get { return stage.FrequencySkewMode; }
-			set { stage.FrequencySkewMode = value; NotifyPropertyChanged(); NotifyPropertyChanged(nameof(FrequencySkewModeReadout)); }
+			set { stage.FrequencySkewMode = value; NotifyPropertyChanged(); NotifyPropertyChanged(nameof(FrequencySkewModeReadout)); onUpdateCallback(); }
 		}
 
 		public bool PinToHighFrequency
 		{
 			get { return stage.PinToHighFrequency; }
-			set { stage.PinToHighFrequency = value; NotifyPropertyChanged(); }
+			set { stage.PinToHighFrequency = value; NotifyPropertyChanged(); onUpdateCallback(); }
 		}
 
 
@@ -151,25 +153,25 @@ namespace ImpulseHd.Ui
 		public double PhaseBands
 		{
 			get { return stage.PhaseBands; }
-			set { stage.PhaseBands = value; NotifyPropertyChanged(); NotifyPropertyChanged(nameof(PhaseBandsReadout)); }
+			set { stage.PhaseBands = value; NotifyPropertyChanged(); NotifyPropertyChanged(nameof(PhaseBandsReadout)); onUpdateCallback(); }
 		}
 
 		public double PhaseBandDelayAmount
 		{
 			get { return stage.PhaseBandDelayAmount; }
-			set { stage.PhaseBandDelayAmount = value; NotifyPropertyChanged(); NotifyPropertyChanged(nameof(PhaseBandDelayAmountReadout)); }
+			set { stage.PhaseBandDelayAmount = value; NotifyPropertyChanged(); NotifyPropertyChanged(nameof(PhaseBandDelayAmountReadout)); onUpdateCallback(); }
 		}
 
 		public double PhaseBandFreqTrack
 		{
 			get { return stage.PhaseBandFreqTrack; }
-			set { stage.PhaseBandFreqTrack = value; NotifyPropertyChanged(); NotifyPropertyChanged(nameof(PhaseBandFreqTrackReadout)); }
+			set { stage.PhaseBandFreqTrack = value; NotifyPropertyChanged(); NotifyPropertyChanged(nameof(PhaseBandFreqTrackReadout)); onUpdateCallback(); }
 		}
 
 		public double PhaseBandSeed
 		{
 			get { return stage.PhaseBandSeed; }
-			set { stage.PhaseBandSeed = value; NotifyPropertyChanged(); NotifyPropertyChanged(nameof(PhaseBandSeedReadout)); }
+			set { stage.PhaseBandSeed = value; NotifyPropertyChanged(); NotifyPropertyChanged(nameof(PhaseBandSeedReadout)); onUpdateCallback(); }
 		}
 
 		

@@ -22,19 +22,18 @@ namespace ImpulseHd.Ui
     class ImpulseConfigViewModel : ViewModelBase
     {
 	    private readonly ImpulseConfig impulseConfig;
+	    private readonly LastRetainRateLimiter updateRateLimiter;
+		//private OutputStage outputStage;
 
-	    //private OutputStage outputStage;
-
-	    private string loadSampleDirectory;
+		private string loadSampleDirectory;
 		private PlotModel plotModel;
-	    private Complex[] complexOutput;
-	    private Complex[] realOutput;
 	    private PlotModel plot2;
 	    private int selectedSpectrumStage;
-
+	    
 	    public ImpulseConfigViewModel(ImpulseConfig config)
 	    {
-		    this.impulseConfig = config;
+		    this.updateRateLimiter = new LastRetainRateLimiter(100, UpdateInner);
+			this.impulseConfig = config;
 			LoadSampleCommand = new DelegateCommand(_ => LoadSampleDialog());
 		    AddStageCommand = new DelegateCommand(_ => AddStage());
 		    RemoveStageCommand = new DelegateCommand(_ => RemoveStage());
@@ -42,7 +41,10 @@ namespace ImpulseHd.Ui
 		    LoadSampleData();
 	    }
 
-	    public string Name
+	    public Complex[] FftSignal { get; private set; }
+	    public double[] TimeSignal { get; private set; }
+
+		public string Name
 	    {
 		    get { return impulseConfig.Name; }
 		    set
@@ -72,7 +74,7 @@ namespace ImpulseHd.Ui
 			}
 		}
 
-	    public SpectrumStageViewModel[] SpectrumStages => impulseConfig.SpectrumStages.Select((x, idx) => new SpectrumStageViewModel(x, idx + 1)).ToArray();
+	    public SpectrumStageViewModel[] SpectrumStages => impulseConfig.SpectrumStages.Select((x, idx) => new SpectrumStageViewModel(x, idx + 1, Update)).ToArray();
 
 	    public int SelectedSpectrumStageIndex
 		{
@@ -156,17 +158,23 @@ namespace ImpulseHd.Ui
 	    }
 
 		private void Update()
-	    {
-		    ComputeFft();
-			OnUpdateCallback?.Invoke();
+		{
+			updateRateLimiter.Pulse();
 		}
 
-	    private void ComputeFft()
+	    private void UpdateInner()
+	    {
+		    Console.WriteLine("{0:HH:mm:ss.fff} - Pow!", DateTime.UtcNow);
+		    ComputeFft();
+		    OnUpdateCallback?.Invoke();
+	    }
+
+		private void ComputeFft()
 	    {
 		    if (impulseConfig.RawSampleData == null)
 			    return;
 
-		    /*var processor = new ImpulseConfigProcessor(impulseConfig);
+		    var processor = new ImpulseConfigProcessor(impulseConfig);
 
 		    for (int i = 0; i < impulseConfig.SpectrumStages.Length; i++)
 		    {
@@ -176,26 +184,34 @@ namespace ImpulseHd.Ui
 			    {
 				    var complexSignal = processor.FftSignal;
 				    var realSignal = processor.TimeSignal;
-			    }
-		    }*/
+				    Plot1 = PlotFft(complexSignal);
+				    Plot2 = PlotReal(realSignal);
+				}
+		    }
 
-		    var fft = new Transform(65536);
-		    var values = impulseConfig.RawSampleData.Select(x => new Complex(x, 0)).ToArray();
-		    realOutput = new Complex[values.Length];
+		    if (impulseConfig.SpectrumStages.Length == 0 || SelectedSpectrumStageIndex < 0)
+		    {
 
-			complexOutput = new Complex[values.Length];
-			fft.FFT(values, complexOutput);
-		    Plot1 = PlotFft(complexOutput);
+			    var complexSignal = processor.FftSignal;
+			    var realSignal = processor.TimeSignal;
+			    Plot1 = PlotFft(complexSignal);
+			    Plot2 = PlotReal(realSignal);
 
-			fft.IFFT(complexOutput, realOutput);
-		    Plot2 = PlotReal(realOutput);
+			    FftSignal = complexSignal;
+			    TimeSignal = realSignal;
+		    }
+		    else
+		    {
+			    FftSignal = processor.FftSignal;
+			    TimeSignal = processor.TimeSignal;
+		    }
 	    }
 
-	    private PlotModel PlotReal(Complex[] data)
+	    private PlotModel PlotReal(double[] data)
 	    {
 		    var sampleCount = 8192;
 		    var time = sampleCount / Samplerate * 1000;
-			var realData = data.Select(x => x.Real).Take(sampleCount).ToArray();
+			var realData = data.Take(sampleCount).ToArray();
 		    var millis = Utils.Linspace(0, time, realData.Length).ToArray();
 		    var pm = new PlotModel();
 
@@ -213,12 +229,17 @@ namespace ImpulseHd.Ui
 	    private PlotModel PlotFft(Complex[] data)
 	    {
 		    var magData = data.Take(data.Length / 2).Select(x => x.Abs).Select(x => Utils.Gain2DB(x)).ToArray();
-		    var hz = Utils.Linspace(0, 0.5, magData.Length).Select(x => x * Samplerate).ToArray();
+		    var phaseData = data.Take(data.Length / 2).Select(x => x.Arg).ToArray();
+		    phaseData = AudioLib.Utils.UnrollPhase(phaseData);
+			var hz = Utils.Linspace(0, 0.5, magData.Length).Select(x => x * Samplerate).ToArray();
 			var pm = new PlotModel();
 			pm.Axes.Add(new LogarithmicAxis { Position = AxisPosition.Bottom, Minimum = 10});
+		    var leftAxis = new LinearAxis {Position = AxisPosition.Left, Key = "LeftAxis"};
+		    var rightAxis = new LinearAxis {Position = AxisPosition.Right, Key = "RightAxis", Minimum = -15, Maximum = 0};
+			pm.Axes.Add(leftAxis);
+		    pm.Axes.Add(rightAxis);
 
-
-		    var line = pm.AddLine(hz, hz.Select(x => 0.0));
+			var line = pm.AddLine(hz, hz.Select(x => 0.0));
 		    line.StrokeThickness = 1.0;
 		    line.Color = OxyColor.FromArgb(50, 0, 0, 0);
 
@@ -234,9 +255,15 @@ namespace ImpulseHd.Ui
 		    line.StrokeThickness = 1.0;
 		    line.Color = OxyColor.FromArgb(50, 0, 0, 0);
 
+		    line = pm.AddLine(hz, phaseData);
+		    line.StrokeThickness = 1.0;
+		    line.Color = OxyColors.LightGreen;
+		    line.YAxisKey = "RightAxis";
+
 			line = pm.AddLine(hz, magData);
 		    line.StrokeThickness = 1.0;
-		    line.Color = OxyColors.Black;
+		    line.Color = OxyColors.DarkBlue;
+		    line.YAxisKey = "LeftAxis";
 			return pm;
 		}
     }

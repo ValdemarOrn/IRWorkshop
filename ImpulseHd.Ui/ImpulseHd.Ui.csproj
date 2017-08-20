@@ -5,7 +5,7 @@
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{12D0DAC1-49E5-400A-A38C-F5F8B8D78AD6}</ProjectGuid>
-    <OutputType>WinExe</OutputType>
+    <OutputType>Exe</OutputType>
     <RootNamespace>ImpulseHd.Ui</RootNamespace>
     <AssemblyName>ImpulseHd.Ui</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
@@ -33,6 +33,10 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup>
+    <StartupObject />
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Newtonsoft.Json, Version=10.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
@@ -65,6 +69,7 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="ImpulseConfigViewModel.cs" />
+    <Compile Include="LastRetainRateLimiter.cs" />
     <Compile Include="Logging.cs" />
     <Compile Include="MainViewModel.cs" />
     <Compile Include="MasterView.xaml.cs">
@@ -159,4 +164,7 @@
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PreBuildEvent>copy $(SolutionDir)ImpulseHd.Convolution\bin\Release\x64\ImpulseHd.Convolution.dll $(TargetDir)ImpulseHd.Convolution.dll</PreBuildEvent>
+  </PropertyGroup>
 </Project>

@@ -56,8 +56,8 @@ namespace ImpulseHd
 
 			var nyquist = samplerate / 2;
 			var absMaxIndex = fftSignal.Length / 2;
-			var minIndex = (int)Math.Round(stage.MinFreq / (double)nyquist * absMaxIndex);
-			var maxIndex = (int)Math.Round(stage.MaxFreq / (double)nyquist * absMaxIndex);
+			var minIndex = (int)Math.Round(stage.MinFreqTransformed / (double)nyquist * absMaxIndex);
+			var maxIndex = (int)Math.Round(stage.MaxFreqTransformed / (double)nyquist * absMaxIndex);
 
 			if (minIndex < 1) minIndex = 1;
 			if (maxIndex < 1) maxIndex = 1;
@@ -66,7 +66,7 @@ namespace ImpulseHd
 
 			for (int i = minIndex; i <= maxIndex; i++)
 			{
-				var newVal = fftSignal[i] * Complex.CExp(-2 * Math.PI * i * stage.DelaySamples / (double)ImpulseConfig.MaxSampleLength);
+				var newVal = fftSignal[i] * Complex.CExp(-2 * Math.PI * i * stage.DelaySamplesTransformed / (double)ImpulseConfig.MaxSampleLength);
 				fftSignal[i] = newVal;
 				fftSignal[fftSignal.Length - i].Arg = -newVal.Arg;
 			}

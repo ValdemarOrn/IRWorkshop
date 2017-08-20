@@ -30,9 +30,9 @@ namespace ImpulseHd.Ui
 	    private readonly ImpulsePreset preset;
 		private readonly RealtimeHost host;
 	    private readonly string settingsFile;
-	    private readonly AutoResetEvent updateEvent;
+		private readonly LastRetainRateLimiter updateRateLimiter;
 
-	    private string[] inputNames;
+		private string[] inputNames;
 	    private string[] outputNames;
 	    
 	    private double samplerateSlider;
@@ -45,12 +45,19 @@ namespace ImpulseHd.Ui
 	    private string saveSampleDirectory;
 	    private DateTime clipTimeLeft;
 	    private DateTime clipTimeRight;
+	    private double volumeSlider;
+	    private PlotModel plotImpulseLeft;
+	    private PlotModel plotImpulseRight;
+	    private Brush clipLBrush;
+	    private Brush clipRBrush;
+	    private TabItem selectedTab;
+	    private ImpulseConfigViewModel selectedImpulse;
 
 		public MainViewModel()
 		{
 			settingsFile = Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), "settings.json");
-			updateEvent = new AutoResetEvent(true);
-
+			this.updateRateLimiter = new LastRetainRateLimiter(100, UpdateSample);
+			
 			var ic = new ImpulseConfig() {Name = "My Impulse 123", Samplerate = 48000, FilePath = @"E:\Sound\Samples\Impulses\catharsis-awesometime-fredman\48Khz\2off-pres5.wav" };
 			preset = new ImpulsePreset();
 		    preset.ImpulseConfig = new[] {ic};
@@ -60,7 +67,7 @@ namespace ImpulseHd.Ui
 			ImpulseConfig = new ObservableCollection<ImpulseConfigViewModel>();
 			ImpulseConfig.Add(new ImpulseConfigViewModel(ic)
 			{
-				OnUpdateCallback = UpdateSample,
+				OnUpdateCallback = () => updateRateLimiter.Pulse(),
 				OnLoadSampleCallback = dir => loadSampleDirectory = Path.GetDirectoryName(dir)
 			});
 			ImpulseConfig[0].LoadSampleData();
@@ -86,10 +93,6 @@ namespace ImpulseHd.Ui
 		    var t = new Thread(SaveSettings) {IsBackground = true};
 			t.Priority = ThreadPriority.Lowest;
 			t.Start();
-
-			var t2 = new Thread(UpdateSampleLoop) { IsBackground = true };
-			t2.Priority = ThreadPriority.Lowest;
-			t2.Start();
 
 			var t3 = new Thread(UpdateClipIndicators) { IsBackground = true };
 			t3.Priority = ThreadPriority.Lowest;
@@ -173,7 +176,7 @@ namespace ImpulseHd.Ui
 
 				NotifyPropertyChanged();
 			    NotifyPropertyChanged(nameof(ImpulseLengthReadout));
-				UpdateSample();
+			    updateRateLimiter.Pulse();
 			}
 	    }
 
@@ -299,7 +302,7 @@ namespace ImpulseHd.Ui
 				var config = RealtimeHostConfig.CreateConfig(host.Config);
 				LoadAudioConfig(config);
 		    }
-		    catch (Exception e)
+		    catch (Exception)
 		    {
 				var config = RealtimeHostConfig.CreateConfig();
 			    LoadAudioConfig(config);
@@ -370,11 +373,6 @@ namespace ImpulseHd.Ui
 			if (host.StreamState == StreamState.Open)
 				host.StartStream();
 		}
-		
-	    private void UpdateSample()
-	    {
-		    updateEvent.Set();
-		}
 
 		private void UpdateClipIndicators()
 	    {
@@ -401,45 +399,38 @@ namespace ImpulseHd.Ui
 
 	    }
 
-		private void UpdateSampleLoop()
-	    {
-		    while (true)
-		    {
-			    updateEvent.WaitOne();
-					
-				var processor = new ImpulsePresetProcessor(preset);
-				var output = processor.Process();
-				ir = new[] {output[0].Select(x => (float)x).ToArray(), output[1].Select(x => (float)x).ToArray()};
-			    var millis = Utils.Linspace(0, preset.ImpulseLength / (double)preset.Samplerate * 1000, preset.ImpulseLength).ToArray();
+		private void UpdateSample()
+	    {	
+			var processor = new ImpulsePresetProcessor(preset);
+			var output = processor.Process();
+			ir = new[] {output[0].Select(x => (float)x).ToArray(), output[1].Select(x => (float)x).ToArray()};
+			var millis = Utils.Linspace(0, preset.ImpulseLength / (double)preset.Samplerate * 1000, preset.ImpulseLength).ToArray();
 
-				// Left
-				var pm = new PlotModel();
+			// Left
+			var pm = new PlotModel();
 
-			    var line = pm.AddLine(millis, millis.Select(x => 0.0));
-			    line.StrokeThickness = 1.0;
-			    line.Color = OxyColor.FromArgb(50, 0, 0, 0);
+			var line = pm.AddLine(millis, millis.Select(x => 0.0));
+			line.StrokeThickness = 1.0;
+			line.Color = OxyColor.FromArgb(50, 0, 0, 0);
 
-				line = pm.AddLine(millis, ir[0].Select(x => (double)x));
-			    line.StrokeThickness = 1.0;
-			    line.Color = OxyColors.Black;
+			line = pm.AddLine(millis, ir[0].Select(x => (double)x));
+			line.StrokeThickness = 1.0;
+			line.Color = OxyColors.Black;
 
-				PlotImpulseLeft = pm;
+			PlotImpulseLeft = pm;
 
-				// Right
-			    pm = new PlotModel();
+			// Right
+			pm = new PlotModel();
 
-			    line = pm.AddLine(millis, millis.Select(x => 0.0));
-			    line.StrokeThickness = 1.0;
-			    line.Color = OxyColor.FromArgb(50, 0, 0, 0);
+			line = pm.AddLine(millis, millis.Select(x => 0.0));
+			line.StrokeThickness = 1.0;
+			line.Color = OxyColor.FromArgb(50, 0, 0, 0);
 
-			    line = pm.AddLine(millis, ir[1].Select(x => (double)x));
-			    line.StrokeThickness = 1.0;
-			    line.Color = OxyColors.Black;
+			line = pm.AddLine(millis, ir[1].Select(x => (double)x));
+			line.StrokeThickness = 1.0;
+			line.Color = OxyColors.Black;
 
-			    PlotImpulseRight = pm;
-
-				Thread.Sleep(100);
-		    }
+			PlotImpulseRight = pm;
 	    }
 
 	    private void LoadSettings()
@@ -481,7 +472,7 @@ namespace ImpulseHd.Ui
 			    }
 
 		    }
-		    catch (Exception e)
+		    catch (Exception)
 		    {
 			    Logging.ShowMessage("Failed to load user settings, resetting to default", LogType.Warning);
 				File.Delete(settingsFile);
@@ -524,33 +515,34 @@ namespace ImpulseHd.Ui
 		// ---------------------------------------------- Audio Processing ----------------------------------------
 
 		private float[][] ir;
-	    private int idxL, idxR;
+	    private int bufferIndexL, bufferIndexR;
 		private float[] bufferL = new float[65536 * 2];
 	    private float[] bufferR = new float[65536 * 2];
-	    private double volumeSlider;
-	    private PlotModel plotImpulseLeft;
-	    private PlotModel plotImpulseRight;
-	    private Brush clipLBrush;
-	    private Brush clipRBrush;
-	    private TabItem selectedTab;
-	    private ImpulseConfigViewModel selectedImpulse;
-
+	    
 	    private void ProcessAudio(float[][] inputs, float[][] outputs)
 		{
 			if (ir == null)
+				return;
+
+			var irLeft = ir[0];
+			var irRight = ir[1];
+			if (irLeft == null || irRight == null || irLeft.Length != irRight.Length)
 				return;
 
 			var selInL = selectedInputL;
 			var selInR = selectedInputR;
 			var selOutL = selectedOutputL;
 			var selOutR = selectedOutputR;
+			var gain = (float)Utils.DB2gain(VolumeDb);
 
 			if (selInL >= 0 && selInL < inputs.Length)
 		    {
 			    if (selOutL >= 0 && selOutL < outputs.Length)
 			    {
 				    bool clipped = false;
-				    ProcessAudioChannel(inputs[selInL], outputs[selOutL], ref idxL, ir[0], bufferL, ref clipped);
+				    //ProcessAudioChannel(inputs[selInL], outputs[selOutL], ref idxL, ir[0], bufferL, ref clipped);
+					ProcessConv.Process(inputs[selInL], outputs[selOutL], gain, ref bufferIndexL, irLeft, bufferL, ref clipped);
+
 					if (clipped)
 						clipTimeLeft = DateTime.UtcNow;
 
@@ -562,14 +554,15 @@ namespace ImpulseHd.Ui
 				if (selOutR >= 0 && selOutR < outputs.Length)
 				{
 					bool clipped = false;
-					ProcessAudioChannel(inputs[selInR], outputs[selOutR], ref idxR, ir[1], bufferR, ref clipped);
+					//ProcessAudioChannel(inputs[selInR], outputs[selOutR], ref idxR, ir[1], bufferR, ref clipped);
+					ProcessConv.Process(inputs[selInR], outputs[selOutR], gain, ref bufferIndexR, irRight, bufferR, ref clipped);
 					if (clipped)
 						clipTimeRight = DateTime.UtcNow;
 				}
 			}
 		}
 
-	    private void ProcessAudioChannel(float[] input, float[] output, ref int idx, float[] ir, float[] buffer, ref bool clipped)
+	    /*private void ProcessAudioChannel(float[] input, float[] output, ref int idx, float[] ir, float[] buffer, ref bool clipped)
 	    {
 		    var gain = (float)Utils.DB2gain(VolumeDb);
 		    var size = buffer.Length - 1;
@@ -604,6 +597,6 @@ namespace ImpulseHd.Ui
 		    idx += output.Length;
 		    if (idx > buffer.Length)
 			    idx -= buffer.Length;
-	    }
+	    }*/
     }
 }

@@ -20,9 +20,13 @@ namespace ImpulseHd
 			var outputL = new double[preset.ImpulseLength];
 			var outputR = new double[preset.ImpulseLength];
 
-			foreach (var stage in preset.ImpulseConfig)
+			foreach (var impulse in preset.ImpulseConfig)
 			{
-				var processor = new ImpulseConfigProcessor(stage);
+				var processor = new ImpulseConfigProcessor(impulse);
+				foreach(var stage in processor.Stages)
+				{
+					processor.ProcessStage(stage);
+				}
 				var stageOutput = processor.ProcessOutputStage();
 				Sum(outputL, stageOutput[0]);
 				Sum(outputR, stageOutput[1]);
