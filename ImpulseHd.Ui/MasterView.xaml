@@ -8,6 +8,14 @@
              mc:Ignorable="d" 
              d:DesignHeight="620" d:DesignWidth="600">
 	<Grid>
+		<Grid.Resources>
+			<Style TargetType="CheckBox">
+				<Setter Property="VerticalAlignment" Value="Center"></Setter>
+			</Style>
+			<Style TargetType="Slider">
+				<Setter Property="VerticalAlignment" Value="Center"></Setter>
+			</Style>
+		</Grid.Resources>
 		<Grid.ColumnDefinitions>
 			<ColumnDefinition Width="5" />
 			<ColumnDefinition Width="Auto" />

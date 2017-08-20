@@ -5,8 +5,16 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:ImpulseHd.Ui"
              mc:Ignorable="d" 
-             d:DesignHeight="466" d:DesignWidth="603">
+             d:DesignHeight="800" d:DesignWidth="603">
 	<Grid>
+		<Grid.Resources>
+			<Style TargetType="CheckBox">
+				<Setter Property="VerticalAlignment" Value="Center"></Setter>
+			</Style>
+			<Style TargetType="Slider">
+				<Setter Property="VerticalAlignment" Value="Center"></Setter>
+			</Style>
+		</Grid.Resources>
 		<Grid.ColumnDefinitions>
 			<ColumnDefinition Width="Auto" />
 			<ColumnDefinition Width="*" />
@@ -48,40 +56,48 @@
 			<RowDefinition Height="Auto" />
 			<RowDefinition Height="Auto" />
 			<RowDefinition Height="Auto" />
+			<RowDefinition Height="Auto" />
+			<RowDefinition Height="Auto" />
+			<RowDefinition Height="Auto" />
+			<RowDefinition Height="Auto" />
+			<RowDefinition Height="Auto" />
+			<RowDefinition Height="Auto" />
+			<RowDefinition Height="Auto" />
+			<RowDefinition Height="Auto" />
+			<RowDefinition Height="Auto" />
+			<RowDefinition Height="Auto" />
+			<RowDefinition Height="Auto" />
+			<RowDefinition Height="Auto" />
+			<RowDefinition Height="Auto" />
+			<RowDefinition Height="Auto" />
+			<RowDefinition Height="Auto" />
+			<RowDefinition Height="Auto" />
+			<RowDefinition Height="Auto" />
+			<RowDefinition Height="Auto" />
+			<RowDefinition Height="Auto" />
+			<RowDefinition Height="Auto" />
+			<RowDefinition Height="Auto" />
+			<RowDefinition Height="Auto" />
+			<RowDefinition Height="Auto" />
+			<RowDefinition Height="Auto" />
+			<RowDefinition Height="Auto" />
+			<RowDefinition Height="*" />
 		</Grid.RowDefinitions>
 		<Label Grid.Row="0" Grid.Column="0">Enabled</Label>
 		<Label Grid.Row="1" Grid.Column="0">Solo</Label>
 		<Label Grid.Row="2" Grid.Column="0">Minimum Phase</Label>
 		<Label Grid.Row="3" Grid.Column="0">Min Freq.</Label>
 		<Label Grid.Row="4" Grid.Column="0">Max Freq.</Label>
-		<Label Grid.Row="5" Grid.Column="0">Crossover</Label>
-		<Label Grid.Row="6" Grid.Column="0">Gain</Label>
-		<Label Grid.Row="7" Grid.Column="0">Delay</Label>
-		<CheckBox Grid.Column="1" Grid.Row="0" />
-		<CheckBox Grid.Column="1" Grid.Row="1" />
-		<CheckBox Grid.Column="1" Grid.Row="2" />
-		<Slider Grid.Column="1" Grid.Row="3" />
-		<Slider Grid.Column="1" Grid.Row="4" />
-		<Slider Grid.Column="1" Grid.Row="5" />
-		<Slider Grid.Column="1" Grid.Row="6" />
-		<Slider Grid.Column="1" Grid.Row="7" />
-		<Label Grid.Row="3" Grid.Column="2">400Hz</Label>
-		<Label Grid.Row="4" Grid.Column="2">12000Hz</Label>
-		<Label Grid.Row="5" Grid.Column="2">0.6 Oct</Label>
-		<Label Grid.Row="6" Grid.Column="2">2.6dB</Label>
-		<Label Grid.Row="7" Grid.Column="2">286 Samples</Label>
+		<Label Grid.Row="5" Grid.Column="0">Low Blend</Label>
+		<Label Grid.Row="6" Grid.Column="0">high Blend</Label>
+		<Label Grid.Row="7" Grid.Column="0">Gain</Label>
+		<Label Grid.Row="8" Grid.Column="0">Delay</Label>
 
 		<Label Grid.Row="10" Grid.Column="0" Grid.ColumnSpan="3" FontWeight="Bold">Gain Variation</Label>
 
 		<Label Grid.Row="11" Grid.Column="0">Smoothing</Label>
 		<Label Grid.Row="12" Grid.Column="0">Stretch</Label>
 		<Label Grid.Row="13" Grid.Column="0">Mode</Label>
-		<Slider Grid.Column="1" Grid.Row="11" />
-		<Slider Grid.Column="1" Grid.Row="12" />
-		<Slider Grid.Column="1" Grid.Row="13" />
-		<Label Grid.Row="11" Grid.Column="2">25 Samples</Label>
-		<Label Grid.Row="12" Grid.Column="2">3.3dB</Label>
-		<Label Grid.Row="13" Grid.Column="2">Bipolar</Label>
 
 		<Label Grid.Row="20" Grid.Column="0" Grid.ColumnSpan="3" FontWeight="Bold">Gain Randomization</Label>
 
@@ -90,15 +106,73 @@
 		<Label Grid.Row="23" Grid.Column="0">Amount</Label>
 		<Label Grid.Row="24" Grid.Column="0">Skew</Label>
 		<Label Grid.Row="25" Grid.Column="0">Mode</Label>
+
+		<Label Grid.Row="30" Grid.Column="0" Grid.ColumnSpan="3" FontWeight="Bold">Frequency Skew</Label>
+
+		<Label Grid.Row="31" Grid.Column="0">Skew Amount</Label>
+		<Label Grid.Row="32" Grid.Column="0">Pin To High</Label>
+		<Label Grid.Row="33" Grid.Column="0">Skew Mode</Label>
+
+		<Label Grid.Row="40" Grid.Column="0" Grid.ColumnSpan="3" FontWeight="Bold">Phase Bands</Label>
+
+		<Label Grid.Row="41" Grid.Column="0">No. Bands</Label>
+		<Label Grid.Row="42" Grid.Column="0">Delay Amount</Label>
+		<Label Grid.Row="43" Grid.Column="0">Freq Track</Label>
+		<Label Grid.Row="44" Grid.Column="0">Seed</Label>
+		
+
+		<CheckBox Grid.Column="1" Grid.Row="0" IsChecked="{Binding IsEnabled}" />
+		<CheckBox Grid.Column="1" Grid.Row="1" IsChecked="{Binding Solo}" />
+		<CheckBox Grid.Column="1" Grid.Row="2" />
+		<Slider Grid.Column="1" Grid.Row="3" />
+		<Slider Grid.Column="1" Grid.Row="4" />
+		<Slider Grid.Column="1" Grid.Row="5" />
+		<Slider Grid.Column="1" Grid.Row="6" />
+		<Slider Grid.Column="1" Grid.Row="7" />
+		<Slider Grid.Column="1" Grid.Row="8" />
+
+		<Slider Grid.Column="1" Grid.Row="11" />
+		<Slider Grid.Column="1" Grid.Row="12" />
+		<Slider Grid.Column="1" Grid.Row="13" />
+
 		<Slider Grid.Column="1" Grid.Row="21" />
 		<Slider Grid.Column="1" Grid.Row="22" />
 		<Slider Grid.Column="1" Grid.Row="23" />
 		<Slider Grid.Column="1" Grid.Row="24" />
 		<Slider Grid.Column="1" Grid.Row="25" />
+
+		<Slider Grid.Column="1" Grid.Row="31" />
+		<CheckBox Grid.Column="1" Grid.Row="32" IsChecked="{Binding PinToHighFrequency}" />
+		<Slider Grid.Column="1" Grid.Row="33" />
+
+		<Slider Grid.Column="1" Grid.Row="41" />
+		<Slider Grid.Column="1" Grid.Row="42" />
+		<Slider Grid.Column="1" Grid.Row="43" />
+		<Slider Grid.Column="1" Grid.Row="44" />
+
+		<Label Grid.Row="3" Grid.Column="2">400Hz</Label>
+		<Label Grid.Row="4" Grid.Column="2">12000Hz</Label>
+		<Label Grid.Row="5" Grid.Column="2">0.6 Oct</Label>
+		<Label Grid.Row="6" Grid.Column="2">0.6 Oct</Label>
+		<Label Grid.Row="7" Grid.Column="2">2.6dB</Label>
+		<Label Grid.Row="8" Grid.Column="2">286 Samples</Label>
+
+		<Label Grid.Row="11" Grid.Column="2">25 Samples</Label>
+		<Label Grid.Row="12" Grid.Column="2">3.3dB</Label>
+		<Label Grid.Row="13" Grid.Column="2">Bipolar</Label>
+		
 		<Label Grid.Row="21" Grid.Column="2">25 Samples</Label>
 		<Label Grid.Row="22" Grid.Column="2">12353</Label>
 		<Label Grid.Row="23" Grid.Column="2">3.5dB</Label>
 		<Label Grid.Row="24" Grid.Column="2">8.64</Label>
 		<Label Grid.Row="25" Grid.Column="2">Bipolar</Label>
+
+		<Label Grid.Row="31" Grid.Column="2">20%</Label>
+		<Label Grid.Row="33" Grid.Column="2">Move</Label>
+
+		<Label Grid.Row="41" Grid.Column="2">7</Label>
+		<Label Grid.Row="42" Grid.Column="2">6.35ms</Label>
+		<Label Grid.Row="43" Grid.Column="2">20.2%</Label>
+		<Label Grid.Row="44" Grid.Column="2">7357</Label>
 	</Grid>
 </UserControl>

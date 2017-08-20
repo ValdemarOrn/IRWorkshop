@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
@@ -8,6 +9,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using AudioLib;
+using LowProfile.Core.Extensions;
 using LowProfile.Core.Ui;
 using LowProfile.Fourier.Double;
 using LowProfile.Visuals;
@@ -21,7 +23,6 @@ namespace ImpulseHd.Ui
     {
 	    private readonly ImpulseConfig impulseConfig;
 
-	    //private SpectrumStage[] spectrumStages;
 	    //private OutputStage outputStage;
 
 	    private string loadSampleDirectory;
@@ -29,15 +30,18 @@ namespace ImpulseHd.Ui
 	    private Complex[] complexOutput;
 	    private Complex[] realOutput;
 	    private PlotModel plot2;
-	    
+	    private int selectedSpectrumStage;
+
 	    public ImpulseConfigViewModel(ImpulseConfig config)
 	    {
 		    this.impulseConfig = config;
 			LoadSampleCommand = new DelegateCommand(_ => LoadSampleDialog());
+		    AddStageCommand = new DelegateCommand(_ => AddStage());
+		    RemoveStageCommand = new DelegateCommand(_ => RemoveStage());
 
 		    LoadSampleData();
 	    }
-	
+
 	    public string Name
 	    {
 		    get { return impulseConfig.Name; }
@@ -68,12 +72,15 @@ namespace ImpulseHd.Ui
 			}
 		}
 
-	    /*public SpectrumStage[] SpectrumStages
-	    {
-		    get { return spectrumStages; }
+	    public SpectrumStageViewModel[] SpectrumStages => impulseConfig.SpectrumStages.Select((x, idx) => new SpectrumStageViewModel(x, idx)).ToArray();
+
+	    public int SelectedSpectrumStageIndex
+		{
+		    get { return selectedSpectrumStage; }
+		    set { selectedSpectrumStage = value; NotifyPropertyChanged(); }
 	    }
 
-	    public OutputStage OutputStage
+	    /*public OutputStage OutputStage
 	    {
 		    get { return outputStage; }
 	    }*/
@@ -91,6 +98,8 @@ namespace ImpulseHd.Ui
 	    }
 
 	    public ICommand LoadSampleCommand { get; private set; }
+		public ICommand AddStageCommand { get; private set; }
+	    public ICommand RemoveStageCommand { get; private set; }
 
 		public Action OnUpdateCallback { get; set; }
 	    public Action<string> OnLoadSampleCallback { get; set; }
@@ -110,7 +119,27 @@ namespace ImpulseHd.Ui
 		    Update();
 	    }
 
-	    private void LoadSampleDialog()
+	    private void RemoveStage()
+	    {
+		    var toRemove = SelectedSpectrumStageIndex;
+		    impulseConfig.SpectrumStages = impulseConfig.SpectrumStages.Take(toRemove).Concat(impulseConfig.SpectrumStages.Skip(toRemove + 1)).ToArray();
+		    NotifyPropertyChanged(nameof(SpectrumStages));
+
+			var newIndex = toRemove;
+		    if (newIndex >= impulseConfig.SpectrumStages.Length)
+			    newIndex--;
+
+			SelectedSpectrumStageIndex = newIndex;
+		}
+
+	    private void AddStage()
+	    {
+		    impulseConfig.SpectrumStages = impulseConfig.SpectrumStages.Concat(new[] {new SpectrumStage()}).ToArray();
+			NotifyPropertyChanged(nameof(SpectrumStages));
+		    SelectedSpectrumStageIndex = impulseConfig.SpectrumStages.Length - 1;
+		}
+
+		private void LoadSampleDialog()
 	    {
 		    var openFileDialog = new OpenFileDialog();
 		    openFileDialog.RestoreDirectory = true;
@@ -174,7 +203,25 @@ namespace ImpulseHd.Ui
 		    var hz = Utils.Linspace(0, 0.5, magData.Length).Select(x => x * Samplerate).ToArray();
 			var pm = new PlotModel();
 			pm.Axes.Add(new LogarithmicAxis { Position = AxisPosition.Bottom, Minimum = 10});
-			var line = pm.AddLine(hz, magData);
+
+
+		    var line = pm.AddLine(hz, hz.Select(x => 0.0));
+		    line.StrokeThickness = 1.0;
+		    line.Color = OxyColor.FromArgb(50, 0, 0, 0);
+
+		    line = pm.AddLine(hz, hz.Select(x => -20.0));
+		    line.StrokeThickness = 1.0;
+		    line.Color = OxyColor.FromArgb(50, 0, 0, 0);
+
+		    line = pm.AddLine(hz, hz.Select(x => -40.0));
+		    line.StrokeThickness = 1.0;
+		    line.Color = OxyColor.FromArgb(50, 0, 0, 0);
+
+		    line = pm.AddLine(hz, hz.Select(x => -60.0));
+		    line.StrokeThickness = 1.0;
+		    line.Color = OxyColor.FromArgb(50, 0, 0, 0);
+
+			line = pm.AddLine(hz, magData);
 		    line.StrokeThickness = 1.0;
 		    line.Color = OxyColors.Black;
 			return pm;

@@ -8,6 +8,14 @@
              mc:Ignorable="d" 
              d:DesignHeight="620" d:DesignWidth="600">
 	<Grid>
+		<Grid.Resources>
+			<Style TargetType="CheckBox">
+				<Setter Property="VerticalAlignment" Value="Center"></Setter>
+			</Style>
+			<Style TargetType="Slider">
+				<Setter Property="VerticalAlignment" Value="Center"></Setter>
+			</Style>
+		</Grid.Resources>
 		<Grid.ColumnDefinitions>
 			<ColumnDefinition Width="5" />
 			<ColumnDefinition Width="Auto" />
@@ -23,22 +31,79 @@
 			<RowDefinition Height="*" />
 		</Grid.RowDefinitions>
 		<Label Grid.Column="1" Grid.Row="1">Sample:</Label>
-		<TextBox Grid.Column="2" Grid.Row="1" Margin="2,2,98,2" Text="{Binding FilePath}" IsReadOnly="True" />
-		<Button Grid.Column="2" Grid.Row="1" HorizontalAlignment="Right" Width="90" Padding="0" Margin="2" Height="22" Command="{Binding LoadSampleCommand}">Select</Button>
+		<TextBox Grid.Column="2" Grid.Row="1" Margin="2,2,140,2" Text="{Binding FilePath}" IsReadOnly="True" />
+		<StackPanel Grid.Column="2" Grid.Row="1" HorizontalAlignment="Right" Orientation="Horizontal">
+			<Button Width="86" Padding="0" Margin="2" Height="22" Command="{Binding LoadSampleCommand}">Select</Button>
+			<Button Width="20" Padding="0" Margin="2" Height="22" Command="{Binding NextSampleCommand}" CommandParameter="-1">&lt;</Button>
+			<Button Width="20" Padding="0" Margin="2" Height="22" Command="{Binding NextSampleCommand}" CommandParameter="1">&gt;</Button>
+		</StackPanel>
 
 		<Label Grid.Column="1" Grid.Row="2">Name:</Label>
-		<TextBox Grid.Column="2" Grid.Row="2" Margin="2,2,2,2" Text="{Binding Name}" />
+		<TextBox Grid.Column="2" Grid.Row="2"  Margin="2,2,140,2" Text="{Binding Name}" />
+		<StackPanel Grid.Column="2" Grid.Row="2" HorizontalAlignment="Right" Orientation="Horizontal">
+			<Button Command="{Binding AddStageCommand}">
+				<Button.Template>
+					<ControlTemplate>
+						<Label Padding="0" VerticalAlignment="Center" Margin="4" Foreground="#446eba" Cursor="Hand">Add</Label>
+					</ControlTemplate>
+				</Button.Template>
+			</Button>
+			<Button Command="{Binding RemoveStageCommand}">
+				<Button.Template>
+					<ControlTemplate>
+						<Label Padding="0" VerticalAlignment="Center" Margin="4" Foreground="#446eba" Cursor="Hand">Remove</Label>
+					</ControlTemplate>
+				</Button.Template>
+			</Button>
+			<Button Command="{Binding RemoveStageCommand}">
+				<Button.Template>
+					<ControlTemplate>
+						<Label Padding="0" VerticalAlignment="Center" Margin="4" Foreground="#446eba" Cursor="Hand">&lt;--</Label>
+					</ControlTemplate>
+				</Button.Template>
+			</Button>
+			<Button Command="{Binding RemoveStageCommand}">
+				<Button.Template>
+					<ControlTemplate>
+						<Label Padding="0" VerticalAlignment="Center" Margin="4" Foreground="#446eba" Cursor="Hand">--&gt;</Label>
+					</ControlTemplate>
+				</Button.Template>
+			</Button>
+		</StackPanel>
 
-		<TabControl Grid.Column="1" Grid.ColumnSpan="2" Grid.Row="4">
+		<TabControl Grid.Column="1" Grid.ColumnSpan="2" Grid.Row="4" ItemsSource="{Binding SpectrumStages}" SelectedIndex="{Binding SelectedSpectrumStageIndex}" >
+			<TabControl.Resources>
+				<Style TargetType="TabItem">
+					<Setter Property="Width" Value="30" />
+				</Style>
+			</TabControl.Resources>
+			<TabControl.ItemTemplate>
+				<!--this is the header template-->
+				<DataTemplate>
+					<TextBlock Text="{Binding Index}" />
+				</DataTemplate>
+			</TabControl.ItemTemplate>
+			<TabControl.ContentTemplate>
+				<DataTemplate>
+					<Border BorderBrush="#555" BorderThickness="1">
+						<ScrollViewer>
+							<local:SpectrumStageView Margin="10" DataContext="{Binding}"></local:SpectrumStageView>
+						</ScrollViewer>
+					</Border>
+				</DataTemplate>
+			</TabControl.ContentTemplate>
+		</TabControl>
+		
+		<!--<TabControl Grid.Column="1" Grid.ColumnSpan="2" Grid.Row="4">
 
 			<TabItem IsSelected="True" Header="1" Width="40">
 				<Border BorderBrush="#555" BorderThickness="1">
 					<ScrollViewer>
-						<local:SpectrumStageView Margin="10"></local:SpectrumStageView>
+						<local:SpectrumStageView Margin="10" DataContext="{Binding SpectrumStages[0]}"></local:SpectrumStageView>
 					</ScrollViewer>
 				</Border>
 			</TabItem>
-		</TabControl>
+		</TabControl>-->
 		
 		<Border BorderBrush="#555" Background="White" VerticalAlignment="Stretch" BorderThickness="1" Grid.Column="1" Grid.ColumnSpan="2" Grid.Row="5" Margin="2,4,2,2">
 			<ScrollViewer Padding="10">

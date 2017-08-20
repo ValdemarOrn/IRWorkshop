@@ -65,6 +65,7 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="ImpulseConfigViewModel.cs" />
+    <Compile Include="Logging.cs" />
     <Compile Include="MainViewModel.cs" />
     <Compile Include="MasterView.xaml.cs">
       <DependentUpon>MasterView.xaml</DependentUpon>
@@ -72,6 +73,7 @@
     <Compile Include="SpectrumStageView.xaml.cs">
       <DependentUpon>SpectrumStageView.xaml</DependentUpon>
     </Compile>
+    <Compile Include="SpectrumStageViewModel.cs" />
     <Page Include="ImpulseConfigView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>

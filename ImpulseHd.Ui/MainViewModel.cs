@@ -291,12 +291,20 @@ namespace ImpulseHd.Ui
 
 		private void AudioSetup()
 	    {
-		    StopAudio();
+		    try
+		    {
+				StopAudio();
 
-			// Use the graphical editor to create a new config
-		    var config = RealtimeHostConfig.CreateConfig(host.Config);
-		    LoadAudioConfig(config);
-	    }
+				// Use the graphical editor to create a new config
+				var config = RealtimeHostConfig.CreateConfig(host.Config);
+				LoadAudioConfig(config);
+		    }
+		    catch (Exception e)
+		    {
+				var config = RealtimeHostConfig.CreateConfig();
+			    LoadAudioConfig(config);
+		    }
+		}
 
 	    private void LoadAudioConfig(RealtimeHostConfig config)
 	    {
@@ -317,7 +325,7 @@ namespace ImpulseHd.Ui
 		    }
 		    catch (Exception ex)
 		    {
-			    MessageBox.Show("Unable to start audio engine: " + ex.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+			    Logging.ShowMessage("Unable to start audio engine: " + ex.Message, LogType.Error);
 		    }
 
 		    NotifyPropertyChanged(nameof(SamplerateWarning));
@@ -475,7 +483,7 @@ namespace ImpulseHd.Ui
 		    }
 		    catch (Exception e)
 		    {
-			    MessageBox.Show("Failed to load user settings, resetting to default", "Error", MessageBoxButton.OK, MessageBoxImage.Exclamation);
+			    Logging.ShowMessage("Failed to load user settings, resetting to default", LogType.Warning);
 				File.Delete(settingsFile);
 		    }
 	    }
@@ -509,7 +517,7 @@ namespace ImpulseHd.Ui
 			while (true)
 			{
 				create();
-				Thread.Sleep(5000);
+				Thread.Sleep(1000);
 			}
 	    }
 

@@ -38,7 +38,7 @@
 		</Menu>
 		<Grid>
 			<Grid.ColumnDefinitions>
-				<ColumnDefinition Width="550" />
+				<ColumnDefinition Width="570" />
 				<ColumnDefinition Width="1*" />
 			</Grid.ColumnDefinitions>
 			<Grid.RowDefinitions>
@@ -59,24 +59,57 @@
 							<local:ImpulseConfigView Background="#eee" />
 						</TabItem>
 					</TabControl>-->
-					<TabControl TabStripPlacement="Left" ItemsSource="{Binding ImpulseConfig}" SelectedItem="{Binding SelectedImpulse}">
-						<TabControl.Resources>
-							<Style TargetType="TabItem">
-								<Setter Property="Width" Value="120" />
-							</Style>
-						</TabControl.Resources>
-						<TabControl.ItemTemplate>
-							 <!--this is the header template-->
-							<DataTemplate>
-								<TextBlock Text="{Binding Name}" />
-							</DataTemplate>
-						</TabControl.ItemTemplate>
-						<TabControl.ContentTemplate>
-							<DataTemplate>
-								<local:ImpulseConfigView Background="#eee" DataContext="{Binding}" />
-							</DataTemplate>
-						</TabControl.ContentTemplate>
-					</TabControl>
+					<Grid>
+						<TabControl TabStripPlacement="Left" ItemsSource="{Binding ImpulseConfig}" SelectedItem="{Binding SelectedImpulse}">
+							<TabControl.Resources>
+								<Style TargetType="TabItem">
+									<Setter Property="Width" Value="130" />
+								</Style>
+							</TabControl.Resources>
+							<TabControl.ItemTemplate>
+								 <!--this is the header template-->
+								<DataTemplate>
+									<TextBlock Text="{Binding Name}" />
+								</DataTemplate>
+							</TabControl.ItemTemplate>
+							<TabControl.ContentTemplate>
+								<DataTemplate>
+									<local:ImpulseConfigView Background="#eee" DataContext="{Binding}" />
+								</DataTemplate>
+							</TabControl.ContentTemplate>
+						</TabControl>
+
+						<StackPanel HorizontalAlignment="Left" Orientation="Horizontal" VerticalAlignment="Bottom">
+							<Button Command="{Binding AddStageCommand}">
+								<Button.Template>
+									<ControlTemplate>
+										<Label Padding="0" VerticalAlignment="Center" Margin="4" Foreground="#446eba" Cursor="Hand">Add</Label>
+									</ControlTemplate>
+								</Button.Template>
+							</Button>
+							<Button Command="{Binding RemoveStageCommand}">
+								<Button.Template>
+									<ControlTemplate>
+										<Label Padding="0" VerticalAlignment="Center" Margin="4" Foreground="#446eba" Cursor="Hand">Remove</Label>
+									</ControlTemplate>
+								</Button.Template>
+							</Button>
+							<Button Command="{Binding RemoveStageCommand}">
+								<Button.Template>
+									<ControlTemplate>
+										<Label Padding="0" VerticalAlignment="Center" Margin="4" Foreground="#446eba" Cursor="Hand">&lt;--</Label>
+									</ControlTemplate>
+								</Button.Template>
+							</Button>
+							<Button Command="{Binding RemoveStageCommand}">
+								<Button.Template>
+									<ControlTemplate>
+										<Label Padding="0" VerticalAlignment="Center" Margin="4" Foreground="#446eba" Cursor="Hand">--&gt;</Label>
+									</ControlTemplate>
+								</Button.Template>
+							</Button>
+						</StackPanel>
+					</Grid>
 				</TabItem>
 				
 			</TabControl>

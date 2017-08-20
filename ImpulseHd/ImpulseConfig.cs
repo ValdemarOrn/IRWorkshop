@@ -23,7 +23,7 @@ namespace ImpulseHd
 
 		public double[] RawSampleData { get; set; }
 
-		public SpectrumStage[] SpectrumStages { get; private set; }
+		public SpectrumStage[] SpectrumStages { get; set; }
 		public OutputStage OutputStage { get; private set; }
 
 		public void LoadSampleData()
@@ -59,10 +59,12 @@ namespace ImpulseHd
 	{
 		public bool IsEnabled { get; set; }
 		public bool Solo { get; set; } // mutes out all frequency bands not in range
+		public bool MinimumPhase { get; set; }
 
 		public double MinFreq { get; set; }
 		public double MaxFreq { get; set; }
-		public double CrossoverOctaves { get; set; }
+		public double LowBlendOcts { get; set; }
+		public double HighBlendOcts { get; set; }
 		public double Gain { get; set; }
 		public double DelaySamples { get; set; }
 
@@ -77,16 +79,17 @@ namespace ImpulseHd
 		public double RandomSkewAmount { get; set; }
 		public ApplyMode RandomGainMode { get; set; }
 
-		// Splits the signal up into N bands and applies random delay (stereo widening)
-		public int PhaseBands { get; set; }
-		public double PhaseBandDelayAmount { get; set; }
-		public int PhaseBandSeed { get; set; }
-
-		// Skews teh freuqency bands up or down
+		// Skews the freuqency bands up or down
 		public double FrequencySkew { get; set; }
 		public bool PinToHighFrequency { get; set; } // if true, will peg the high freq. in place rather than the low frequency
 		public FreqSkewMode FrequencySkewMode { get; set; }
 
+		// Splits the signal up into N bands and applies random delay (stereo widening)
+		public int PhaseBands { get; set; }
+		public double PhaseBandDelayAmount { get; set; }
+		public double PhaseBandFreqTrack { get; set; }
+		public int PhaseBandSeed { get; set; }
+		
 		public static SpectrumStage GetDefaultStage()
 		{
 			return new SpectrumStage
@@ -94,7 +97,8 @@ namespace ImpulseHd
 				IsEnabled = false,
 				MinFreq = 0,
 				MaxFreq = 24000,
-				CrossoverOctaves = 0,
+				LowBlendOcts = 0,
+				HighBlendOcts = 0,
 				Gain = 1,
 				DelaySamples = 0,
 
@@ -107,13 +111,13 @@ namespace ImpulseHd
 				RandomGainAmount = 0,
 				RandomGainMode = ApplyMode.Bipolar,
 
-				PhaseBands = 8,
-				PhaseBandDelayAmount = 0,
-				PhaseBandSeed = 0,
-
 				FrequencySkew = 1,
 				PinToHighFrequency = false,
 				FrequencySkewMode = FreqSkewMode.Zero,
+
+				PhaseBands = 8,
+				PhaseBandDelayAmount = 0,
+				PhaseBandSeed = 0,
 			};
 		}
 	}
@@ -127,7 +131,8 @@ namespace ImpulseHd
 	public enum FreqSkewMode
 	{
 		Skew, // Gradually shifts bands up or down from the middle of the band range
-		Zero // If skew < 1, leaves "empty" bands at the top or bottom
+		Zero, // If skew < 1, leaves "empty" bands at the top or bottom
+		Move, // instead of stretching, moves the entire range up or down
 	}
 
 	public enum ApplyMode
