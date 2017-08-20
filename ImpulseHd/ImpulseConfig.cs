@@ -57,10 +57,10 @@ namespace ImpulseHd
 
 	public class SpectrumStage
 	{
+		// Basic settings
 		public bool IsEnabled { get; set; }
 		public bool Solo { get; set; } // mutes out all frequency bands not in range
 		public bool MinimumPhase { get; set; }
-
 		public double MinFreq { get; set; }
 		public double MaxFreq { get; set; }
 		public double LowBlendOcts { get; set; }
@@ -68,55 +68,114 @@ namespace ImpulseHd
 		public double Gain { get; set; }
 		public double DelaySamples { get; set; }
 
-		public int GainSmoothingSamples { get; set; }
-		public double GainStretch { get; set; }
-		public ApplyMode GainStretchMode { get; set; } // -1, 0, +1
+		// Gain variation
+		public double GainSmoothingSamples { get; set; }
+		public double GainSmoothingAmount { get; set; }
+		public double GainStretchMode { get; set; }
 
-		// Aplpies random gain to the each frequency band.
-		public int RandomGainSmoothingSamples { get; set; }
-		public int RandomGainSeed { get; set; }
+		// Applies random gain to the each frequency band.
+		public double RandomGainSmoothingSamples { get; set; }
+		public double RandomGainSeed { get; set; }
 		public double RandomGainAmount { get; set; }
 		public double RandomSkewAmount { get; set; }
-		public ApplyMode RandomGainMode { get; set; }
+		public double RandomGainMode { get; set; }
 
 		// Skews the freuqency bands up or down
 		public double FrequencySkew { get; set; }
+		public double FrequencySkewMode { get; set; }
 		public bool PinToHighFrequency { get; set; } // if true, will peg the high freq. in place rather than the low frequency
-		public FreqSkewMode FrequencySkewMode { get; set; }
 
 		// Splits the signal up into N bands and applies random delay (stereo widening)
-		public int PhaseBands { get; set; }
+		public double PhaseBands { get; set; }
 		public double PhaseBandDelayAmount { get; set; }
 		public double PhaseBandFreqTrack { get; set; }
-		public int PhaseBandSeed { get; set; }
-		
+		public double PhaseBandSeed { get; set; }
+
+
+		// Basic settings
+		public double MinFreqTransformed => ValueTables.Get(MinFreq, ValueTables.Response2Dec) * 24000;
+		public double MaxFreqTransformed => ValueTables.Get(MaxFreq, ValueTables.Response2Dec) * 24000;
+		public double LowBlendOctsTransformed => LowBlendOcts * 5;
+		public double HighBlendOctsTransformed => HighBlendOcts * 5;
+		public double GainTransformed => -60 + Gain * 100;
+		public double DelaySamplesTransformed => (int)(ValueTables.Get(DelaySamples, ValueTables.Response2Dec) * 4096);
+
+		// Gain variation
+		public int GainSmoothingSamplesTransformed => (int)(ValueTables.Get(GainSmoothingSamples, ValueTables.Response2Dec) * 512);
+		public double GainSmoothingAmountTransformed => (Math.Pow(10, GainSmoothingAmount * 2 - 1) - 0.1) / 0.9;
+		public ApplyMode GainStretchModeTransformed
+		{
+			get
+			{
+				if (GainStretchMode < 0.33) return ApplyMode.Reduce;
+				if (GainStretchMode < 0.66) return ApplyMode.Bipolar;
+				else return ApplyMode.Amplify;
+			}
+		}
+
+		// Applies random gain to the each frequency band.
+		public int RandomGainSmoothingSamplesTransformed => (int)(ValueTables.Get(RandomGainSmoothingSamples, ValueTables.Response2Dec) * 512);
+		public int RandomGainSeedTransformed => (int)(RandomGainSeed * 10000);
+		public double RandomGainAmountTransformed => (RandomGainAmount * 2 - 1) * 40;
+		public double RandomSkewAmountTransformed => Math.Pow(10, RandomSkewAmount * 2 - 1);
+		public ApplyMode RandomGainModeTransformed
+		{
+			get
+			{
+				if (RandomGainMode < 0.33) return ApplyMode.Reduce;
+				if (RandomGainMode < 0.66) return ApplyMode.Bipolar;
+				else return ApplyMode.Amplify;
+			}
+		}
+
+		// Skews the freuqency bands up or down
+		public double FrequencySkewTransformed => Math.Pow(2, FrequencySkew * 4 - 2);
+		public FreqSkewMode FrequencySkewModeTransformed
+		{
+			get
+			{
+				if (FrequencySkewMode < 0.33) return FreqSkewMode.Move;
+				if (FrequencySkewMode < 0.66) return FreqSkewMode.Skew;
+				else return FreqSkewMode.Zero;
+			}
+
+		}
+
+		// Splits the signal up into N bands and applies random delay (stereo widening)
+		public int PhaseBandsTransformed => (int)((PhaseBands - 0.001) * 8) + 1;
+		public double PhaseBandDelayAmountTransformed => (int)(ValueTables.Get(PhaseBandDelayAmount, ValueTables.Response2Dec) * 4096);
+		public double PhaseBandFreqTrackTransformed => 2 * PhaseBandFreqTrack - 1;
+		public int PhaseBandSeedTransformed => (int)(PhaseBandSeed * 10000);
+
+
 		public static SpectrumStage GetDefaultStage()
 		{
 			return new SpectrumStage
 			{
 				IsEnabled = false,
 				MinFreq = 0,
-				MaxFreq = 24000,
+				MaxFreq = 1,
 				LowBlendOcts = 0,
 				HighBlendOcts = 0,
-				Gain = 1,
+				Gain = 0.8,
 				DelaySamples = 0,
 
-				GainSmoothingSamples = 10,
-				GainStretch = 0,
-				GainStretchMode = ApplyMode.Bipolar,
+				GainSmoothingSamples = 0.2,
+				GainSmoothingAmount = 0.5,
+				GainStretchMode = 0.5,
 
-				RandomGainSmoothingSamples = 10,
+				RandomGainSmoothingSamples = 0.2,
 				RandomGainSeed = 0,
 				RandomGainAmount = 0,
-				RandomGainMode = ApplyMode.Bipolar,
+				RandomGainMode = 0.5,
 
 				FrequencySkew = 1,
 				PinToHighFrequency = false,
-				FrequencySkewMode = FreqSkewMode.Zero,
+				FrequencySkewMode = 0.0,
 
-				PhaseBands = 8,
+				PhaseBands = 0.5,
 				PhaseBandDelayAmount = 0,
+				PhaseBandFreqTrack = 0.5,
 				PhaseBandSeed = 0,
 			};
 		}

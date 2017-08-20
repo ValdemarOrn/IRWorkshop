@@ -89,14 +89,14 @@
 		<Label Grid.Row="3" Grid.Column="0">Min Freq.</Label>
 		<Label Grid.Row="4" Grid.Column="0">Max Freq.</Label>
 		<Label Grid.Row="5" Grid.Column="0">Low Blend</Label>
-		<Label Grid.Row="6" Grid.Column="0">high Blend</Label>
+		<Label Grid.Row="6" Grid.Column="0">High Blend</Label>
 		<Label Grid.Row="7" Grid.Column="0">Gain</Label>
 		<Label Grid.Row="8" Grid.Column="0">Delay</Label>
 
 		<Label Grid.Row="10" Grid.Column="0" Grid.ColumnSpan="3" FontWeight="Bold">Gain Variation</Label>
 
 		<Label Grid.Row="11" Grid.Column="0">Smoothing</Label>
-		<Label Grid.Row="12" Grid.Column="0">Stretch</Label>
+		<Label Grid.Row="12" Grid.Column="0">Amount</Label>
 		<Label Grid.Row="13" Grid.Column="0">Mode</Label>
 
 		<Label Grid.Row="20" Grid.Column="0" Grid.ColumnSpan="3" FontWeight="Bold">Gain Randomization</Label>
@@ -110,8 +110,8 @@
 		<Label Grid.Row="30" Grid.Column="0" Grid.ColumnSpan="3" FontWeight="Bold">Frequency Skew</Label>
 
 		<Label Grid.Row="31" Grid.Column="0">Skew Amount</Label>
-		<Label Grid.Row="32" Grid.Column="0">Pin To High</Label>
-		<Label Grid.Row="33" Grid.Column="0">Skew Mode</Label>
+		<Label Grid.Row="32" Grid.Column="0">Skew Mode</Label>
+		<Label Grid.Row="33" Grid.Column="0">Pin To High</Label>
 
 		<Label Grid.Row="40" Grid.Column="0" Grid.ColumnSpan="3" FontWeight="Bold">Phase Bands</Label>
 
@@ -123,56 +123,56 @@
 
 		<CheckBox Grid.Column="1" Grid.Row="0" IsChecked="{Binding IsEnabled}" />
 		<CheckBox Grid.Column="1" Grid.Row="1" IsChecked="{Binding Solo}" />
-		<CheckBox Grid.Column="1" Grid.Row="2" />
-		<Slider Grid.Column="1" Grid.Row="3" />
-		<Slider Grid.Column="1" Grid.Row="4" />
-		<Slider Grid.Column="1" Grid.Row="5" />
-		<Slider Grid.Column="1" Grid.Row="6" />
-		<Slider Grid.Column="1" Grid.Row="7" />
-		<Slider Grid.Column="1" Grid.Row="8" />
+		<CheckBox Grid.Column="1" Grid.Row="2" IsChecked="{Binding MinimumPhase}" />
+		<Slider Grid.Column="1" Grid.Row="3" Value="{Binding MinFreq}" Minimum="0" Maximum="1" SmallChange="0.1" LargeChange="0.25" />
+		<Slider Grid.Column="1" Grid.Row="4" Value="{Binding MaxFreq}" Minimum="0" Maximum="1" SmallChange="0.1" LargeChange="0.25" />
+		<Slider Grid.Column="1" Grid.Row="5" Value="{Binding LowBlendOcts}" Minimum="0" Maximum="1" SmallChange="0.1" LargeChange="0.25" />
+		<Slider Grid.Column="1" Grid.Row="6" Value="{Binding HighBlendOcts}" Minimum="0" Maximum="1" SmallChange="0.1" LargeChange="0.25" />
+		<Slider Grid.Column="1" Grid.Row="7" Value="{Binding Gain}" Minimum="0" Maximum="1" SmallChange="0.1" LargeChange="0.25" />
+		<Slider Grid.Column="1" Grid.Row="8" Value="{Binding DelaySamples}" Minimum="0" Maximum="1" SmallChange="0.1" LargeChange="0.25" />
 
-		<Slider Grid.Column="1" Grid.Row="11" />
-		<Slider Grid.Column="1" Grid.Row="12" />
-		<Slider Grid.Column="1" Grid.Row="13" />
+		<Slider Grid.Column="1" Grid.Row="11" Value="{Binding GainSmoothingSamples}" Minimum="0" Maximum="1" SmallChange="0.1" LargeChange="0.25" />
+		<Slider Grid.Column="1" Grid.Row="12" Value="{Binding GainSmoothingAmount}" Minimum="0" Maximum="1" SmallChange="0.1" LargeChange="0.25" />
+		<Slider Grid.Column="1" Grid.Row="13" Value="{Binding GainStretchMode}" Minimum="0" Maximum="1" SmallChange="0.1" LargeChange="0.25" />
 
-		<Slider Grid.Column="1" Grid.Row="21" />
-		<Slider Grid.Column="1" Grid.Row="22" />
-		<Slider Grid.Column="1" Grid.Row="23" />
-		<Slider Grid.Column="1" Grid.Row="24" />
-		<Slider Grid.Column="1" Grid.Row="25" />
+		<Slider Grid.Column="1" Grid.Row="21" Value="{Binding RandomGainSmoothingSamples}" Minimum="0" Maximum="1" SmallChange="0.1" LargeChange="0.25" />
+		<Slider Grid.Column="1" Grid.Row="22" Value="{Binding RandomGainSeed}" Minimum="0" Maximum="1" SmallChange="0.1" LargeChange="0.25" />
+		<Slider Grid.Column="1" Grid.Row="23" Value="{Binding RandomGainAmount}" Minimum="0" Maximum="1" SmallChange="0.1" LargeChange="0.25" />
+		<Slider Grid.Column="1" Grid.Row="24" Value="{Binding RandomSkewAmount}" Minimum="0" Maximum="1" SmallChange="0.1" LargeChange="0.25" />
+		<Slider Grid.Column="1" Grid.Row="25" Value="{Binding RandomGainMode}" Minimum="0" Maximum="1" SmallChange="0.1" LargeChange="0.25" />
 
-		<Slider Grid.Column="1" Grid.Row="31" />
-		<CheckBox Grid.Column="1" Grid.Row="32" IsChecked="{Binding PinToHighFrequency}" />
-		<Slider Grid.Column="1" Grid.Row="33" />
+		<Slider Grid.Column="1" Grid.Row="31" Value="{Binding FrequencySkew}" Minimum="0" Maximum="1" SmallChange="0.1" LargeChange="0.25" />
+		<Slider Grid.Column="1" Grid.Row="32" Value="{Binding FrequencySkewMode}" Minimum="0" Maximum="1" SmallChange="0.1" LargeChange="0.25" />
+		<CheckBox Grid.Column="1" Grid.Row="33" IsChecked="{Binding PinToHighFrequency}" />
 
-		<Slider Grid.Column="1" Grid.Row="41" />
-		<Slider Grid.Column="1" Grid.Row="42" />
-		<Slider Grid.Column="1" Grid.Row="43" />
-		<Slider Grid.Column="1" Grid.Row="44" />
+		<Slider Grid.Column="1" Grid.Row="41" Value="{Binding PhaseBands}" Minimum="0" Maximum="1" SmallChange="0.1" LargeChange="0.25" />
+		<Slider Grid.Column="1" Grid.Row="42" Value="{Binding PhaseBandDelayAmount}" Minimum="0" Maximum="1" SmallChange="0.1" LargeChange="0.25" />
+		<Slider Grid.Column="1" Grid.Row="43" Value="{Binding PhaseBandFreqTrack}" Minimum="0" Maximum="1" SmallChange="0.1" LargeChange="0.25" />
+		<Slider Grid.Column="1" Grid.Row="44" Value="{Binding PhaseBandSeed}" Minimum="0" Maximum="1" SmallChange="0.1" LargeChange="0.25" />
 
-		<Label Grid.Row="3" Grid.Column="2">400Hz</Label>
-		<Label Grid.Row="4" Grid.Column="2">12000Hz</Label>
-		<Label Grid.Row="5" Grid.Column="2">0.6 Oct</Label>
-		<Label Grid.Row="6" Grid.Column="2">0.6 Oct</Label>
-		<Label Grid.Row="7" Grid.Column="2">2.6dB</Label>
-		<Label Grid.Row="8" Grid.Column="2">286 Samples</Label>
+		<Label Grid.Row="3" Grid.Column="2" Content="{Binding MinFreqReadout, FallbackValue=0Hz}" />
+		<Label Grid.Row="4" Grid.Column="2" Content="{Binding MaxFreqReadout, FallbackValue=0Hz}" />
+		<Label Grid.Row="5" Grid.Column="2" Content="{Binding LowBlendOctsReadout, FallbackValue=0.0 Octaves}" />
+		<Label Grid.Row="6" Grid.Column="2" Content="{Binding HighBlendOctsReadout, FallbackValue=0.0 Octaves}" />
+		<Label Grid.Row="7" Grid.Column="2" Content="{Binding GainReadout, FallbackValue=0.0dB}" />
+		<Label Grid.Row="8" Grid.Column="2" Content="{Binding DelaySamplesReadout, FallbackValue=0 Samples}" />
 
-		<Label Grid.Row="11" Grid.Column="2">25 Samples</Label>
-		<Label Grid.Row="12" Grid.Column="2">3.3dB</Label>
-		<Label Grid.Row="13" Grid.Column="2">Bipolar</Label>
-		
-		<Label Grid.Row="21" Grid.Column="2">25 Samples</Label>
-		<Label Grid.Row="22" Grid.Column="2">12353</Label>
-		<Label Grid.Row="23" Grid.Column="2">3.5dB</Label>
-		<Label Grid.Row="24" Grid.Column="2">8.64</Label>
-		<Label Grid.Row="25" Grid.Column="2">Bipolar</Label>
+		<Label Grid.Row="11" Grid.Column="2" Content="{Binding GainSmoothingSamplesReadout, FallbackValue=0 Samples}" />
+		<Label Grid.Row="12" Grid.Column="2" Content="{Binding GainSmoothingAmountReadout, FallbackValue=0.0}" />
+		<Label Grid.Row="13" Grid.Column="2" Content="{Binding GainStretchModeReadout, FallbackValue=Bipolar}" />
 
-		<Label Grid.Row="31" Grid.Column="2">20%</Label>
-		<Label Grid.Row="33" Grid.Column="2">Move</Label>
+		<Label Grid.Row="21" Grid.Column="2" Content="{Binding RandomGainSmoothingSamplesReadout, FallbackValue=0 Samples}" />
+		<Label Grid.Row="22" Grid.Column="2" Content="{Binding RandomGainSeedReadout, FallbackValue=0}" />
+		<Label Grid.Row="23" Grid.Column="2" Content="{Binding RandomGainAmountReadout, FallbackValue=0.0dB}" />
+		<Label Grid.Row="24" Grid.Column="2" Content="{Binding RandomSkewAmountReadout, FallbackValue=0.0}" />
+		<Label Grid.Row="25" Grid.Column="2" Content="{Binding RandomGainModeReadout, FallbackValue=Bipolar}" />
 
-		<Label Grid.Row="41" Grid.Column="2">7</Label>
-		<Label Grid.Row="42" Grid.Column="2">6.35ms</Label>
-		<Label Grid.Row="43" Grid.Column="2">20.2%</Label>
-		<Label Grid.Row="44" Grid.Column="2">7357</Label>
+		<Label Grid.Row="31" Grid.Column="2" Content="{Binding FrequencySkewReadout, FallbackValue=0.0}" />
+		<Label Grid.Row="32" Grid.Column="2" Content="{Binding FrequencySkewModeReadout, FallbackValue=Zero}" />
+
+		<Label Grid.Row="41" Grid.Column="2" Content="{Binding PhaseBandsReadout, FallbackValue=0 Bands}" />
+		<Label Grid.Row="42" Grid.Column="2" Content="{Binding PhaseBandDelayAmountReadout, FallbackValue=0 Samples}" />
+		<Label Grid.Row="43" Grid.Column="2" Content="{Binding PhaseBandFreqTrackReadout, FallbackValue=0.00}" />
+		<Label Grid.Row="44" Grid.Column="2" Content="{Binding PhaseBandSeedReadout, FallbackValue=0}" />
 	</Grid>
 </UserControl>

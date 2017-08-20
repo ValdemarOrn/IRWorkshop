@@ -72,7 +72,7 @@ namespace ImpulseHd.Ui
 			}
 		}
 
-	    public SpectrumStageViewModel[] SpectrumStages => impulseConfig.SpectrumStages.Select((x, idx) => new SpectrumStageViewModel(x, idx)).ToArray();
+	    public SpectrumStageViewModel[] SpectrumStages => impulseConfig.SpectrumStages.Select((x, idx) => new SpectrumStageViewModel(x, idx + 1)).ToArray();
 
 	    public int SelectedSpectrumStageIndex
 		{
@@ -165,6 +165,19 @@ namespace ImpulseHd.Ui
 	    {
 		    if (impulseConfig.RawSampleData == null)
 			    return;
+
+		    /*var processor = new ImpulseConfigProcessor(impulseConfig);
+
+		    for (int i = 0; i < impulseConfig.SpectrumStages.Length; i++)
+		    {
+			    var stage = impulseConfig.SpectrumStages[i];
+			    processor.ProcessStage(stage);
+			    if (i == SelectedSpectrumStageIndex)
+			    {
+				    var complexSignal = processor.FftSignal;
+				    var realSignal = processor.TimeSignal;
+			    }
+		    }*/
 
 		    var fft = new Transform(65536);
 		    var values = impulseConfig.RawSampleData.Select(x => new Complex(x, 0)).ToArray();
