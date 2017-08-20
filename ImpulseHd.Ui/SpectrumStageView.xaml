@@ -116,7 +116,7 @@
 		<Label Grid.Row="40" Grid.Column="0" Grid.ColumnSpan="3" FontWeight="Bold">Phase Bands</Label>
 
 		<Label Grid.Row="41" Grid.Column="0">No. Bands</Label>
-		<Label Grid.Row="42" Grid.Column="0">Delay Amount</Label>
+		<Label Grid.Row="42" Grid.Column="0">Amount</Label>
 		<Label Grid.Row="43" Grid.Column="0">Freq Track</Label>
 		<Label Grid.Row="44" Grid.Column="0">Seed</Label>
 		

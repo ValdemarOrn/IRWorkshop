@@ -9,7 +9,7 @@ namespace ImpulseHd
 {
 	public class ImpulseConfig
 	{
-		public const int MaxSampleLength = 65536;
+		public const int MaxSampleLength = 8192;
 
 		public ImpulseConfig()
 		{
@@ -33,7 +33,9 @@ namespace ImpulseHd
 				throw new Exception("Only 48Khz files supported currently");
 
 			Samplerate = format.SampleRate;
-			RawSampleData = WaveFiles.ReadWaveFile(FilePath)[0].Take(MaxSampleLength).ToArray();
+			var waveData = WaveFiles.ReadWaveFile(FilePath)[0];
+			//waveData = new[] {1.0, 0.0, 0.0, 0.0};
+			RawSampleData = waveData.Take(MaxSampleLength).ToArray();
 			RawSampleData = RawSampleData.Concat(new double[MaxSampleLength - RawSampleData.Length]).ToArray();
 		}
 	}
@@ -152,12 +154,12 @@ namespace ImpulseHd
 		{
 			return new SpectrumStage
 			{
-				IsEnabled = false,
+				IsEnabled = true,
 				MinFreq = 0,
 				MaxFreq = 1,
 				LowBlendOcts = 0,
 				HighBlendOcts = 0,
-				Gain = 0.8,
+				Gain = 0.6,
 				DelaySamples = 0,
 
 				GainSmoothingSamples = 0.2,
@@ -166,13 +168,14 @@ namespace ImpulseHd
 
 				RandomGainSmoothingSamples = 0.2,
 				RandomGainSeed = 0,
-				RandomGainAmount = 0,
+				RandomGainAmount = 0.5,
+				RandomSkewAmount = 0.5,
 				RandomGainMode = 0.5,
 
-				FrequencySkew = 1,
+				FrequencySkew = 0.5,
+				FrequencySkewMode = 1,
 				PinToHighFrequency = false,
-				FrequencySkewMode = 0.0,
-
+				
 				PhaseBands = 0.5,
 				PhaseBandDelayAmount = 0,
 				PhaseBandFreqTrack = 0.5,

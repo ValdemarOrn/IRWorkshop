@@ -136,7 +136,7 @@ namespace ImpulseHd.Ui
 
 	    private void AddStage()
 	    {
-		    impulseConfig.SpectrumStages = impulseConfig.SpectrumStages.Concat(new[] {new SpectrumStage()}).ToArray();
+		    impulseConfig.SpectrumStages = impulseConfig.SpectrumStages.Concat(new[] {SpectrumStage.GetDefaultStage()}).ToArray();
 			NotifyPropertyChanged(nameof(SpectrumStages));
 		    SelectedSpectrumStageIndex = impulseConfig.SpectrumStages.Length - 1;
 		}
@@ -230,12 +230,12 @@ namespace ImpulseHd.Ui
 	    {
 		    var magData = data.Take(data.Length / 2).Select(x => x.Abs).Select(x => Utils.Gain2DB(x)).ToArray();
 		    var phaseData = data.Take(data.Length / 2).Select(x => x.Arg).ToArray();
-		    phaseData = AudioLib.Utils.UnrollPhase(phaseData);
+		    //phaseData = AudioLib.Utils.UnrollPhase(phaseData);
 			var hz = Utils.Linspace(0, 0.5, magData.Length).Select(x => x * Samplerate).ToArray();
 			var pm = new PlotModel();
 			pm.Axes.Add(new LogarithmicAxis { Position = AxisPosition.Bottom, Minimum = 10});
 		    var leftAxis = new LinearAxis {Position = AxisPosition.Left, Key = "LeftAxis"};
-		    var rightAxis = new LinearAxis {Position = AxisPosition.Right, Key = "RightAxis", Minimum = -15, Maximum = 0};
+		    var rightAxis = new LinearAxis {Position = AxisPosition.Right, Key = "RightAxis", Minimum = -Math.PI - 0.1, Maximum = Math.PI + 0.1};
 			pm.Axes.Add(leftAxis);
 		    pm.Axes.Add(rightAxis);
 
