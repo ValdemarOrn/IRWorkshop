@@ -71,12 +71,12 @@ namespace ImpulseHd
 		public double DelaySamples { get; set; }
 
 		// Gain variation
-		public double GainSmoothingSamples { get; set; }
+		public double GainSmoothingOctaves { get; set; }
 		public double GainSmoothingAmount { get; set; }
 		public double GainStretchMode { get; set; }
 
 		// Applies random gain to the each frequency band.
-		public double RandomGainSmoothingSamples { get; set; }
+		public double RandomGainSmoothingOctaves { get; set; }
 		public double RandomGainSeed { get; set; }
 		public double RandomGainAmount { get; set; }
 		public double RandomSkewAmount { get; set; }
@@ -103,7 +103,7 @@ namespace ImpulseHd
 		public double DelaySamplesTransformed => (int)(ValueTables.Get(DelaySamples, ValueTables.Response2Dec) * 4096);
 
 		// Gain variation
-		public int GainSmoothingSamplesTransformed => (int)(ValueTables.Get(GainSmoothingSamples, ValueTables.Response2Dec) * 512);
+		public double GainSmoothingOctavesTransformed => ValueTables.Get(GainSmoothingOctaves, ValueTables.Response2Dec) * 2;
 		public double GainSmoothingAmountTransformed => (Math.Pow(10, GainSmoothingAmount * 2 - 1) - 0.1) / 0.9;
 		public ApplyMode GainStretchModeTransformed
 		{
@@ -116,7 +116,7 @@ namespace ImpulseHd
 		}
 
 		// Applies random gain to the each frequency band.
-		public int RandomGainSmoothingSamplesTransformed => (int)(ValueTables.Get(RandomGainSmoothingSamples, ValueTables.Response2Dec) * 512);
+		public double RandomGainSmoothingOctavesTransformed => ValueTables.Get(RandomGainSmoothingOctaves, ValueTables.Response2Dec) * 2;
 		public int RandomGainSeedTransformed => (int)(RandomGainSeed * 10000);
 		public double RandomGainAmountTransformed => (RandomGainAmount * 2 - 1) * 40;
 		public double RandomSkewAmountTransformed => Math.Pow(10, RandomSkewAmount * 2 - 1);
@@ -162,11 +162,11 @@ namespace ImpulseHd
 				Gain = 0.6,
 				DelaySamples = 0,
 
-				GainSmoothingSamples = 0.2,
+				GainSmoothingOctaves = 0.2,
 				GainSmoothingAmount = 0.5,
 				GainStretchMode = 0.5,
 
-				RandomGainSmoothingSamples = 0.2,
+				RandomGainSmoothingOctaves = 0.2,
 				RandomGainSeed = 0,
 				RandomGainAmount = 0.5,
 				RandomSkewAmount = 0.5,

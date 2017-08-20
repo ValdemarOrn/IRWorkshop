@@ -131,11 +131,11 @@
 		<Slider Grid.Column="1" Grid.Row="7" Value="{Binding Gain}" Minimum="0" Maximum="1" SmallChange="0.1" LargeChange="0.25" />
 		<Slider Grid.Column="1" Grid.Row="8" Value="{Binding DelaySamples}" Minimum="0" Maximum="1" SmallChange="0.1" LargeChange="0.25" />
 
-		<Slider Grid.Column="1" Grid.Row="11" Value="{Binding GainSmoothingSamples}" Minimum="0" Maximum="1" SmallChange="0.1" LargeChange="0.25" />
+		<Slider Grid.Column="1" Grid.Row="11" Value="{Binding GainSmoothingOctaves}" Minimum="0" Maximum="1" SmallChange="0.1" LargeChange="0.25" />
 		<Slider Grid.Column="1" Grid.Row="12" Value="{Binding GainSmoothingAmount}" Minimum="0" Maximum="1" SmallChange="0.1" LargeChange="0.25" />
 		<Slider Grid.Column="1" Grid.Row="13" Value="{Binding GainStretchMode}" Minimum="0" Maximum="1" SmallChange="0.1" LargeChange="0.25" />
 
-		<Slider Grid.Column="1" Grid.Row="21" Value="{Binding RandomGainSmoothingSamples}" Minimum="0" Maximum="1" SmallChange="0.1" LargeChange="0.25" />
+		<Slider Grid.Column="1" Grid.Row="21" Value="{Binding RandomGainSmoothingOctaves}" Minimum="0" Maximum="1" SmallChange="0.1" LargeChange="0.25" />
 		<Slider Grid.Column="1" Grid.Row="22" Value="{Binding RandomGainSeed}" Minimum="0" Maximum="1" SmallChange="0.1" LargeChange="0.25" />
 		<Slider Grid.Column="1" Grid.Row="23" Value="{Binding RandomGainAmount}" Minimum="0" Maximum="1" SmallChange="0.1" LargeChange="0.25" />
 		<Slider Grid.Column="1" Grid.Row="24" Value="{Binding RandomSkewAmount}" Minimum="0" Maximum="1" SmallChange="0.1" LargeChange="0.25" />
@@ -157,11 +157,11 @@
 		<Label Grid.Row="7" Grid.Column="2" Content="{Binding GainReadout, FallbackValue=0.0dB}" />
 		<Label Grid.Row="8" Grid.Column="2" Content="{Binding DelaySamplesReadout, FallbackValue=0 Samples}" />
 
-		<Label Grid.Row="11" Grid.Column="2" Content="{Binding GainSmoothingSamplesReadout, FallbackValue=0 Samples}" />
+		<Label Grid.Row="11" Grid.Column="2" Content="{Binding GainSmoothingOctavesReadout, FallbackValue=0 Samples}" />
 		<Label Grid.Row="12" Grid.Column="2" Content="{Binding GainSmoothingAmountReadout, FallbackValue=0.0}" />
 		<Label Grid.Row="13" Grid.Column="2" Content="{Binding GainStretchModeReadout, FallbackValue=Bipolar}" />
 
-		<Label Grid.Row="21" Grid.Column="2" Content="{Binding RandomGainSmoothingSamplesReadout, FallbackValue=0 Samples}" />
+		<Label Grid.Row="21" Grid.Column="2" Content="{Binding RandomGainSmoothingOctavesReadout, FallbackValue=0 Samples}" />
 		<Label Grid.Row="22" Grid.Column="2" Content="{Binding RandomGainSeedReadout, FallbackValue=0}" />
 		<Label Grid.Row="23" Grid.Column="2" Content="{Binding RandomGainAmountReadout, FallbackValue=0.0dB}" />
 		<Label Grid.Row="24" Grid.Column="2" Content="{Binding RandomSkewAmountReadout, FallbackValue=0.0}" />

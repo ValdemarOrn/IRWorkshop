@@ -57,6 +57,54 @@ namespace ImpulseHd
 			var strengths = GetStrengths(stage);
 			ProcessGain(stage, strengths);
 			ProcessDelay(stage, strengths);
+			ProcessGainVariation(stage, strengths);
+		}
+
+		private void ProcessGainVariation(SpectrumStage stage, Strengths strengths)
+		{
+			var absMaxIndex = fftSignal.Length / 2;
+			var gain = new double[strengths.Strength.Length];
+			var amt = stage.GainSmoothingAmountTransformed;
+			var octavesToSmooth = stage.GainSmoothingOctavesTransformed;
+			var hzPerPartial = 1 / (double)absMaxIndex * samplerate / 2;
+
+			for (int i = 1; i <= fftSignal.Length / 2; i++)
+			{
+				var freq = i * hzPerPartial;
+				var lowFreq = freq * Math.Pow(2, -octavesToSmooth);
+				var highFreq = freq * Math.Pow(2, octavesToSmooth);
+				var iBelow = (freq - lowFreq) / hzPerPartial;
+				var iAbove = (highFreq - freq) / hzPerPartial;
+				
+				var avgSum = 0.0;
+				int count = 0;
+				for (int j = -(int)Math.Round(iBelow); j <= Math.Round(iAbove); j++)
+				{
+					var idx = i + j;
+					if (idx <= 0) continue;
+					if (idx > absMaxIndex) continue;
+					count++;
+					var sample = fftSignal[idx].Abs;
+					avgSum += sample;
+				}
+
+				avgSum /= count;
+				var avgDb = AudioLib.Utils.Gain2DB(avgSum);
+				var partialDb = AudioLib.Utils.Gain2DB(fftSignal[i].Abs);
+				var diffDb = partialDb - avgDb;
+
+				var stren = strengths.Strength[i];
+				var newMagDb = avgDb + diffDb * (amt * stren + 1 * (1-stren));
+				gain[i] = AudioLib.Utils.DB2gain(newMagDb) / fftSignal[i].Abs;
+			}
+
+			for (int i = strengths.FMin; i <= strengths.FMax; i++)
+			{
+				var g = gain[i];
+				fftSignal[i] *= (Complex)g;
+				fftSignal[fftSignal.Length - i] *= (Complex)g;
+			}
+
 		}
 
 		private void ProcessDelay(SpectrumStage stage, Strengths strengths)
@@ -89,7 +137,7 @@ namespace ImpulseHd
 			var fMax = Math.Round(stage.MaxFreqTransformed / (double)nyquist * absMaxIndex);
 
 			if (stage.MinFreqTransformed >= stage.MaxFreqTransformed)
-				return new Strengths {FMax = 1, FMin = 1, Strength = new double[(int)nyquist]};
+				return new Strengths {FMax = 1, FMin = 1, Strength = new double[absMaxIndex + 1] };
 
 			if (fMin < 1) fMin = 1;
 			if (fMax < 1) fMax = 1;
@@ -104,7 +152,7 @@ namespace ImpulseHd
 			if (fBlendMin >= absMaxIndex) fBlendMin = absMaxIndex;
 			if (fBlendMax >= absMaxIndex) fBlendMax = absMaxIndex;
 
-			var blendIn = new double[(int)nyquist];
+			var blendIn = new double[absMaxIndex + 1];
 			for (int i = (int)fMin; i <= (int)fMax; i++)
 			{
 				var octaveDistance = (i - fMin) / (fBlendMin - fMin) * stage.LowBlendOctsTransformed;
@@ -118,7 +166,7 @@ namespace ImpulseHd
 					blendIn[i] = 1.0;
 			}
 
-			var blendOut = new double[(int)nyquist];
+			var blendOut = new double[absMaxIndex + 1];
 			for (int i = (int)fMin; i <= (int)fMax; i++)
 			{
 				var octaveDistance = (i - fBlendMax) / (fMax - fBlendMax) * stage.HighBlendOctsTransformed;

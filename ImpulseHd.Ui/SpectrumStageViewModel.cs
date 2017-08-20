@@ -79,10 +79,10 @@ namespace ImpulseHd.Ui
 
 
 
-		public double GainSmoothingSamples
+		public double GainSmoothingOctaves
 		{
-			get { return stage.GainSmoothingSamples; }
-			set { stage.GainSmoothingSamples = value; NotifyPropertyChanged(); NotifyPropertyChanged(nameof(GainSmoothingSamplesReadout)); onUpdateCallback(); }
+			get { return stage.GainSmoothingOctaves; }
+			set { stage.GainSmoothingOctaves = value; NotifyPropertyChanged(); NotifyPropertyChanged(nameof(GainSmoothingOctavesReadout)); onUpdateCallback(); }
 		}
 
 		public double GainSmoothingAmount
@@ -98,10 +98,10 @@ namespace ImpulseHd.Ui
 		}
 
 
-		public double RandomGainSmoothingSamples
+		public double RandomGainSmoothingOctaves
 		{
-			get { return stage.RandomGainSmoothingSamples; }
-			set { stage.RandomGainSmoothingSamples = value; NotifyPropertyChanged(); NotifyPropertyChanged(nameof(RandomGainSmoothingSamplesReadout)); onUpdateCallback(); }
+			get { return stage.RandomGainSmoothingOctaves; }
+			set { stage.RandomGainSmoothingOctaves = value; NotifyPropertyChanged(); NotifyPropertyChanged(nameof(RandomGainSmoothingOctavesReadout)); onUpdateCallback(); }
 		}
 
 		public double RandomGainSeed
@@ -184,11 +184,11 @@ namespace ImpulseHd.Ui
 		public string GainReadout => $"{stage.GainTransformed:0.0}dB";
 		public string DelaySamplesReadout => $"{stage.DelaySamplesTransformed:0} Samples";
 
-		public string GainSmoothingSamplesReadout => $"{stage.GainSmoothingSamplesTransformed:0} Samples";
+		public string GainSmoothingOctavesReadout => $"{stage.GainSmoothingOctavesTransformed:0.00} Octaves";
 		public string GainSmoothingAmountReadout => $"{stage.GainSmoothingAmountTransformed:0.00}";
 		public string GainStretchModeReadout => stage.GainStretchModeTransformed.ToString();
 
-		public string RandomGainSmoothingSamplesReadout => $"{stage.RandomGainSmoothingSamplesTransformed:0} Samples";
+		public string RandomGainSmoothingOctavesReadout => $"{stage.RandomGainSmoothingOctavesTransformed:0:00} Octaves";
 		public string RandomGainSeedReadout => $"{stage.RandomGainSeedTransformed:0}";
 		public string RandomGainAmountReadout => $"{stage.RandomGainAmountTransformed:0.0}dB";
 		public string RandomSkewAmountReadout => $"{stage.RandomSkewAmountTransformed:0.00}";
