@@ -91,17 +91,17 @@ namespace ImpulseHd.Ui
 			set { stage.GainSmoothingAmount = value; NotifyPropertyChanged(); NotifyPropertyChanged(nameof(GainSmoothingAmountReadout)); onUpdateCallback(); }
 		}
 
-		public double GainStretchMode
+		public double GainSmoothingMode
 		{
-			get { return stage.GainStretchMode; }
-			set { stage.GainStretchMode = value; NotifyPropertyChanged(); NotifyPropertyChanged(nameof(GainStretchModeReadout)); onUpdateCallback(); }
+			get { return stage.GainSmoothingMode; }
+			set { stage.GainSmoothingMode = value; NotifyPropertyChanged(); NotifyPropertyChanged(nameof(GainSmoothingModeReadout)); onUpdateCallback(); }
 		}
 
 
-		public double RandomGainSmoothingOctaves
+		public double RandomGainFiltering
 		{
-			get { return stage.RandomGainSmoothingOctaves; }
-			set { stage.RandomGainSmoothingOctaves = value; NotifyPropertyChanged(); NotifyPropertyChanged(nameof(RandomGainSmoothingOctavesReadout)); onUpdateCallback(); }
+			get { return stage.RandomGainFiltering; }
+			set { stage.RandomGainFiltering = value; NotifyPropertyChanged(); NotifyPropertyChanged(nameof(RandomGainFilteringReadout)); onUpdateCallback(); }
 		}
 
 		public double RandomGainSeed
@@ -186,9 +186,9 @@ namespace ImpulseHd.Ui
 
 		public string GainSmoothingOctavesReadout => $"{stage.GainSmoothingOctavesTransformed:0.00} Octaves";
 		public string GainSmoothingAmountReadout => $"{stage.GainSmoothingAmountTransformed:0.00}";
-		public string GainStretchModeReadout => stage.GainStretchModeTransformed.ToString();
+		public string GainSmoothingModeReadout => stage.GainSmoothingModeTransformed.ToString();
 
-		public string RandomGainSmoothingOctavesReadout => $"{stage.RandomGainSmoothingOctavesTransformed:0:00} Octaves";
+		public string RandomGainFilteringReadout => $"{stage.RandomGainFilteringTransformed:0} Samples";
 		public string RandomGainSeedReadout => $"{stage.RandomGainSeedTransformed:0}";
 		public string RandomGainAmountReadout => $"{stage.RandomGainAmountTransformed:0.0}dB";
 		public string RandomSkewAmountReadout => $"{stage.RandomSkewAmountTransformed:0.00}";

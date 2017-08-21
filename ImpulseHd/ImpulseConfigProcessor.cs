@@ -57,10 +57,55 @@ namespace ImpulseHd
 			var strengths = GetStrengths(stage);
 			ProcessGain(stage, strengths);
 			ProcessGainVariation(stage, strengths);
-			
+			ProcessRandomGain(stage, strengths);
+
 			ProcessMinimumPhase(stage, strengths);
 
 			ProcessDelay(stage, strengths);
+		}
+
+		private void ProcessRandomGain(SpectrumStage stage, Strengths strengths)
+		{
+			var rand = new Random(0);
+			for (int i = 0; i < stage.RandomGainSeedTransformed; i++)
+				rand.NextDouble(); // pop off x number of samples, instead of re-seeding, we "move" the sequence forward
+			
+			var filterCount = stage.RandomGainFilteringTransformed;
+			var gainAmount = stage.RandomGainAmountTransformed;
+			var randCount = strengths.Strength.Length + 2 * filterCount;
+			var mode = stage.RandomGainModeTransformed;
+			var skew = stage.RandomSkewAmountTransformed;
+			var noise = Enumerable.Range(0, randCount).Select(x => rand.NextDouble() * 2 - 1).ToArray();
+			var filteredNoise = new double[strengths.Strength.Length];
+
+			for (int i = filterCount; i < noise.Length - filterCount; i++)
+			{
+				var sum = 0.0;
+				for (int j = -filterCount; j <= filterCount; j++)
+				{
+					var idx = i + j;
+					sum += noise[idx];
+				}
+
+				filteredNoise[i-filterCount] = sum / Math.Sqrt(2 * filterCount + 1);
+			}
+			
+			for (int i = strengths.FMin; i <= strengths.FMax; i++)
+			{
+				var skewedNoise = Math.Pow(Math.Abs(filteredNoise[i]), skew) * Math.Sign(filteredNoise[i]);
+				var gf = gainAmount * skewedNoise;
+
+				var dbGain = gf * strengths.Strength[i];
+				var scaler = AudioLib.Utils.DB2gain(dbGain);
+
+				if (mode == ApplyMode.Amplify && scaler < 1)
+					scaler = 1;
+				if (mode == ApplyMode.Reduce && scaler > 1)
+					scaler = 1;
+				fftSignal[i] *= (Complex)scaler;
+				fftSignal[fftSignal.Length - i] *= (Complex)scaler;
+			}
+
 		}
 
 		private Complex[] Hilbert(double[] xr)
@@ -193,6 +238,7 @@ namespace ImpulseHd
 			var amt = stage.GainSmoothingAmountTransformed;
 			var octavesToSmooth = stage.GainSmoothingOctavesTransformed;
 			var hzPerPartial = 1 / (double)absMaxIndex * samplerate / 2;
+			var mode = stage.GainSmoothingModeTransformed;
 
 			for (int i = 1; i <= fftSignal.Length / 2; i++)
 			{
@@ -221,7 +267,13 @@ namespace ImpulseHd
 
 				var stren = strengths.Strength[i];
 				var newMagDb = avgDb + diffDb * (amt * stren + 1 * (1-stren));
-				gain[i] = AudioLib.Utils.DB2gain(newMagDb) / fftSignal[i].Abs;
+				var newGain = AudioLib.Utils.DB2gain(newMagDb) / fftSignal[i].Abs;
+				gain[i] = newGain;
+
+				if (mode == ApplyMode.Amplify && newGain < 1)
+					gain[i] = 1;
+				else if (mode == ApplyMode.Reduce && newGain > 1)
+					gain[i] = 1;
 			}
 
 			for (int i = strengths.FMin; i <= strengths.FMax; i++)

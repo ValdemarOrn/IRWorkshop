@@ -1,75 +1,26 @@
 delay in the Freq domain: 
-
 http://stackoverflow.com/questions/31586803/delay-a-signal-in-time-domain-with-a-phase-change-in-the-frequency-domain-after
-
 Ci = ci * Exp(-2*pi*i * sampleDelay / SIZE)
-
 can delay different freq spectrums by different amount and that seems to work well.
 
 
-implement convolution in c++, rest in c#.
+Todo:
 
-add a "stretch magnitude" feature, which scales (on a log axis) the magnitude response to accentuate or "squash" resonant peaks.
+Finish up Spectrum features
+	Gain randomization
+	Gain Stretch
+	Phase delay bands
+Implement output stage
+Solo spectrum stage
+solo per impulse
+On chart, allow showing Left or Right output processed sample, or the (current) unprocessed, direct-from-spectrum sample
+Plot a line on the sample chart showing the sample window length (set by master)
+Disable UI features that are rendered useless by minimum phase enabled
+Windowing features
+New/Open/Save feature
+Hook up remaining menu item commands
+Rename project, create icon
 
-Add Proximity feature
-
-"Zero phase"
-
-High and low pass
-Delay LR (HAAS effect-ish) and volume LR (pan)
-
-
-Add smoothing/peak enhancement to full spectrum
-Peak enhancement should have 3 modes: Bipolar, Amplify and Reduce.
-weighted average provides the baseline magnitude to which the operation is applied over.
-
-Add smoothed noise to parts of the spectrum. Gets added 
-Controls:
-Smooth
-Freq Range
-Amount
-
-
----------------------------------------
-More refined idea here below
------------------------
-
-
-Offer 8 blocks of "processing", applied serially.
-block controls:
-
-Min Freq
-Max Freq
-Crossover (step, linear, cosine) - the transition from the in and out of band
-Gain
-Delay
-
-Smooth range (how many samples in window)
-Stretch Squash Amount (applied over the smoothed range)
-Stretch Square Mode (Bipolar, Amplify and Reduce)
-
-Random Smoothness
-Random Seed
-Random Amount
-Random Skew - a modifier on the random number (e.g. power(x, a) where a is the skew from 0.1...10)
-Random Mode (Bipolar, Amplify and Reduce)
-
-Random delay to frequency bands - stereo widener effect
-Phase Bands - how many bands to split the range into
-PhaseDelayAmount - how much delay on average to apply (scales the random number per band)
-PhaseDelaySeed - random seed
-
-stretch frequency range left to right
-
-
-
----------------------------------
-Simpler mixing stage
-
-Sample Delay L/R (single slider)
-Pan L/R
-Phase Invert left and right
-Low/Hi pass left and right
 
 
 

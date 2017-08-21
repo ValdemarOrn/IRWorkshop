@@ -73,10 +73,10 @@ namespace ImpulseHd
 		// Gain variation
 		public double GainSmoothingOctaves { get; set; }
 		public double GainSmoothingAmount { get; set; }
-		public double GainStretchMode { get; set; }
+		public double GainSmoothingMode { get; set; }
 
 		// Applies random gain to the each frequency band.
-		public double RandomGainSmoothingOctaves { get; set; }
+		public double RandomGainFiltering { get; set; }
 		public double RandomGainSeed { get; set; }
 		public double RandomGainAmount { get; set; }
 		public double RandomSkewAmount { get; set; }
@@ -105,21 +105,21 @@ namespace ImpulseHd
 		// Gain variation
 		public double GainSmoothingOctavesTransformed => ValueTables.Get(GainSmoothingOctaves, ValueTables.Response2Dec) * 2;
 		public double GainSmoothingAmountTransformed => (Math.Pow(10, GainSmoothingAmount * 2 - 1) - 0.1) / 0.9;
-		public ApplyMode GainStretchModeTransformed
+		public ApplyMode GainSmoothingModeTransformed
 		{
 			get
 			{
-				if (GainStretchMode < 0.33) return ApplyMode.Reduce;
-				if (GainStretchMode < 0.66) return ApplyMode.Bipolar;
+				if (GainSmoothingMode < 0.33) return ApplyMode.Reduce;
+				if (GainSmoothingMode < 0.66) return ApplyMode.Bipolar;
 				else return ApplyMode.Amplify;
 			}
 		}
 
 		// Applies random gain to the each frequency band.
-		public double RandomGainSmoothingOctavesTransformed => ValueTables.Get(RandomGainSmoothingOctaves, ValueTables.Response2Dec) * 2;
+		public int RandomGainFilteringTransformed => (int)(ValueTables.Get(RandomGainFiltering, ValueTables.Response2Oct) * 128);
 		public int RandomGainSeedTransformed => (int)(RandomGainSeed * 10000);
-		public double RandomGainAmountTransformed => (RandomGainAmount * 2 - 1) * 40;
-		public double RandomSkewAmountTransformed => Math.Pow(10, RandomSkewAmount * 2 - 1);
+		public double RandomGainAmountTransformed => RandomGainAmount * 40;
+		public double RandomSkewAmountTransformed => Math.Pow(3, RandomSkewAmount * 2 - 1);
 		public ApplyMode RandomGainModeTransformed
 		{
 			get
@@ -164,11 +164,11 @@ namespace ImpulseHd
 
 				GainSmoothingOctaves = 0.2,
 				GainSmoothingAmount = 0.5,
-				GainStretchMode = 0.5,
+				GainSmoothingMode = 0.5,
 
-				RandomGainSmoothingOctaves = 0.2,
+				RandomGainFiltering = 0.2,
 				RandomGainSeed = 0,
-				RandomGainAmount = 0.5,
+				RandomGainAmount = 0.0,
 				RandomSkewAmount = 0.5,
 				RandomGainMode = 0.5,
 
