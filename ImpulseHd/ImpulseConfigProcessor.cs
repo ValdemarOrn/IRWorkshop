@@ -58,10 +58,38 @@ namespace ImpulseHd
 			ProcessGain(stage, strengths);
 			ProcessGainVariation(stage, strengths);
 			ProcessRandomGain(stage, strengths);
+			ProcessorFrequencySkew(stage, strengths);
 
 			ProcessMinimumPhase(stage, strengths);
 
 			ProcessDelay(stage, strengths);
+		}
+
+		private void ProcessorFrequencySkew(SpectrumStage stage, Strengths strengths)
+		{
+			var scaler = stage.FrequencySkewTransformed;
+			var pinToTop = stage.PinToHighFrequency;
+			var magnitude = fftSignal.Select(x => x.Abs).ToArray();
+			
+			for (int i = strengths.FMin; i <= strengths.FMax; i++)
+			{
+				double k;
+				if (pinToTop)
+				{
+					k = strengths.FMax - (strengths.FMax - i) * scaler;
+					if (k < strengths.FMin)
+						k = strengths.FMin;
+				}
+				else
+				{
+					k = (i - strengths.FMin) * scaler + strengths.FMin;
+					if (k > strengths.FMax)
+						k = strengths.FMax;
+				}
+
+				var interpolated = AudioLib.Interpolate.Spline(k, magnitude, false);
+				fftSignal[i].Abs = interpolated;
+			}
 		}
 
 		private void ProcessRandomGain(SpectrumStage stage, Strengths strengths)

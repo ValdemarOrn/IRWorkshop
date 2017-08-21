@@ -136,12 +136,6 @@ namespace ImpulseHd.Ui
 			set { stage.FrequencySkew = value; NotifyPropertyChanged(); NotifyPropertyChanged(nameof(FrequencySkewReadout)); onUpdateCallback(); }
 		}
 
-		public double FrequencySkewMode
-		{
-			get { return stage.FrequencySkewMode; }
-			set { stage.FrequencySkewMode = value; NotifyPropertyChanged(); NotifyPropertyChanged(nameof(FrequencySkewModeReadout)); onUpdateCallback(); }
-		}
-
 		public bool PinToHighFrequency
 		{
 			get { return stage.PinToHighFrequency; }
@@ -195,7 +189,6 @@ namespace ImpulseHd.Ui
 		public string RandomGainModeReadout => stage.RandomGainModeTransformed.ToString();
 
 		public string FrequencySkewReadout => $"{stage.FrequencySkewTransformed:0.00}";
-		public string FrequencySkewModeReadout => stage.FrequencySkewModeTransformed.ToString();
 
 		public string PhaseBandsReadout => $"{stage.PhaseBandsTransformed:0} Bands";
 		public string PhaseBandDelayAmountReadout => $"{stage.PhaseBandDelayAmountTransformed:0} Samples";

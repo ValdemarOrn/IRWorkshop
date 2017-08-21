@@ -110,7 +110,6 @@
 		<Label Grid.Row="30" Grid.Column="0" Grid.ColumnSpan="3" FontWeight="Bold">Frequency Skew</Label>
 
 		<Label Grid.Row="31" Grid.Column="0">Skew Amount</Label>
-		<Label Grid.Row="32" Grid.Column="0">Skew Mode</Label>
 		<Label Grid.Row="33" Grid.Column="0">Pin To High</Label>
 
 		<Label Grid.Row="40" Grid.Column="0" Grid.ColumnSpan="3" FontWeight="Bold">Phase Bands</Label>
@@ -142,7 +141,6 @@
 		<Slider Grid.Column="1" Grid.Row="25" Value="{Binding RandomGainMode}" Minimum="0" Maximum="1" SmallChange="0.1" LargeChange="0.25" />
 
 		<Slider Grid.Column="1" Grid.Row="31" Value="{Binding FrequencySkew}" Minimum="0" Maximum="1" SmallChange="0.1" LargeChange="0.25" />
-		<Slider Grid.Column="1" Grid.Row="32" Value="{Binding FrequencySkewMode}" Minimum="0" Maximum="1" SmallChange="0.1" LargeChange="0.25" />
 		<CheckBox Grid.Column="1" Grid.Row="33" IsChecked="{Binding PinToHighFrequency}" />
 
 		<Slider Grid.Column="1" Grid.Row="41" Value="{Binding PhaseBands}" Minimum="0" Maximum="1" SmallChange="0.1" LargeChange="0.25" />
@@ -168,7 +166,6 @@
 		<Label Grid.Row="25" Grid.Column="2" Content="{Binding RandomGainModeReadout, FallbackValue=Bipolar}" />
 
 		<Label Grid.Row="31" Grid.Column="2" Content="{Binding FrequencySkewReadout, FallbackValue=0.0}" />
-		<Label Grid.Row="32" Grid.Column="2" Content="{Binding FrequencySkewModeReadout, FallbackValue=Zero}" />
 
 		<Label Grid.Row="41" Grid.Column="2" Content="{Binding PhaseBandsReadout, FallbackValue=0 Bands}" />
 		<Label Grid.Row="42" Grid.Column="2" Content="{Binding PhaseBandDelayAmountReadout, FallbackValue=0 Samples}" />

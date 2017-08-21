@@ -84,7 +84,6 @@ namespace ImpulseHd
 
 		// Skews the freuqency bands up or down
 		public double FrequencySkew { get; set; }
-		public double FrequencySkewMode { get; set; }
 		public bool PinToHighFrequency { get; set; } // if true, will peg the high freq. in place rather than the low frequency
 
 		// Splits the signal up into N bands and applies random delay (stereo widening)
@@ -132,16 +131,6 @@ namespace ImpulseHd
 
 		// Skews the freuqency bands up or down
 		public double FrequencySkewTransformed => Math.Pow(2, FrequencySkew * 4 - 2);
-		public FreqSkewMode FrequencySkewModeTransformed
-		{
-			get
-			{
-				if (FrequencySkewMode < 0.33) return FreqSkewMode.Move;
-				if (FrequencySkewMode < 0.66) return FreqSkewMode.Skew;
-				else return FreqSkewMode.Zero;
-			}
-
-		}
 
 		// Splits the signal up into N bands and applies random delay (stereo widening)
 		public int PhaseBandsTransformed => (int)((PhaseBands - 0.001) * 8) + 1;
@@ -173,7 +162,6 @@ namespace ImpulseHd
 				RandomGainMode = 0.5,
 
 				FrequencySkew = 0.5,
-				FrequencySkewMode = 1,
 				PinToHighFrequency = false,
 				
 				PhaseBands = 0.5,
