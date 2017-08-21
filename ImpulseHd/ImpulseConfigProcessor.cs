@@ -56,8 +56,134 @@ namespace ImpulseHd
 
 			var strengths = GetStrengths(stage);
 			ProcessGain(stage, strengths);
-			ProcessDelay(stage, strengths);
 			ProcessGainVariation(stage, strengths);
+			
+			ProcessMinimumPhase(stage, strengths);
+
+			ProcessDelay(stage, strengths);
+		}
+
+		private Complex[] Hilbert(double[] xr)
+		{
+			/* Matlab prototype - use "type hilbert" to get the code for the function in matlab!
+			function output = myhilb(xr)
+			n = size(xr,1);
+			if (n == 1)
+				xr = xr';
+				n = size(xr,1);
+			end
+
+			x = fft(xr,n); % n-point FFT over columns.
+			h  = zeros(n,1); % nx1 for nonempty. 0x0 for empty.
+
+			if mod(n, 2) == 0
+			  % even and nonempty
+			  h([1 n/2+1]) = 1;
+			  h(2:n/2) = 2;
+			else
+			  % odd and nonempty
+			  h(1) = 1;
+			  h(2:(n+1)/2) = 2;
+			end
+
+			xh = x.*h;
+			x = ifft(xh);
+
+			% Convert back to the original shape.
+			%x = shiftdim(x,-nshifts);
+			x = conj(x)';
+			output = x;
+			end
+
+			*/
+			
+			var n = xr.Length;
+			var transform = new Transform(n);
+			var xrc = xr.Select(xx => (Complex)xx).ToArray();
+			var x = new Complex[xrc.Length];
+			transform.FFT(xrc, x); // n-point FFT over columns.
+			var h = new double[n]; // nx1 for nonempty. 0x0 for empty.
+
+			if (n % 2 == 0)
+			{ 
+				// even and nonempty
+				h[0] = 1;
+				h[n / 2] = 1;
+				for (int i = 1; i < n/2; i++)
+					h[i] = 2;
+			}
+			else
+			{ 
+			  // odd and nonempty
+				h[0] = 1;
+				for (int i = 1; i <= n / 2; i++) // NOT TEST NOT SURE CORRECT!
+					h[i] = 2;
+			}
+
+			var xh = new Complex[x.Length];
+			for (int i = 0; i < xh.Length; i++)
+				xh[i] = x[i] * (Complex)h[i];
+			
+			transform.IFFT(xh, x);
+
+			// Convert back to the original shape.
+			// some reason I this I didn't have to apply this step to get the identical result... wat?!
+			//for (int i = 0; i < xh.Length; i++)
+			//	x[i].Imag = -x[i].Imag;
+
+			return x;
+		}
+
+		private void ProcessMinimumPhase(SpectrumStage stage, Strengths strengths)
+		{
+			// https://dsp.stackexchange.com/questions/7872/derive-minimum-phase-from-magnitude
+			// https://ccrma.stanford.edu/~jos/sasp/Minimum_Phase_Filter_Design.html
+			// https://uk.mathworks.com/matlabcentral/newsreader/view_thread/17748
+			// https://stackoverflow.com/questions/11942855/matlab-hilbert-transform-in-c
+
+			/* Matlab example that achieves what we want:
+				t=-15:0.25:15;
+				x = pi*t+j*1e-9;
+				h = real(sin(x)./x); % simple linear phase FIR
+				H = fft(h,128);
+				reaLogH = log(abs(H));
+				hilb = hilbert(reaLogH);
+				H2 = exp(hilb);
+				hMinPhase = real(fliplr(ifft(H2)));
+				hMinPhase = hMinPhase(1:length(h));
+
+				figure(1)
+				plot(t,h,t,hMinPhase)
+				xlabel('time')
+				ylabel('Amplitude')
+			*/
+
+			// hilbert function is the only problematic one, but I've translated that over to C#
+			// This is still pretty much numbers voodoo to me, could someone in the fucking field write up a pragmatic description 
+			// of just what the fuck the hilbert transform does without using pages and pages of obscure math?
+			// fuck I hate academics...
+
+			if (!stage.MinimumPhase)
+				return;
+
+			var H = fftSignal;
+			var reaLogH = new double[H.Length];
+			for (int i = 0; i < fftSignal.Length; i++)
+			{
+				reaLogH[i] = Math.Log(H[i].Abs);
+			}
+
+			var hilb = Hilbert(reaLogH);
+			var H2 = hilb // translate over to System.Numerics as I don't have a Complex.Exp(Complex) function in my library... fail on me
+				.Select(x => new System.Numerics.Complex(x.Real, x.Imag))
+				.Select(x => System.Numerics.Complex.Exp(x))
+				.Select(x => new Complex(x.Real, x.Imaginary))
+				.ToArray();
+
+			for (int i = 0; i < fftSignal.Length; i++)
+			{
+				fftSignal[i] = H2[i];
+			}
 		}
 
 		private void ProcessGainVariation(SpectrumStage stage, Strengths strengths)
