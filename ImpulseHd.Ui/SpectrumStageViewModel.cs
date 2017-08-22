@@ -27,19 +27,12 @@ namespace ImpulseHd.Ui
 			set { stage.IsEnabled = value; NotifyPropertyChanged(); onUpdateCallback(); }
 		}
 
-		public bool Solo
-		{
-			get { return stage.Solo; }
-			set { stage.Solo = value; NotifyPropertyChanged(); onUpdateCallback(); }
-		}
-
 		public bool MinimumPhase
 		{
 			get { return stage.MinimumPhase; }
 			set { stage.MinimumPhase = value; NotifyPropertyChanged(); onUpdateCallback(); }
 		}
-
-
+		
 
 		public double MinFreq
 		{

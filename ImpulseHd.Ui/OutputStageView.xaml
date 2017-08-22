@@ -61,8 +61,7 @@
 		<Label Grid.Row="1" Grid.Column="0">Delay Left</Label>
 		<Label Grid.Row="2" Grid.Column="0">Delay Right</Label>
 		<Label Grid.Row="3" Grid.Column="0">Pan</Label>
-		<Label Grid.Row="4" Grid.Column="0">Invert Phase Left</Label>
-		<Label Grid.Row="5" Grid.Column="0">Invert Phase Right</Label>
+		<Label Grid.Row="4" Grid.Column="0">Invert Phase</Label>
 		<Label Grid.Row="6" Grid.Column="0">Low Cut Left</Label>
 		<Label Grid.Row="7" Grid.Column="0">Low Cut Right</Label>
 		<Label Grid.Row="8" Grid.Column="0">High Cut Left</Label>
@@ -74,8 +73,13 @@
 		<Slider Grid.Column="1" Grid.Row="1" />
 		<Slider Grid.Column="1" Grid.Row="2" />
 		<Slider Grid.Column="1" Grid.Row="3" />
-		<CheckBox Grid.Column="1" Grid.Row="4" VerticalAlignment="Center" />
-		<CheckBox Grid.Column="1" Grid.Row="5" VerticalAlignment="Center" />
+		<StackPanel Grid.Column="1" Grid.Row="4" Orientation="Horizontal">
+			<CheckBox VerticalAlignment="Center" />
+			<Label Margin="0,0,50,0">Left</Label>
+			<CheckBox VerticalAlignment="Center" />
+			<Label>Right</Label>
+		</StackPanel>
+		
 		<Slider Grid.Column="1" Grid.Row="6" />
 		<Slider Grid.Column="1" Grid.Row="7" />
 		<Slider Grid.Column="1" Grid.Row="8" />

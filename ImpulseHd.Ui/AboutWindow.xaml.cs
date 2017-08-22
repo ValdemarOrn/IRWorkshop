@@ -10,23 +10,23 @@ using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
 using System.Windows.Shapes;
 
 namespace ImpulseHd.Ui
 {
 	/// <summary>
-	/// Interaction logic for MainWindow.xaml
+	/// Interaction logic for AboutWindow.xaml
 	/// </summary>
-	public partial class MainWindow : Window
+	public partial class AboutWindow : Window
 	{
-		public MainWindow()
+		public AboutWindow()
 		{
 			InitializeComponent();
-			DataContext = new MainViewModel();
 		}
 
-		private void MenuItem_Click(object sender, RoutedEventArgs e)
+		public string VersionString => "Version 0.1.0";
+
+		private void Button_Click(object sender, RoutedEventArgs e)
 		{
 			Close();
 		}

@@ -61,7 +61,6 @@ namespace ImpulseHd
 	{
 		// Basic settings
 		public bool IsEnabled { get; set; }
-		public bool Solo { get; set; } // mutes out all frequency bands not in range
 		public bool MinimumPhase { get; set; }
 		public double MinFreq { get; set; }
 		public double MaxFreq { get; set; }

@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:ImpulseHd.Ui"
         xmlns:oxy="http://oxyplot.org/wpf"
         mc:Ignorable="d"
-        Title="MainWindow" Height="676" Width="1200">
+        Title="{Binding Title}" Height="676" Width="1200">
 	<DockPanel>
 		<Menu DockPanel.Dock="Top">
 			<MenuItem Header="_File">
@@ -15,24 +15,13 @@
 				<MenuItem Header="Save"></MenuItem>
 				<Separator></Separator>
 				<MenuItem Header="Export Wav" Command="{Binding ExportWavCommand}"></MenuItem>
-				<Separator></Separator>
-				<MenuItem Header="Exit"></MenuItem>
-			</MenuItem>
-			<MenuItem Header="_Edit">
-				<MenuItem Header="Add Impulse"></MenuItem>
-				<MenuItem Header="Remove Impulse"></MenuItem>
-				<Separator></Separator>
-				<MenuItem Header="Add Stage"></MenuItem>
-				<MenuItem Header="Remove Stage"></MenuItem>
-				<Separator></Separator>
-				<MenuItem Header="Move Stage Left"></MenuItem>
-				<MenuItem Header="Move Stage Right"></MenuItem>
-				<Separator></Separator>
 				<MenuItem Header="Audio Setup" Command="{Binding AudioSetupCommand}"></MenuItem>
+				<Separator></Separator>
+				<MenuItem Header="Exit" Click="MenuItem_Click"></MenuItem>
 			</MenuItem>
 			<MenuItem Header="_About">
-				<MenuItem Header="About Impulse HD"></MenuItem>
-				<MenuItem Header="Check for Updates"></MenuItem>
+				<MenuItem Header="About Impulse HD" Command="{Binding ShowAboutCommand}"></MenuItem>
+				<MenuItem Header="Check for Updates" Command="{Binding CheckForUpdatesCommand}"></MenuItem>
 			</MenuItem>
 			
 		</Menu>

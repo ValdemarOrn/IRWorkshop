@@ -7,21 +7,13 @@ can delay different freq spectrums by different amount and that seems to work we
 Todo:
 
 Finish up Spectrum features
-	Gain randomization
-	Gain Stretch
 	Phase delay bands
 Implement output stage
-Solo spectrum stage
+Add/remove/reorder impulses
 solo per impulse
 On chart, allow showing Left or Right output processed sample, or the (current) unprocessed, direct-from-spectrum sample
-Plot a line on the sample chart showing the sample window length (set by master)
-Disable UI features that are rendered useless by minimum phase enabled
 Windowing features
 New/Open/Save feature
-Hook up remaining menu item commands
-Rename project, create icon
-
-
 
 
 -----------------------------------

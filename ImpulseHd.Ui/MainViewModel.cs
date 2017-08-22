@@ -2,6 +2,7 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -55,6 +56,7 @@ namespace ImpulseHd.Ui
 
 		public MainViewModel()
 		{
+			Title = "ImpulseEngine - v" + Assembly.GetExecutingAssembly().GetName().Version;
 			settingsFile = Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), "settings.json");
 			this.updateRateLimiter = new LastRetainRateLimiter(100, UpdateSample);
 			
@@ -68,7 +70,9 @@ namespace ImpulseHd.Ui
 			ImpulseConfig.Add(new ImpulseConfigViewModel(ic)
 			{
 				OnUpdateCallback = () => updateRateLimiter.Pulse(),
-				OnLoadSampleCallback = dir => loadSampleDirectory = Path.GetDirectoryName(dir)
+				OnLoadSampleCallback = dir => loadSampleDirectory = Path.GetDirectoryName(dir),
+				ImpulseLength = preset.ImpulseLength,
+				Samplerate = preset.Samplerate
 			});
 			ImpulseConfig[0].LoadSampleData();
 			
@@ -83,6 +87,9 @@ namespace ImpulseHd.Ui
 
 		    AudioSetupCommand = new DelegateCommand(_ => AudioSetup());
 			ExportWavCommand = new DelegateCommand(_ => ExportWav());
+			ShowAboutCommand = new DelegateCommand(_ => ShowAbout());
+			CheckForUpdatesCommand = new DelegateCommand(_ => Process.Start("https://github.com/ValdemarOrn/ImpulseEngine"));
+
 			selectedInputL = -1;
 		    selectedInputR = -1;
 		    selectedOutputL = -1;
@@ -98,6 +105,8 @@ namespace ImpulseHd.Ui
 			t3.Priority = ThreadPriority.Lowest;
 			t3.Start();
 		}
+
+	    public string Title { get; set; }
 		
 	    public ObservableCollection<ImpulseConfigViewModel> ImpulseConfig
 		{
@@ -119,6 +128,8 @@ namespace ImpulseHd.Ui
 
 	    public ICommand AudioSetupCommand { get; private set; }
 		public ICommand ExportWavCommand { get; private set; }
+		public ICommand ShowAboutCommand { get; private set; }
+		public ICommand CheckForUpdatesCommand { get; private set; }
 
 		public string[] InputNames
 	    {
@@ -174,7 +185,13 @@ namespace ImpulseHd.Ui
 			    else if (iVal == 4)
 				    preset.ImpulseLength = 4096;
 
-				NotifyPropertyChanged();
+			    if (ImpulseConfig != null)
+			    {
+				    foreach (var ic in ImpulseConfig)
+					    ic.ImpulseLength = preset.ImpulseLength;
+			    }
+
+			    NotifyPropertyChanged();
 			    NotifyPropertyChanged(nameof(ImpulseLengthReadout));
 			    updateRateLimiter.Pulse();
 			}
@@ -272,7 +289,14 @@ namespace ImpulseHd.Ui
 
 	    public PlotModel PlotTop => selectedTab?.Header?.ToString() == "Master" ? PlotImpulseLeft : SelectedImpulse?.Plot1;
 	    public PlotModel PlotBottom => selectedTab?.Header?.ToString() == "Master" ? PlotImpulseRight : SelectedImpulse?.Plot2;
-
+		
+	    private void ShowAbout()
+	    {
+		    var w = new AboutWindow();
+		    w.Owner = Application.Current.MainWindow;
+		    w.ShowDialog();
+	    }
+		
 		private void ExportWav()
 	    {
 			var saveFileDialog = new SaveFileDialog();

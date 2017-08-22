@@ -29,7 +29,8 @@ namespace ImpulseHd.Ui
 		private PlotModel plotModel;
 	    private PlotModel plot2;
 	    private int selectedSpectrumStage;
-	    
+	    private int impulseLength;
+
 	    public ImpulseConfigViewModel(ImpulseConfig config)
 	    {
 		    this.updateRateLimiter = new LastRetainRateLimiter(100, UpdateInner);
@@ -37,8 +38,10 @@ namespace ImpulseHd.Ui
 			LoadSampleCommand = new DelegateCommand(_ => LoadSampleDialog());
 		    AddStageCommand = new DelegateCommand(_ => AddStage());
 		    RemoveStageCommand = new DelegateCommand(_ => RemoveStage());
+		    MoveStageLeftCommand = new DelegateCommand(_ => MoveStageLeft());
+		    MoveStageRightCommand = new DelegateCommand(_ => MoveStageRight());
 
-		    LoadSampleData();
+			LoadSampleData();
 	    }
 
 	    public Complex[] FftSignal { get; private set; }
@@ -99,10 +102,18 @@ namespace ImpulseHd.Ui
 		    set { plot2 = value; base.NotifyPropertyChanged(); }
 	    }
 
+	    public int ImpulseLength
+		{
+		    get { return impulseLength; }
+		    set { impulseLength = value; Update(); }
+	    }
+
 	    public ICommand LoadSampleCommand { get; private set; }
 		public ICommand AddStageCommand { get; private set; }
 	    public ICommand RemoveStageCommand { get; private set; }
-
+	    public ICommand MoveStageLeftCommand { get; private set; }
+	    public ICommand MoveStageRightCommand { get; private set; }
+		
 		public Action OnUpdateCallback { get; set; }
 	    public Action<string> OnLoadSampleCallback { get; set; }
 
@@ -121,7 +132,36 @@ namespace ImpulseHd.Ui
 		    Update();
 	    }
 
-	    private void RemoveStage()
+
+	    private void MoveStageLeft()
+	    {
+		    var idx = SelectedSpectrumStageIndex;
+			if (idx == 0)
+				return;
+
+		    var temp = impulseConfig.SpectrumStages[idx];
+		    impulseConfig.SpectrumStages[idx] = impulseConfig.SpectrumStages[idx - 1];
+			impulseConfig.SpectrumStages[idx - 1] = temp;
+		    var selStage = SelectedSpectrumStageIndex - 1;
+			NotifyPropertyChanged(nameof(SpectrumStages));
+		    SelectedSpectrumStageIndex = selStage;
+	    }
+
+		private void MoveStageRight()
+	    {
+			var idx = SelectedSpectrumStageIndex;
+		    if (idx == impulseConfig.SpectrumStages.Length - 1)
+			    return;
+
+		    var temp = impulseConfig.SpectrumStages[idx];
+		    impulseConfig.SpectrumStages[idx] = impulseConfig.SpectrumStages[idx + 1];
+		    impulseConfig.SpectrumStages[idx + 1] = temp;
+		    var selStage = SelectedSpectrumStageIndex + 1;
+			NotifyPropertyChanged(nameof(SpectrumStages));
+		    SelectedSpectrumStageIndex = selStage;
+	    }
+		
+		private void RemoveStage()
 	    {
 		    var toRemove = SelectedSpectrumStageIndex;
 		    impulseConfig.SpectrumStages = impulseConfig.SpectrumStages.Take(toRemove).Concat(impulseConfig.SpectrumStages.Skip(toRemove + 1)).ToArray();
@@ -215,14 +255,33 @@ namespace ImpulseHd.Ui
 		    var millis = Utils.Linspace(0, time, realData.Length).ToArray();
 		    var pm = new PlotModel();
 
-			var line = pm.AddLine(millis, millis.Select(x => 0.0));
+			// end of sample marker
+		    var millisLine = ImpulseLength / Samplerate * 1000;
+		    var line = pm.AddLine(new[] { millisLine - 0.0001, millisLine + 0.0001 }, new[] { -1000.0, 1000.0 });
+		    line.StrokeThickness = 2.0;
+		    line.Color = OxyColor.FromArgb(50, 255, 0, 0);
+
+			// zero line
+			line = pm.AddLine(millis, millis.Select(x => 0.0));
 		    line.StrokeThickness = 1.0;
 		    line.Color = OxyColor.FromArgb(50, 0, 0, 0);
 
+			// sample data
 			line = pm.AddLine(millis, realData);
 		    line.StrokeThickness = 1.0;
 			line.Color = OxyColors.Black;
-			
+
+		    var axis = new LinearAxis {Position = AxisPosition.Left};
+		    var maxAbs = Math.Max(Math.Abs(realData.Min()), Math.Abs(realData.Max()));
+		    axis.Minimum = -maxAbs;
+		    axis.Maximum = maxAbs;
+			pm.Axes.Add(axis);
+
+		    axis = new LinearAxis { Position = AxisPosition.Bottom };
+		    axis.Minimum = 0;
+		    axis.Maximum = millisLine * 1.1;
+		    pm.Axes.Add(axis);
+
 			return pm;
 		}
 

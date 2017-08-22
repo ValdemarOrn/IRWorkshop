@@ -39,8 +39,10 @@
 		</StackPanel>
 
 		<Label Grid.Column="1" Grid.Row="2">Name:</Label>
-		<TextBox Grid.Column="2" Grid.Row="2"  Margin="2,2,140,2" Text="{Binding Name}" />
-		<StackPanel Grid.Column="2" Grid.Row="2" HorizontalAlignment="Right" Orientation="Horizontal">
+		<Label Grid.Column="1" Grid.Row="3">Solo:</Label>
+		<TextBox Grid.Column="2" Grid.Row="2" Margin="2,2,140,2" Text="{Binding Name}" />
+		<CheckBox Grid.Column="2" Grid.Row="3" IsChecked="{Binding Solo}" />
+		<StackPanel Grid.Column="2" Grid.Row="3" HorizontalAlignment="Right" Orientation="Horizontal">
 			<Button Command="{Binding AddStageCommand}">
 				<Button.Template>
 					<ControlTemplate>
@@ -55,14 +57,14 @@
 					</ControlTemplate>
 				</Button.Template>
 			</Button>
-			<Button Command="{Binding RemoveStageCommand}">
+			<Button Command="{Binding MoveStageLeftCommand}">
 				<Button.Template>
 					<ControlTemplate>
 						<Label Padding="0" VerticalAlignment="Center" Margin="4" Foreground="#446eba" Cursor="Hand">&lt;--</Label>
 					</ControlTemplate>
 				</Button.Template>
 			</Button>
-			<Button Command="{Binding RemoveStageCommand}">
+			<Button Command="{Binding MoveStageRightCommand}">
 				<Button.Template>
 					<ControlTemplate>
 						<Label Padding="0" VerticalAlignment="Center" Margin="4" Foreground="#446eba" Cursor="Hand">--&gt;</Label>
@@ -70,7 +72,11 @@
 				</Button.Template>
 			</Button>
 		</StackPanel>
-
+		<StackPanel Grid.Column="2" Grid.Row="2" HorizontalAlignment="Right" Orientation="Horizontal">
+			<ToggleButton Width="86" Margin="2,2">Base</ToggleButton>
+			<ToggleButton Width="20" Margin="2,2">L</ToggleButton>
+			<ToggleButton Width="20" Margin="2,2">R</ToggleButton>
+		</StackPanel>
 		<TabControl Grid.Column="1" Grid.ColumnSpan="2" Grid.Row="4" ItemsSource="{Binding SpectrumStages}" SelectedIndex="{Binding SelectedSpectrumStageIndex}" >
 			<TabControl.Resources>
 				<Style TargetType="TabItem">
