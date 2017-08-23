@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using AudioLib;
 
 namespace ImpulseHd
 {
@@ -63,6 +64,68 @@ namespace ImpulseHd
 			ProcessMinimumPhase(stage, strengths);
 
 			ProcessDelay(stage, strengths);
+			ProcessPhaseBands(stage, strengths);
+		}
+
+		private void ProcessPhaseBands(SpectrumStage stage, Strengths strengths)
+		{
+			var bands = stage.PhaseBandsTransformed;
+			var sections = GetBands(bands, samplerate, FftSignal.Length);
+			var rand = new Random(stage.PhaseBandSeedTransformed);
+			int pb = 0;
+			foreach (var section in sections)
+			{
+				var delaySamples = rand.NextDouble() * stage.PhaseBandDelayAmountTransformed;
+				var k = pb / (double)(sections.Count - 1);
+				var amountOfTracking = Math.Abs(stage.PhaseBandFreqTrackTransformed);
+				if (stage.PhaseBandFreqTrackTransformed < 0)
+				{
+					k = 1 - k;
+					var track = k * amountOfTracking + (1 - amountOfTracking);
+					delaySamples *= track;
+				}
+				else
+				{
+					var track = k * amountOfTracking + (1 - amountOfTracking);
+					delaySamples *= track;
+				}
+				//if (section[0] != 1)
+				//	delaySamples = 0;
+
+				var amount = delaySamples / (double)ImpulseConfig.MaxSampleLength;
+				for (int i = section[0]; i <= section[1]; i++)
+				{
+					amount = amount * strengths.Strength[i];
+					var newVal = fftSignal[i] * Complex.CExp(-2 * Math.PI * i * amount);
+					fftSignal[i] = newVal;
+					fftSignal[fftSignal.Length - i].Arg = -newVal.Arg;
+				}
+
+				pb++;
+			}
+		}
+
+		private IList<int[]> GetBands(int bands, double samplerate, int fftSize)
+		{
+			var nyquist = samplerate / 2.0;
+			var hzPerBand =  nyquist / (fftSize / 2.0);
+
+			// generates nicely distributed intervals between 80hz and 10240 hz
+			var bandRangesHz = Utils.Linspace(0, 7, bands + 1).Select(x => Math.Pow(2, x) * 80).Skip(1).ToArray();
+			// replace last band with max frequency to affect the remaining treble range
+			bandRangesHz[bandRangesHz.Length - 1] = nyquist;
+
+			var lowBand = 1;
+			var output = new List<int[]>();
+			foreach (var b in bandRangesHz)
+			{
+				var highBand = (int)Math.Round(b / hzPerBand);
+				var pair = new[] {lowBand, highBand};
+				output.Add(pair);
+				lowBand = highBand + 1;
+			}
+
+			return output;
 		}
 
 		private void ProcessorFrequencySkew(SpectrumStage stage, Strengths strengths)

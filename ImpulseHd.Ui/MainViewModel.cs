@@ -56,7 +56,7 @@ namespace ImpulseHd.Ui
 
 		public MainViewModel()
 		{
-			Title = "ImpulseEngine - v" + Assembly.GetExecutingAssembly().GetName().Version;
+			Title = "CabIR Studio - v" + Assembly.GetExecutingAssembly().GetName().Version;
 			settingsFile = Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), "settings.json");
 			this.updateRateLimiter = new LastRetainRateLimiter(100, UpdateSample);
 			
@@ -81,10 +81,10 @@ namespace ImpulseHd.Ui
 			// and only one host can exists within an application context
 			host = RealtimeHost.Host;
 
-		    // host.Process is the callback method that processes audio data. 
-		    // Assign the static process method in this class to be the callback
-		    host.Process = ProcessAudio;
-
+			// host.Process is the callback method that processes audio data. 
+			// Assign the static process method in this class to be the callback
+			host.Process = ProcessAudio;
+			
 		    AudioSetupCommand = new DelegateCommand(_ => AudioSetup());
 			ExportWavCommand = new DelegateCommand(_ => ExportWav());
 			ShowAboutCommand = new DelegateCommand(_ => ShowAbout());
@@ -429,7 +429,11 @@ namespace ImpulseHd.Ui
 			var output = processor.Process();
 			ir = new[] {output[0].Select(x => (float)x).ToArray(), output[1].Select(x => (float)x).ToArray()};
 			var millis = Utils.Linspace(0, preset.ImpulseLength / (double)preset.Samplerate * 1000, preset.ImpulseLength).ToArray();
-
+			/*
+			ir = new [] { new float[ir[0].Length], new float[ir[0].Length] };
+		    ir[0][0] = 1.0f;
+		    ir[1][0] = 1.0f;
+			*/
 			// Left
 			var pm = new PlotModel();
 
@@ -542,8 +546,52 @@ namespace ImpulseHd.Ui
 	    private int bufferIndexL, bufferIndexR;
 		private float[] bufferL = new float[65536 * 2];
 	    private float[] bufferR = new float[65536 * 2];
-	    
-	    private void ProcessAudio(float[][] inputs, float[][] outputs)
+
+	    private unsafe void ProcessAudioDirect(float** inputs, float** outputs, int bufferSize)
+	    {
+		    if (ir == null)
+			    return;
+
+		    var irLeft = ir[0];
+		    var irRight = ir[1];
+		    if (irLeft == null || irRight == null || irLeft.Length != irRight.Length)
+			    return;
+
+		    var selInL = selectedInputL;
+		    var selInR = selectedInputR;
+		    var selOutL = selectedOutputL;
+		    var selOutR = selectedOutputR;
+		    var gain = (float)Utils.DB2gain(VolumeDb);
+
+		    //if (selInL >= 0 && selInL < inputs.Length)
+		    //{
+		    //if (selOutL >= 0 && selOutL < outputs.Length)
+		    //{
+		    bool clipped = false;
+		    //ProcessAudioChannel(inputs[selInL], outputs[selOutL], gain, ref bufferIndexL, irLeft, bufferL, ref clipped);
+		    Console.WriteLine($"{DateTime.UtcNow:mm:ss.fff} = Pop");
+		    ProcessConv.ProcessUnsafe(inputs[selInL], outputs[selOutL], bufferSize, gain, ref bufferIndexL, irLeft, bufferL, ref clipped);
+
+		    if (clipped)
+			    clipTimeLeft = DateTime.UtcNow;
+
+		    //}
+		    //}
+
+		    //if (selInR >= 0 && selInR < inputs.Length)
+		    //{
+		    //if (selOutR >= 0 && selOutR < outputs.Length)
+		    //{
+		    bool clipped2 = false;
+		    //ProcessAudioChannel(inputs[selInR], outputs[selOutR], gain, ref bufferIndexR, irRight, bufferR, ref clipped);
+		    ProcessConv.ProcessUnsafe(inputs[selInR], outputs[selOutR], bufferSize, gain, ref bufferIndexR, irRight, bufferR, ref clipped2);
+		    if (clipped2)
+			    clipTimeRight = DateTime.UtcNow;
+		    //}
+		    //}*/
+	    }
+
+		private void ProcessAudio(float[][] inputs, float[][] outputs)
 		{
 			if (ir == null)
 				return;
@@ -560,18 +608,18 @@ namespace ImpulseHd.Ui
 			var gain = (float)Utils.DB2gain(VolumeDb);
 
 			if (selInL >= 0 && selInL < inputs.Length)
-		    {
-			    if (selOutL >= 0 && selOutL < outputs.Length)
-			    {
-				    bool clipped = false;
-				    //ProcessAudioChannel(inputs[selInL], outputs[selOutL], ref idxL, ir[0], bufferL, ref clipped);
+			{
+				if (selOutL >= 0 && selOutL < outputs.Length)
+				{
+					bool clipped = false;
+					//ProcessAudioChannel(inputs[selInL], outputs[selOutL], ref idxL, ir[0], bufferL, ref clipped);
 					ProcessConv.Process(inputs[selInL], outputs[selOutL], gain, ref bufferIndexL, irLeft, bufferL, ref clipped);
 
 					if (clipped)
 						clipTimeLeft = DateTime.UtcNow;
 
 				}
-		    }
+			}
 
 			if (selInR >= 0 && selInR < inputs.Length)
 			{
@@ -586,41 +634,40 @@ namespace ImpulseHd.Ui
 			}
 		}
 
-	    /*private void ProcessAudioChannel(float[] input, float[] output, ref int idx, float[] ir, float[] buffer, ref bool clipped)
+	    private void ProcessAudioChannel(float[] input, float[] output, float gain, ref int idx, float[] ir, float[] buffer, ref bool clipped)
 	    {
-		    var gain = (float)Utils.DB2gain(VolumeDb);
-		    var size = buffer.Length - 1;
-		    var ix = idx;
+			var size = buffer.Length - 1;
+			var ix = idx;
 
-		    for (int i = 0; i < output.Length; i++)
-		    {
-			    var readPos = (ix + i) & size;
-			    var sample = input[i];
-
+			for (int i = 0; i < output.Length; i++)
+			{
+				 var readPos = (ix + i) & size;
+				var sample = input[i];
+				
 				for (int j = 0; j < ir.Length; j++)
-			    {
+				{
 					var writePos = (readPos + j) & size;
-				    buffer[writePos] += sample * ir[j] * gain;
-			    }
+					buffer[writePos] += sample * ir[j];
+				}
+				
+				var outputSample = buffer[readPos] * gain;
+				buffer[readPos] = 0.0f;
+				if (outputSample < -0.98f)
+				{
+					outputSample = -0.98f;
+					clipped = true;
+				}
+				if (outputSample > 0.98f)
+				{
+					outputSample = 0.98f;
+					clipped = true;
+				}
+				output[i] = outputSample;
+			}
 
-			    var outputSample = buffer[readPos];
-			    buffer[readPos] = 0.0f;
-			    if (outputSample < -0.98f)
-			    {
-				    outputSample = -0.98f;
-				    clipped = true;
-			    }
-			    if (outputSample > 0.98f)
-			    {
-				    outputSample = 0.98f;
-				    clipped = true;
-			    }
-			    output[i] = outputSample;
-		    }
-
-		    idx += output.Length;
-		    if (idx > buffer.Length)
-			    idx -= buffer.Length;
-	    }*/
+			idx += output.Length;
+			if (idx > buffer.Length)
+				idx -= buffer.Length;
+	    }
     }
 }

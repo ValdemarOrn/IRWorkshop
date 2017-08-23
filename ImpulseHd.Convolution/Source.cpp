@@ -19,10 +19,10 @@ extern "C"
 			for (int j = 0; j < irLen; j++)
 			{
 				int writePos = (readPos + j) & sizeMask;
-				buffer131k[writePos] += sample * ir[j] * gain;
+				buffer131k[writePos] += sample * ir[j];
 			}
 
-			float outputSample = buffer131k[readPos];
+			float outputSample = buffer131k[readPos] * gain;
 			buffer131k[readPos] = 0.0f;
 
 			if (outputSample < -0.98f)

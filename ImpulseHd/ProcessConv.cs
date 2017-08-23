@@ -30,5 +30,18 @@ namespace ImpulseHd
 				clipped = clippedInt > 0;
 			}
 		}
+
+		public static unsafe void ProcessUnsafe(float* input, float* output, int len, float gain, ref int bufferIndex, float[] ir, float[] buffer, ref bool clipped)
+		{
+
+			fixed (float* irPtr = ir)
+			fixed (float* bufferPtr = buffer)
+			fixed (int* bufferIndexPtr = &bufferIndex)
+			{
+				int clippedInt = 0;
+				Process(input, output, len, gain, bufferIndexPtr, irPtr, ir.Length, bufferPtr, &clippedInt);
+				clipped = clippedInt > 0;
+			}
+		}
 	}
 }

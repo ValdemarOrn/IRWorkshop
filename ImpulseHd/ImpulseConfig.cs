@@ -132,7 +132,7 @@ namespace ImpulseHd
 		public double FrequencySkewTransformed => Math.Pow(2, FrequencySkew * 4 - 2);
 
 		// Splits the signal up into N bands and applies random delay (stereo widening)
-		public int PhaseBandsTransformed => (int)((PhaseBands - 0.001) * 8) + 1;
+		public int PhaseBandsTransformed => (int)((PhaseBands - 0.001) * 9) + 2;
 		public double PhaseBandDelayAmountTransformed => (int)(ValueTables.Get(PhaseBandDelayAmount, ValueTables.Response2Dec) * 4096);
 		public double PhaseBandFreqTrackTransformed => 2 * PhaseBandFreqTrack - 1;
 		public int PhaseBandSeedTransformed => (int)(PhaseBandSeed * 10000);
