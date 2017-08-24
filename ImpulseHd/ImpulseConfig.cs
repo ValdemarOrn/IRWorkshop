@@ -20,6 +20,7 @@ namespace ImpulseHd
 		public string Name { get; set; }
 		public string FilePath { get; set; }
 		public double Samplerate { get; set; }
+		public int ImpulseLength { get; set; }
 
 		public double[] RawSampleData { get; set; }
 
@@ -42,6 +43,16 @@ namespace ImpulseHd
 
 	public class OutputStage
 	{
+		public OutputStage()
+		{
+			Gain = 6 / 8.0;
+			Pan = 0.5;
+			HighCutLeft = 1.0;
+			HighCutRight = 1.0;
+			WindowMethod = 0.7;
+			WindowLength = 0.0;
+		}
+
 		public double Gain { get; set; }
 		public double SampleDelayL { get; set; }
 		public double SampleDelayR { get; set; } // additional delay, <0 := left channel delayed more, >0 right channel delayed more
@@ -53,8 +64,34 @@ namespace ImpulseHd
 		public double HighCutLeft { get; set; }
 		public double HighCutRight { get; set; }
 
-		public WindowMethod WindowMethod { get; set; }
+		public double WindowMethod { get; set; }
 		public double WindowLength { get; set; }
+
+
+		public double GainTransformed => -60 + Gain * 80;
+		public int SampleDelayLTransformed => (int)(ValueTables.Get(SampleDelayL, ValueTables.Response2Dec) * 4096);
+		public int SampleDelayRTransformed => (int)(ValueTables.Get(SampleDelayR, ValueTables.Response2Dec) * 4096);
+		public double PanTransformed => Pan * 2 - 1;
+		public double LowCutLeftTransformed => 20 + ValueTables.Get(LowCutLeft, ValueTables.Response3Oct) * 1480;
+		public double LowCutRightTransformed => 20 + ValueTables.Get(LowCutRight, ValueTables.Response3Oct) * 1480;
+		public double HighCutLeftTransformed => 1000 + ValueTables.Get(HighCutLeft, ValueTables.Response4Oct) * 21000;
+		public double HighCutRightTransformed => 1000 + ValueTables.Get(HighCutRight, ValueTables.Response4Oct) * 21000;
+
+		public WindowMethod WindowMethodTransformed
+		{
+			get
+			{
+				if (WindowMethod < 0.25)
+					return ImpulseHd.WindowMethod.Truncate;
+				if (WindowMethod < 0.5)
+					return ImpulseHd.WindowMethod.Linear;
+				if (WindowMethod < 0.75)
+					return ImpulseHd.WindowMethod.Logarithmic;
+				else
+					return ImpulseHd.WindowMethod.Cosine;
+			}
+		}
+		public double WindowLengthTransformed => ValueTables.Get(WindowLength, ValueTables.Response2Oct) * 0.5;
 	}
 
 	public class SpectrumStage
@@ -174,6 +211,8 @@ namespace ImpulseHd
 	public enum WindowMethod
 	{
 		Truncate,
+		Linear,
+		Logarithmic,
 		Cosine,
 	}
 

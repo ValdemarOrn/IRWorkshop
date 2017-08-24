@@ -6,6 +6,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using AudioLib;
+using AudioLib.Modules;
+using AudioLib.TF;
 
 namespace ImpulseHd
 {
@@ -469,8 +471,81 @@ namespace ImpulseHd
 
 		public double[][] ProcessOutputStage()
 		{
-			// todo: process output properly
-			return new[] { TimeSignal.Select(x => x).ToArray(), TimeSignal.Select(x => x).ToArray() };
+			var signal = TimeSignal.ToArray();
+			var gain = AudioLib.Utils.DB2gain(config.OutputStage.GainTransformed);
+			var pan = config.OutputStage.PanTransformed;
+			var leftPan = pan <= 0 ? 1.0 : 1 - Math.Abs(pan);
+			var rightPan = pan >= 0 ? 1.0 : 1 - Math.Abs(pan);
+			var leftInvert = config.OutputStage.InvertPhaseLeft ? -1 : 1;
+			var rightInvert = config.OutputStage.InvertPhaseRight ? -1 : 1;
+			var leftDelay = config.OutputStage.SampleDelayLTransformed;
+			var rightDelay = config.OutputStage.SampleDelayRTransformed;
+			var windowLen = config.OutputStage.WindowLengthTransformed;
+			var windowType = config.OutputStage.WindowMethodTransformed;
+
+			var lpLeft = new ZeroLp1();
+			var lpRight = new ZeroLp1();
+			var hpLeft = new ZeroHp1();
+			var hpRight = new ZeroHp1();
+
+			lpLeft.SetFc(config.OutputStage.HighCutLeftTransformed / (config.Samplerate / 2));
+			lpRight.SetFc(config.OutputStage.HighCutRightTransformed / (config.Samplerate / 2));
+			hpLeft.SetFc(config.OutputStage.LowCutLeftTransformed / (config.Samplerate / 2));
+			hpRight.SetFc(config.OutputStage.LowCutRightTransformed / (config.Samplerate / 2));
+
+			var outputLeft = new double[signal.Length];
+			var outputRight = new double[signal.Length];
+
+			for (int i = 0; i < signal.Length; i++)
+			{
+				var sample = signal[i] * gain;
+				var lSample = sample * leftPan * leftInvert;
+				var rSample = sample * rightPan * rightInvert;
+
+				lSample = lpLeft.Process(lSample);
+				rSample = lpRight.Process(rSample);
+				
+				lSample = hpLeft.Process(lSample);
+				rSample = hpRight.Process(rSample);
+				
+				if (i + leftDelay < signal.Length)
+					outputLeft[i + leftDelay] = lSample;
+
+				if (i + rightDelay < signal.Length)
+					outputRight[i + rightDelay] = rSample;
+			}
+
+			for (int i = 0; i < signal.Length; i++)
+			{
+				var window = GetWindow(i, config.ImpulseLength, windowLen, windowType);
+				outputLeft[i] *= window;
+				outputRight[i] *= window;
+			}
+
+			return new[] {outputLeft, outputRight};
+		}
+
+		private double GetWindow(int i, int signalLength, double windowLen, WindowMethod windowType)
+		{
+			var pos = i / (double)signalLength;
+			if (pos < 1 - windowLen)
+				return 1.0;
+			if (i >= signalLength)
+				return 0.0;
+			if (windowLen < 0.002) // no effect of tiny window
+				return 1.0;
+
+			var posInWindow = (pos - (1 - windowLen)) / windowLen;
+			if (windowType == WindowMethod.Truncate)
+				return 0.0;
+			if (windowType == WindowMethod.Linear)
+				return 1 - posInWindow;
+			if (windowType == WindowMethod.Logarithmic)
+				return AudioLib.Utils.DB2gain(-posInWindow * 60);
+			if (windowType == WindowMethod.Cosine)
+				return (Math.Cos(posInWindow * Math.PI) + 1) * 0.5;
+
+			return 1.0;
 		}
 	}
 }

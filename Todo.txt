@@ -6,15 +6,11 @@ can delay different freq spectrums by different amount and that seems to work we
 
 Todo:
 
-Finish up Spectrum features
-	Phase delay bands
-Implement output stage
-Add/remove/reorder impulses
+Add/remove/reorder/clone impulses
 solo per impulse
-On chart, allow showing Left or Right output processed sample, or the (current) unprocessed, direct-from-spectrum sample
-Windowing features
+Windowing on master output
 New/Open/Save feature
-
+Zero slider when double clicked
 
 -----------------------------------
 This is a bit too complex for a first draft...

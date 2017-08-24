@@ -5,7 +5,7 @@
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{12D0DAC1-49E5-400A-A38C-F5F8B8D78AD6}</ProjectGuid>
-    <OutputType>Exe</OutputType>
+    <OutputType>WinExe</OutputType>
     <RootNamespace>ImpulseHd.Ui</RootNamespace>
     <AssemblyName>ImpulseHd.Ui</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
@@ -79,6 +79,7 @@
     <Compile Include="MasterView.xaml.cs">
       <DependentUpon>MasterView.xaml</DependentUpon>
     </Compile>
+    <Compile Include="OutputStageViewModel.cs" />
     <Compile Include="SpectrumStageView.xaml.cs">
       <DependentUpon>SpectrumStageView.xaml</DependentUpon>
     </Compile>

@@ -16,6 +16,7 @@ using LowProfile.Visuals;
 using Microsoft.Win32;
 using OxyPlot;
 using OxyPlot.Axes;
+using OxyPlot.Series;
 
 namespace ImpulseHd.Ui
 {
@@ -23,29 +24,33 @@ namespace ImpulseHd.Ui
     {
 	    private readonly ImpulseConfig impulseConfig;
 	    private readonly LastRetainRateLimiter updateRateLimiter;
-		//private OutputStage outputStage;
 
 		private string loadSampleDirectory;
 		private PlotModel plotModel;
 	    private PlotModel plot2;
 	    private int selectedSpectrumStage;
-	    private int impulseLength;
+	    private bool plotImpulseBase;
+	    private bool plotImpulseLeft;
+	    private bool plotImpulseRight;
 
 	    public ImpulseConfigViewModel(ImpulseConfig config)
 	    {
-		    this.updateRateLimiter = new LastRetainRateLimiter(100, UpdateInner);
+		    this.updateRateLimiter = new LastRetainRateLimiter(250, UpdateInner);
 			this.impulseConfig = config;
 			LoadSampleCommand = new DelegateCommand(_ => LoadSampleDialog());
 		    AddStageCommand = new DelegateCommand(_ => AddStage());
 		    RemoveStageCommand = new DelegateCommand(_ => RemoveStage());
 		    MoveStageLeftCommand = new DelegateCommand(_ => MoveStageLeft());
 		    MoveStageRightCommand = new DelegateCommand(_ => MoveStageRight());
-
+			PlotImpulseBase = true;
 			LoadSampleData();
 	    }
 
-	    public Complex[] FftSignal { get; private set; }
-	    public double[] TimeSignal { get; private set; }
+	    public Complex[] PlottedFftSignal { get; private set; }
+	    public double[] PlottedImpulseSignal { get; private set; }
+
+	    public double[] ImpulseLeft { get; private set; }
+	    public double[] ImpulseRight { get; private set; }
 
 		public string Name
 	    {
@@ -79,16 +84,13 @@ namespace ImpulseHd.Ui
 
 	    public SpectrumStageViewModel[] SpectrumStages => impulseConfig.SpectrumStages.Select((x, idx) => new SpectrumStageViewModel(x, idx + 1, Update)).ToArray();
 
-	    public int SelectedSpectrumStageIndex
+	    public OutputStageViewModel OutputStage => new OutputStageViewModel(impulseConfig.OutputStage, Update);
+
+		public int SelectedSpectrumStageIndex
 		{
 		    get { return selectedSpectrumStage; }
 		    set { selectedSpectrumStage = value; NotifyPropertyChanged(); }
 	    }
-
-	    /*public OutputStage OutputStage
-	    {
-		    get { return outputStage; }
-	    }*/
 
 	    public PlotModel Plot1
 	    {
@@ -104,9 +106,28 @@ namespace ImpulseHd.Ui
 
 	    public int ImpulseLength
 		{
-		    get { return impulseLength; }
-		    set { impulseLength = value; Update(); }
+		    get { return impulseConfig.ImpulseLength; }
+		    set { impulseConfig.ImpulseLength = value; Update(); }
 	    }
+
+	    public bool PlotImpulseBase
+	    {
+		    get { return plotImpulseBase; }
+		    set { plotImpulseBase = value; NotifyPropertyChanged(); }
+	    }
+
+	    public bool PlotImpulseLeft
+	    {
+		    get { return plotImpulseLeft; }
+		    set { plotImpulseLeft = value; NotifyPropertyChanged(); }
+	    }
+
+	    public bool PlotImpulseRight
+	    {
+		    get { return plotImpulseRight; }
+		    set { plotImpulseRight = value; NotifyPropertyChanged(); }
+	    }
+
 
 	    public ICommand LoadSampleCommand { get; private set; }
 		public ICommand AddStageCommand { get; private set; }
@@ -222,37 +243,33 @@ namespace ImpulseHd.Ui
 			    processor.ProcessStage(stage);
 			    if (i == SelectedSpectrumStageIndex)
 			    {
-				    var complexSignal = processor.FftSignal;
-				    var realSignal = processor.TimeSignal;
-				    Plot1 = PlotFft(complexSignal);
-				    Plot2 = PlotReal(realSignal);
+				    PlottedFftSignal = processor.FftSignal;
+				    PlottedImpulseSignal = processor.TimeSignal;
 				}
 		    }
 
 		    if (impulseConfig.SpectrumStages.Length == 0 || SelectedSpectrumStageIndex < 0)
 		    {
-
-			    var complexSignal = processor.FftSignal;
-			    var realSignal = processor.TimeSignal;
-			    Plot1 = PlotFft(complexSignal);
-			    Plot2 = PlotReal(realSignal);
-
-			    FftSignal = complexSignal;
-			    TimeSignal = realSignal;
+			    PlottedFftSignal = processor.FftSignal;
+			    PlottedImpulseSignal = processor.TimeSignal;
 		    }
-		    else
-		    {
-			    FftSignal = processor.FftSignal;
-			    TimeSignal = processor.TimeSignal;
-		    }
-	    }
+			
+			var output = processor.ProcessOutputStage();
+		    ImpulseLeft = output[0];
+		    ImpulseRight = output[1];
 
-	    private PlotModel PlotReal(double[] data)
+		    Plot1 = PlotFft();
+		    Plot2 = PlotReal();
+		}
+
+	    private PlotModel PlotReal()
 	    {
 		    var sampleCount = 8192;
 		    var time = sampleCount / Samplerate * 1000;
-			var realData = data.Take(sampleCount).ToArray();
-		    var millis = Utils.Linspace(0, time, realData.Length).ToArray();
+			var plottedIr = PlottedImpulseSignal.Take(sampleCount).ToArray();
+		    var plottedLeft = ImpulseLeft.Take(sampleCount).ToArray();
+		    var plottedRight = ImpulseRight.Take(sampleCount).ToArray();
+			var millis = Utils.Linspace(0, time, plottedIr.Length).ToArray();
 		    var pm = new PlotModel();
 
 			// end of sample marker
@@ -267,14 +284,32 @@ namespace ImpulseHd.Ui
 		    line.Color = OxyColor.FromArgb(50, 0, 0, 0);
 
 			// sample data
-			line = pm.AddLine(millis, realData);
-		    line.StrokeThickness = 1.0;
-			line.Color = OxyColors.Black;
+		    if (plotImpulseBase)
+		    {
+			    line = pm.AddLine(millis, plottedIr);
+			    line.StrokeThickness = 1.0;
+			    line.Color = OxyColors.Black;
+		    }
 
-		    var axis = new LinearAxis {Position = AxisPosition.Left};
-		    var maxAbs = Math.Max(Math.Abs(realData.Min()), Math.Abs(realData.Max()));
-		    axis.Minimum = -maxAbs;
-		    axis.Maximum = maxAbs;
+			// left IR
+		    if (PlotImpulseLeft)
+		    {
+			    line = pm.AddLine(millis, plottedLeft);
+			    line.StrokeThickness = 1.0;
+			    line.Color = OxyColors.Blue;
+		    }
+
+			// Right IR
+		    if (plotImpulseRight)
+		    {
+			    line = pm.AddLine(millis, plottedRight);
+			    line.StrokeThickness = 1.0;
+			    line.Color = OxyColors.Red;
+		    }
+
+			var axis = new LinearAxis {Position = AxisPosition.Left};
+		    axis.Minimum = -1;
+		    axis.Maximum = 1;
 			pm.Axes.Add(axis);
 
 		    axis = new LinearAxis { Position = AxisPosition.Bottom };
@@ -285,45 +320,49 @@ namespace ImpulseHd.Ui
 			return pm;
 		}
 
-	    private PlotModel PlotFft(Complex[] data)
+	    private PlotModel PlotFft()
 	    {
+		    var data = PlottedFftSignal;
 		    var magData = data.Take(data.Length / 2).Select(x => x.Abs).Select(x => Utils.Gain2DB(x)).ToArray();
 		    var phaseData = data.Take(data.Length / 2).Select(x => x.Arg).ToArray();
 		    //phaseData = AudioLib.Utils.UnrollPhase(phaseData);
 			var hz = Utils.Linspace(0, 0.5, magData.Length).Select(x => x * Samplerate).ToArray();
-			var pm = new PlotModel();
-			pm.Axes.Add(new LogarithmicAxis { Position = AxisPosition.Bottom, Minimum = 10});
+
+		    var pm = new PlotModel();
+
+		    pm.Axes.Add(new LogarithmicAxis { Position = AxisPosition.Bottom, Minimum = 10});
 		    var leftAxis = new LinearAxis {Position = AxisPosition.Left, Key = "LeftAxis"};
 		    var rightAxis = new LinearAxis {Position = AxisPosition.Right, Key = "RightAxis", Minimum = -Math.PI - 0.1, Maximum = Math.PI + 0.1};
 			pm.Axes.Add(leftAxis);
 		    pm.Axes.Add(rightAxis);
-
+			
 			var line = pm.AddLine(hz, hz.Select(x => 0.0));
-		    line.StrokeThickness = 1.0;
-		    line.Color = OxyColor.FromArgb(50, 0, 0, 0);
+			line.StrokeThickness = 1.0;
+			line.Color = OxyColor.FromArgb(50, 0, 0, 0);
+		    
+			line = pm.AddLine(hz, hz.Select(x => -20.0));
+			line.StrokeThickness = 1.0;
+			line.Color = OxyColor.FromArgb(50, 0, 0, 0);
 
-		    line = pm.AddLine(hz, hz.Select(x => -20.0));
-		    line.StrokeThickness = 1.0;
-		    line.Color = OxyColor.FromArgb(50, 0, 0, 0);
+			line = pm.AddLine(hz, hz.Select(x => -40.0));
+			line.StrokeThickness = 1.0;
+			line.Color = OxyColor.FromArgb(50, 0, 0, 0);
 
-		    line = pm.AddLine(hz, hz.Select(x => -40.0));
-		    line.StrokeThickness = 1.0;
-		    line.Color = OxyColor.FromArgb(50, 0, 0, 0);
+			line = pm.AddLine(hz, hz.Select(x => -60.0));
+			line.StrokeThickness = 1.0;
+			line.Color = OxyColor.FromArgb(50, 0, 0, 0);
 
-		    line = pm.AddLine(hz, hz.Select(x => -60.0));
-		    line.StrokeThickness = 1.0;
-		    line.Color = OxyColor.FromArgb(50, 0, 0, 0);
-
-		    line = pm.AddLine(hz, phaseData);
-		    line.StrokeThickness = 1.0;
-		    line.Color = OxyColors.LightGreen;
-		    line.YAxisKey = "RightAxis";
+			line = pm.AddLine(hz, phaseData);
+			line.StrokeThickness = 1.0;
+			line.Color = OxyColors.LightGreen;
+			line.YAxisKey = "RightAxis";
 
 			line = pm.AddLine(hz, magData);
-		    line.StrokeThickness = 1.0;
-		    line.Color = OxyColors.DarkBlue;
-		    line.YAxisKey = "LeftAxis";
-			return pm;
+			line.StrokeThickness = 1.0;
+			line.Color = OxyColors.DarkBlue;
+			line.YAxisKey = "LeftAxis";
+		    
+		    return pm;
 		}
     }
 }

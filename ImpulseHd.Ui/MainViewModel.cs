@@ -58,7 +58,7 @@ namespace ImpulseHd.Ui
 		{
 			Title = "CabIR Studio - v" + Assembly.GetExecutingAssembly().GetName().Version;
 			settingsFile = Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), "settings.json");
-			this.updateRateLimiter = new LastRetainRateLimiter(100, UpdateSample);
+			this.updateRateLimiter = new LastRetainRateLimiter(250, UpdateSample);
 			
 			var ic = new ImpulseConfig() {Name = "My Impulse 123", Samplerate = 48000, FilePath = @"E:\Sound\Samples\Impulses\catharsis-awesometime-fredman\48Khz\2off-pres5.wav" };
 			preset = new ImpulsePreset();

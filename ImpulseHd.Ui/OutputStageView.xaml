@@ -69,36 +69,36 @@
 		<Label Grid.Row="10" Grid.Column="0">Window Method</Label>
 		<Label Grid.Row="11" Grid.Column="0">Window Length</Label>
 
-		<Slider Grid.Column="1" Grid.Row="0" />
-		<Slider Grid.Column="1" Grid.Row="1" />
-		<Slider Grid.Column="1" Grid.Row="2" />
-		<Slider Grid.Column="1" Grid.Row="3" />
+		<Slider Grid.Column="1" Grid.Row="0" Value="{Binding Gain}" Minimum="0" Maximum="1" LargeChange="0.1" />
+		<Slider Grid.Column="1" Grid.Row="1" Value="{Binding SampleDelayL}" Minimum="0" Maximum="1" LargeChange="0.1" />
+		<Slider Grid.Column="1" Grid.Row="2" Value="{Binding SampleDelayR}" Minimum="0" Maximum="1" LargeChange="0.1" />
+		<Slider Grid.Column="1" Grid.Row="3" Value="{Binding Pan}" Minimum="0" Maximum="1" LargeChange="0.1" />
 		<StackPanel Grid.Column="1" Grid.Row="4" Orientation="Horizontal">
-			<CheckBox VerticalAlignment="Center" />
+			<CheckBox VerticalAlignment="Center" IsChecked="{Binding InvertPhaseLeft}" />
 			<Label Margin="0,0,50,0">Left</Label>
-			<CheckBox VerticalAlignment="Center" />
+			<CheckBox VerticalAlignment="Center" IsChecked="{Binding InvertPhaseRight}" />
 			<Label>Right</Label>
 		</StackPanel>
-		
-		<Slider Grid.Column="1" Grid.Row="6" />
-		<Slider Grid.Column="1" Grid.Row="7" />
-		<Slider Grid.Column="1" Grid.Row="8" />
-		<Slider Grid.Column="1" Grid.Row="9" />
-		<Slider Grid.Column="1" Grid.Row="10" />
-		<Slider Grid.Column="1" Grid.Row="11" />
-		
-		<Label Grid.Row="0" Grid.Column="2">0.0dB</Label>
-		<Label Grid.Row="1" Grid.Column="2">133 Samples</Label>
-		<Label Grid.Row="2" Grid.Column="2">0 Samples</Label>
-		<Label Grid.Row="3" Grid.Column="2">23% Left</Label>
-		<Label Grid.Row="4" Grid.Column="2"></Label>
-		<Label Grid.Row="5" Grid.Column="2"></Label>
-		<Label Grid.Row="6" Grid.Column="2">134 Hz</Label>
-		<Label Grid.Row="7" Grid.Column="2">134 Hz</Label>
-		<Label Grid.Row="8" Grid.Column="2">8520 Hz</Label>
-		<Label Grid.Row="9" Grid.Column="2">8520 Hz</Label>
-		<Label Grid.Row="10" Grid.Column="2">Cosine</Label>
-		<Label Grid.Row="11" Grid.Column="2">2.2%</Label>
+
+		<Slider Grid.Column="1" Grid.Row="6" Value="{Binding LowCutLeft}" Minimum="0" Maximum="1" LargeChange="0.1" />
+		<Slider Grid.Column="1" Grid.Row="7" Value="{Binding LowCutRight}" Minimum="0" Maximum="1" LargeChange="0.1" />
+		<Slider Grid.Column="1" Grid.Row="8" Value="{Binding HighCutLeft}" Minimum="0" Maximum="1" LargeChange="0.1" />
+		<Slider Grid.Column="1" Grid.Row="9" Value="{Binding HighCutRight}" Minimum="0" Maximum="1" LargeChange="0.1" />
+		<Slider Grid.Column="1" Grid.Row="10" Value="{Binding WindowMethod}" Minimum="0" Maximum="1" LargeChange="0.1" />
+		<Slider Grid.Column="1" Grid.Row="11" Value="{Binding WindowLength}" Minimum="0" Maximum="1" LargeChange="0.1" />
+
+		<Label Grid.Row="0" Grid.Column="2" Content="{Binding GainReadout, FallbackValue=0.0dB}" />
+		<Label Grid.Row="1" Grid.Column="2" Content="{Binding SampleDelayLReadout, FallbackValue=0 Samples}" />
+		<Label Grid.Row="2" Grid.Column="2" Content="{Binding SampleDelayRReadout, FallbackValue=0 Samples}" />
+		<Label Grid.Row="3" Grid.Column="2" Content="{Binding PanReadout, FallbackValue=Center}" />
+
+
+		<Label Grid.Row="6" Grid.Column="2" Content="{Binding LowCutLeftReadout, FallbackValue=40Hz}" />
+		<Label Grid.Row="7" Grid.Column="2" Content="{Binding LowCutRightReadout, FallbackValue=40Hz}" />
+		<Label Grid.Row="8" Grid.Column="2" Content="{Binding HighCutLeftReadout, FallbackValue=3000Hz}" />
+		<Label Grid.Row="9" Grid.Column="2" Content="{Binding HighCutRightReadout, FallbackValue=3000Hz}" />
+		<Label Grid.Row="10" Grid.Column="2" Content="{Binding WindowMethodReadout, FallbackValue=Truncate}" />
+		<Label Grid.Row="11" Grid.Column="2" Content="{Binding WindowLengthReadout, FallbackValue=1.4%}" />
 	</Grid>
 </UserControl>
 
