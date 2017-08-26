@@ -1,0 +1,42 @@
+{
+  "ImpulseConfig": [
+    {
+      "Name": "Impulse",
+      "FilePath": null,
+      "Enable": true,
+      "Solo": false,
+      "Samplerate": 48000,
+      "ImpulseLength": 1024,
+      "SpectrumStages": [
+        {
+          "IsEnabled": true,
+          "MinimumPhase": true,
+          "MinFreq": 0.0,
+          "MaxFreq": 1.0,
+          "LowBlendOcts": 0.0,
+          "HighBlendOcts": 0.0,
+          "Gain": 0.6,
+          "DelaySamples": 0.0,
+          "GainSmoothingOctaves": 0.2,
+          "GainSmoothingAmount": 0.5,
+          "GainSmoothingMode": 0.5,
+          "RandomGainFiltering": 0.2,
+          "RandomGainSeed": 0.0,
+          "RandomGainAmount": 0.0,
+          "RandomSkewAmount": 0.5,
+          "RandomGainMode": 0.5,
+          "FrequencySkew": 0.5,
+          "PinToHighFrequency": false,
+          "PhaseBands": 0.5,
+          "PhaseBandDelayAmount": 0.0,
+          "PhaseBandFreqTrack": 0.5,
+          "PhaseBandSeed": 0.0
+        }
+      ]
+    }
+  ],
+  "Samplerate": 0.3333333,
+  "ImpulseLength": 0.5,
+  "WindowMethod": 0.0,
+  "WindowLength": 0.01
+}

@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using AudioLib;
+using Newtonsoft.Json;
 
 namespace ImpulseHd
 {
@@ -26,6 +27,7 @@ namespace ImpulseHd
 		public int Samplerate { get; set; }
 		public int ImpulseLength { get; set; }
 
+		[JsonIgnore]
 		public double[] RawSampleData { get; set; }
 
 		public SpectrumStage[] SpectrumStages { get; set; }

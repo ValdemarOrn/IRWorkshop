@@ -10,9 +10,9 @@
 	<DockPanel>
 		<Menu DockPanel.Dock="Top">
 			<MenuItem Header="_File">
-				<MenuItem Header="New"></MenuItem>
-				<MenuItem Header="Open"></MenuItem>
-				<MenuItem Header="Save"></MenuItem>
+				<MenuItem Header="New" Command="{Binding NewPresetCommand}"></MenuItem>
+				<MenuItem Header="Open" Command="{Binding OpenPresetCommand}"></MenuItem>
+				<MenuItem Header="Save" Command="{Binding SavePresetCommand}"></MenuItem>
 				<Separator></Separator>
 				<MenuItem Header="Clone Impulse" Command="{Binding CloneImpulseCommand}"></MenuItem>
 				<MenuItem Header="Export Wav" Command="{Binding ExportWavCommand}"></MenuItem>
@@ -44,16 +44,11 @@
 				</TabItem>
 
 				<TabItem Header="Impulses">
-					<!--<TabControl TabStripPlacement="Left" VerticalAlignment="Stretch">
-						<TabItem Header="asdas">
-							<local:ImpulseConfigView Background="#eee" />
-						</TabItem>
-					</TabControl>-->
 					<Grid>
-						<TabControl TabStripPlacement="Left" ItemsSource="{Binding ImpulseConfig}" SelectedIndex="{Binding SelectedImpulseConfigIndex}">
+						<TabControl TabStripPlacement="Left" ItemsSource="{Binding ImpulseConfig}" SelectedIndex="{Binding SelectedImpulseConfigIndex}" HorizontalContentAlignment="Left" VerticalContentAlignment="Center">
 							<TabControl.Resources>
 								<Style TargetType="TabItem">
-									<Setter Property="Width" Value="130" />
+									<Setter Property="Width" Value="135" />
 									<Setter Property="HorizontalAlignment" Value="Left" />
 								</Style>
 							</TabControl.Resources>
@@ -61,8 +56,8 @@
 								 <!--this is the header template-->
 								<DataTemplate>
 									<StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
-										<CheckBox IsChecked="{Binding Enable}" Margin="0,0,3,0" />
-										<TextBlock Text="{Binding Name}" />
+										<CheckBox IsChecked="{Binding Enable}" Margin="3" />
+										<TextBlock Text="{Binding Name}" Padding="0,2,0,0" />
 									</StackPanel>
 								</DataTemplate>
 							</TabControl.ItemTemplate>

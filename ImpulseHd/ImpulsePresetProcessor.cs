@@ -17,9 +17,11 @@ namespace ImpulseHd
 		
 		public double[][] Process()
 		{
-			var outputL = new double[preset.ImpulseLength];
-			var outputR = new double[preset.ImpulseLength];
+			var outputL = new double[preset.ImpulseLengthTransformed];
+			var outputR = new double[preset.ImpulseLengthTransformed];
 			var hasSolo = preset.ImpulseConfig.Any(x => x.Solo);
+			var windowLen = preset.WindowLengthTransformed;
+			var windowType = preset.WindowMethodTransformed;
 
 			foreach (var impulse in preset.ImpulseConfig)
 			{
@@ -36,6 +38,13 @@ namespace ImpulseHd
 				var stageOutput = processor.ProcessOutputStage();
 				Sum(outputL, stageOutput[0]);
 				Sum(outputR, stageOutput[1]);
+			}
+
+			for (int i = 0; i < outputL.Length; i++)
+			{
+				var window = ImpulseConfigProcessor.GetWindow(i, preset.ImpulseLengthTransformed, windowLen, windowType);
+				outputL[i] *= window;
+				outputR[i] *= window;
 			}
 
 			return new[] {outputL, outputR};

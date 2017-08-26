@@ -16,6 +16,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using AudioLib;
 using AudioLib.PortAudioInterop;
+using ImpulseHd.Serializer;
 using LowProfile.Core.Ui;
 using LowProfile.Fourier.Double;
 using LowProfile.Visuals;
@@ -28,23 +29,22 @@ namespace ImpulseHd.Ui
 {
     class MainViewModel : ViewModelBase
     {
-	    private readonly ImpulsePreset preset;
-		private readonly RealtimeHost host;
+	    private readonly RealtimeHost host;
 	    private readonly string settingsFile;
 		private readonly LastRetainRateLimiter updateRateLimiter;
 
+	    private ImpulsePreset preset;
 		private string[] inputNames;
 	    private string[] outputNames;
 	    
-	    private double samplerateSlider;
-	    private double impulseLengthSlider;
 	    private int selectedInputL;
 	    private int selectedInputR;
 	    private int selectedOutputL;
 	    private int selectedOutputR;
 	    private string loadSampleDirectory;
 	    private string saveSampleDirectory;
-	    private DateTime clipTimeLeft;
+	    private string savePresetDirectory;
+		private DateTime clipTimeLeft;
 	    private DateTime clipTimeRight;
 	    private double volumeSlider;
 	    private PlotModel plotImpulseLeft;
@@ -61,8 +61,6 @@ namespace ImpulseHd.Ui
 			this.updateRateLimiter = new LastRetainRateLimiter(250, UpdateSample);
 			
 			preset = new ImpulsePreset();
-		    ImpulseLengthSlider = 0.5;
-			SamplerateSlider = 0.4;
 			ImpulseConfig = new ObservableCollection<ImpulseConfigViewModel>();
 
 			// The host lives in a singleton withing. It can not be created directly 
@@ -72,7 +70,11 @@ namespace ImpulseHd.Ui
 			// host.Process is the callback method that processes audio data. 
 			// Assign the static process method in this class to be the callback
 			host.Process = ProcessAudio;
-			
+
+			NewPresetCommand = new DelegateCommand(_ => NewPreset());
+			OpenPresetCommand = new DelegateCommand(_ => OpenPreset());
+			SavePresetCommand = new DelegateCommand(_ => SavePreset());
+
 			AudioSetupCommand = new DelegateCommand(_ => AudioSetup());
 			ExportWavCommand = new DelegateCommand(_ => ExportWav());
 			ShowAboutCommand = new DelegateCommand(_ => ShowAbout());
@@ -101,7 +103,7 @@ namespace ImpulseHd.Ui
 			AddImpulse();
 		}
 		
-	    public string Title { get; set; }
+		public string Title { get; set; }
 		
 	    public ObservableCollection<ImpulseConfigViewModel> ImpulseConfig
 		{
@@ -136,7 +138,11 @@ namespace ImpulseHd.Ui
 		    }
 	    }
 
-	    public ICommand AudioSetupCommand { get; private set; }
+		public ICommand NewPresetCommand { get; private set; }
+	    public ICommand OpenPresetCommand { get; private set; }
+	    public ICommand SavePresetCommand { get; private set; }
+		
+		public ICommand AudioSetupCommand { get; private set; }
 		public ICommand ExportWavCommand { get; private set; }
 		public ICommand ShowAboutCommand { get; private set; }
 		public ICommand CheckForUpdatesCommand { get; private set; }
@@ -159,52 +165,31 @@ namespace ImpulseHd.Ui
 		    private set { outputNames = value; NotifyPropertyChanged(); }
 	    }
 
-	    public double SamplerateSlider
+	    public double Samplerate
 		{
-		    get { return samplerateSlider; }
+		    get { return preset.Samplerate; }
 		    set
 			{
-				samplerateSlider = value;
-
-				if (value < 0.25)
-					preset.Samplerate = 44100;
-				else if (value < 0.5)
-					preset.Samplerate = 48000;
-				else if (value < 0.75)
-					preset.Samplerate = 44100 * 2;
-				else
-					preset.Samplerate = 96000;
-
+				preset.Samplerate = value;
 				NotifyPropertyChanged();
 				NotifyPropertyChanged(nameof(SamplerateReadout));
 				NotifyPropertyChanged(nameof(SamplerateWarning));
 			}
 	    }
 
-	    public string SamplerateReadout => preset.Samplerate.ToString();
+	    public string SamplerateReadout => preset.SamplerateTransformed.ToString();
 
-	    public double ImpulseLengthSlider
+	    public double ImpulseLength
 	    {
-		    get { return impulseLengthSlider; }
+		    get { return preset.ImpulseLength; }
 		    set
 		    {
-			    impulseLengthSlider = value;
-			    var iVal = (int)((value - 0.0001) * 5);
-			    if (iVal == 0)
-				    preset.ImpulseLength = 256;
-			    else if (iVal == 1)
-				    preset.ImpulseLength = 512;
-			    else if (iVal == 2)
-				    preset.ImpulseLength = 1024;
-			    else if (iVal == 3)
-				    preset.ImpulseLength = 2048;
-			    else if (iVal == 4)
-				    preset.ImpulseLength = 4096;
+				preset.ImpulseLength = value;
 
 			    if (ImpulseConfig != null) // triggered on the VM rather than underlying model because this updates the Gui as well
 			    {
 				    foreach (var ic in ImpulseConfig)
-					    ic.ImpulseLength = preset.ImpulseLength;
+					    ic.ImpulseLength = preset.ImpulseLengthTransformed;
 			    }
 
 			    NotifyPropertyChanged();
@@ -213,9 +198,37 @@ namespace ImpulseHd.Ui
 			}
 	    }
 
-	    public string ImpulseLengthReadout => preset.ImpulseLength + " - " + string.Format("{0:0.0}ms", preset.ImpulseLength / (double)preset.Samplerate * 1000);
+	    public string ImpulseLengthReadout => preset.ImpulseLengthTransformed + " - " + string.Format("{0:0.0}ms", preset.ImpulseLengthTransformed / (double)preset.SamplerateTransformed * 1000);
 
-	    public double VolumeSlider
+	    public double WindowMethod
+	    {
+		    get { return preset.WindowMethod; }
+		    set
+		    {
+			    preset.WindowMethod = value;
+			    NotifyPropertyChanged();
+			    NotifyPropertyChanged(nameof(WindowMethodReadout));
+			    updateRateLimiter.Pulse();
+			}
+	    }
+
+	    public string WindowMethodReadout => preset.WindowMethodTransformed.ToString();
+
+	    public double WindowLength
+	    {
+		    get { return preset.WindowLength; }
+		    set
+		    {
+			    preset.WindowLength = value;
+			    NotifyPropertyChanged();
+			    NotifyPropertyChanged(nameof(WindowLengthReadout));
+			    updateRateLimiter.Pulse();
+			}
+	    }
+
+	    public string WindowLengthReadout => preset.WindowLengthTransformed.ToString();
+
+		public double VolumeSlider
 	    {
 		    get { return volumeSlider; }
 		    set
@@ -229,7 +242,7 @@ namespace ImpulseHd.Ui
 		
 		public string VolumeReadout => $"{VolumeDb:0.0}dB";
 
-	    public string SamplerateWarning => (host.Config != null && host.Config.Samplerate != preset.Samplerate)
+	    public string SamplerateWarning => (host.Config != null && host.Config.Samplerate != preset.SamplerateTransformed)
 		    ? "For accurate results, impulse samplerate should match\r\naudio device samplerate"
 		    : "";
 
@@ -305,6 +318,61 @@ namespace ImpulseHd.Ui
 
 	    public PlotModel PlotTop => selectedTab?.Header?.ToString() == "Master" ? PlotImpulseLeft : SelectedImpulse?.Plot1;
 	    public PlotModel PlotBottom => selectedTab?.Header?.ToString() == "Master" ? PlotImpulseRight : SelectedImpulse?.Plot2;
+		
+	    private void NewPreset()
+	    {
+		    var dir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+		    var defaultPreset = Path.Combine(dir, "Default.cabir");
+			var json = File.ReadAllText(defaultPreset);
+		    var newPreset = PresetSerializer.DeserializePreset(json);
+		    ApplyPreset(newPreset);
+		}
+
+	    private void OpenPreset()
+	    {
+		    var openFileDialog = new OpenFileDialog();
+		    openFileDialog.Filter = "CabIR file (*.cabir)|*.cabir";
+		    openFileDialog.RestoreDirectory = true;
+		    openFileDialog.InitialDirectory = savePresetDirectory;
+
+		    if (openFileDialog.ShowDialog() == true)
+		    {
+			    savePresetDirectory = Path.GetDirectoryName(openFileDialog.FileName);
+			    var json = File.ReadAllText(openFileDialog.FileName);
+			    var newPreset = PresetSerializer.DeserializePreset(json);
+			    ApplyPreset(newPreset);
+		    }
+		}
+
+	    private void ApplyPreset(ImpulsePreset newPreset)
+	    {
+		    preset = newPreset;
+		    ImpulseConfig.Clear();
+		    foreach (var ic in preset.ImpulseConfig)
+		    {
+			    var vm = AddImpulseConfigVm(ic);
+			    Task.Delay(100).ContinueWith(_ => vm.Update());
+		    }
+
+		    SelectedImpulseConfigIndex = 0;
+		    updateRateLimiter.Pulse();
+	    }
+		
+	    private void SavePreset()
+	    {
+		    var json = PresetSerializer.SerializePreset(preset);
+
+		    var saveFileDialog = new SaveFileDialog();
+		    saveFileDialog.Filter = "CabIR file (*.cabir)|*.cabir";
+		    saveFileDialog.RestoreDirectory = true;
+		    saveFileDialog.InitialDirectory = savePresetDirectory;
+
+		    if (saveFileDialog.ShowDialog() == true)
+		    {
+			    savePresetDirectory = Path.GetDirectoryName(saveFileDialog.FileName);
+			    File.WriteAllText(saveFileDialog.FileName, json);
+		    }
+		}
 
 		private void CloneImpulse()
 	    {
@@ -373,19 +441,12 @@ namespace ImpulseHd.Ui
 
 	    private void AddImpulse()
 	    {
-			var ic = new ImpulseConfig {Name = "New Impulse", Samplerate = preset.Samplerate };
+			var ic = new ImpulseConfig {Name = "New Impulse", Samplerate = preset.SamplerateTransformed };
 		    preset.ImpulseConfig = preset.ImpulseConfig.Concat(new[] { ic }).ToArray();
 
-		    ImpulseConfig.Add(new ImpulseConfigViewModel(ic)
-		    {
-			    OnUpdateCallback = () => updateRateLimiter.Pulse(),
-			    OnLoadSampleCallback = dir => loadSampleDirectory = Path.GetDirectoryName(dir),
-			    ImpulseLength = preset.ImpulseLength,
-			    Samplerate = preset.Samplerate
-		    });
-
-		    SelectedImpulseConfigIndex = ImpulseConfig.Count - 1;
-			//Task.Delay(200).ContinueWith(_ => { SelectedImpulseConfigIndex = ImpulseConfig.Length - 1;});
+		    var vm = AddImpulseConfigVm(ic);
+			Task.Delay(100).ContinueWith(_ => vm.Update());
+			SelectedImpulseConfigIndex = ImpulseConfig.Count - 1;
 		}
 
 		private void ShowAbout()
@@ -408,9 +469,9 @@ namespace ImpulseHd.Ui
 			    var fileWithoutExt = saveFileDialog.FileName.Substring(0, saveFileDialog.FileName.Length - 4);
 			    saveSampleDirectory = Path.GetDirectoryName(saveFileDialog.FileName);
 
-				WaveFiles.WriteWaveFile(doubleIr, WaveFiles.WaveFormat.PCM24Bit, preset.Samplerate, saveFileDialog.FileName);
-			    WaveFiles.WriteWaveFile(new[] {doubleIr[0]}, WaveFiles.WaveFormat.PCM24Bit, preset.Samplerate, fileWithoutExt + "-L.wav");
-			    WaveFiles.WriteWaveFile(new[] {doubleIr[1]}, WaveFiles.WaveFormat.PCM24Bit, preset.Samplerate, fileWithoutExt + "-R.wav");
+				WaveFiles.WriteWaveFile(doubleIr, WaveFiles.WaveFormat.PCM24Bit, preset.SamplerateTransformed, saveFileDialog.FileName);
+			    WaveFiles.WriteWaveFile(new[] {doubleIr[0]}, WaveFiles.WaveFormat.PCM24Bit, preset.SamplerateTransformed, fileWithoutExt + "-L.wav");
+			    WaveFiles.WriteWaveFile(new[] {doubleIr[1]}, WaveFiles.WaveFormat.PCM24Bit, preset.SamplerateTransformed, fileWithoutExt + "-R.wav");
 		    }
 	    }
 
@@ -456,7 +517,21 @@ namespace ImpulseHd.Ui
 		    NotifyPropertyChanged(nameof(SamplerateWarning));
 		}
 
-	    private void GetChannelNames(RealtimeHostConfig config)
+	    private ImpulseConfigViewModel AddImpulseConfigVm(ImpulseConfig ic)
+	    {
+		    var vm = new ImpulseConfigViewModel(ic)
+		    {
+			    OnUpdateCallback = () => updateRateLimiter.Pulse(),
+			    OnLoadSampleCallback = dir => loadSampleDirectory = Path.GetDirectoryName(dir),
+			    ImpulseLength = preset.ImpulseLengthTransformed,
+			    Samplerate = preset.SamplerateTransformed
+		    };
+
+			ImpulseConfig.Add(vm);
+			return vm;
+	    }
+
+		private void GetChannelNames(RealtimeHostConfig config)
 	    {
 			var inputDeviceInfo = PortAudio.Pa_GetDeviceInfo(config.InputDeviceID);
 		    var outputDeviceInfo = PortAudio.Pa_GetDeviceInfo(config.OutputDeviceID);
@@ -526,7 +601,7 @@ namespace ImpulseHd.Ui
 			var processor = new ImpulsePresetProcessor(preset);
 			var output = processor.Process();
 			ir = new[] {output[0].Select(x => (float)x).ToArray(), output[1].Select(x => (float)x).ToArray()};
-			var millis = Utils.Linspace(0, preset.ImpulseLength / (double)preset.Samplerate * 1000, preset.ImpulseLength).ToArray();
+			var millis = Utils.Linspace(0, preset.ImpulseLengthTransformed / (double)preset.SamplerateTransformed * 1000, preset.ImpulseLengthTransformed).ToArray();
 			/*
 			ir = new [] { new float[ir[0].Length], new float[ir[0].Length] };
 		    ir[0][0] = 1.0f;
@@ -593,7 +668,10 @@ namespace ImpulseHd.Ui
 				    if (dict.ContainsKey(nameof(saveSampleDirectory)))
 						saveSampleDirectory = dict[nameof(saveSampleDirectory)];
 
-				    if (dict.ContainsKey(nameof(VolumeSlider)))
+				    if (dict.ContainsKey(nameof(savePresetDirectory)))
+					    savePresetDirectory = dict[nameof(savePresetDirectory)];
+					
+					if (dict.ContainsKey(nameof(VolumeSlider)))
 					    VolumeSlider = double.Parse(dict[nameof(VolumeSlider)], CultureInfo.InvariantCulture);
 			    }
 
@@ -618,7 +696,8 @@ namespace ImpulseHd.Ui
 			    dict[nameof(SelectedOutputR)] = SelectedOutputR.ToString();
 			    dict[nameof(loadSampleDirectory)] = loadSampleDirectory;
 			    dict[nameof(saveSampleDirectory)] = saveSampleDirectory;
-			    dict[nameof(VolumeSlider)] = VolumeSlider.ToString("0.000", CultureInfo.InvariantCulture);
+			    dict[nameof(savePresetDirectory)] = savePresetDirectory;
+				dict[nameof(VolumeSlider)] = VolumeSlider.ToString("0.000", CultureInfo.InvariantCulture);
 				var jsonString = JsonConvert.SerializeObject(dict, Formatting.Indented);
 			    if (jsonString != currentJson)
 			    {

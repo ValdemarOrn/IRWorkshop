@@ -172,13 +172,17 @@ namespace ImpulseHd.Ui
 		    Update();
 		}
 
-	    protected override void NotifyPropertyChanged([CallerMemberName]string propertyName = null)
+	    public void Update()
+	    {
+		    updateRateLimiter.Pulse();
+	    }
+
+		protected override void NotifyPropertyChanged([CallerMemberName]string propertyName = null)
 	    {
 		    base.NotifyPropertyChanged(propertyName);
 		    Update();
 	    }
-
-
+		
 	    private void MoveStageLeft()
 	    {
 		    var idx = SelectedSpectrumStageIndex;
@@ -242,12 +246,7 @@ namespace ImpulseHd.Ui
 
 		    LoadSampleData();
 	    }
-
-		private void Update()
-		{
-			updateRateLimiter.Pulse();
-		}
-
+		
 	    private void UpdateInner()
 	    {
 		    Console.WriteLine("{0:HH:mm:ss.fff} - Pow!", DateTime.UtcNow);

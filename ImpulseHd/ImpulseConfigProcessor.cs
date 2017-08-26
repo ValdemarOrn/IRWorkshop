@@ -523,7 +523,7 @@ namespace ImpulseHd
 			return new[] {outputLeft, outputRight};
 		}
 
-		private double GetWindow(int i, int signalLength, double windowLen, WindowMethod windowType)
+		public static double GetWindow(int i, int signalLength, double windowLen, WindowMethod windowType)
 		{
 			var pos = i / (double)signalLength;
 			if (pos < 1 - windowLen)

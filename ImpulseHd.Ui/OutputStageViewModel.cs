@@ -11,7 +11,6 @@ namespace ImpulseHd.Ui
 	{
 		private readonly OutputStage stage;
 		private readonly Action onUpdateCallback;
-		private double gain;
 
 		public OutputStageViewModel(OutputStage stage, Action onUpdateCallback)
 		{
