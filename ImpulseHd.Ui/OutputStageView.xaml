@@ -69,10 +69,10 @@
 		<Label Grid.Row="10" Grid.Column="0">Window Method</Label>
 		<Label Grid.Row="11" Grid.Column="0">Window Length</Label>
 
-		<Slider Grid.Column="1" Grid.Row="0" Value="{Binding Gain}" Minimum="0" Maximum="1" LargeChange="0.1" />
-		<Slider Grid.Column="1" Grid.Row="1" Value="{Binding SampleDelayL}" Minimum="0" Maximum="1" LargeChange="0.1" />
-		<Slider Grid.Column="1" Grid.Row="2" Value="{Binding SampleDelayR}" Minimum="0" Maximum="1" LargeChange="0.1" />
-		<Slider Grid.Column="1" Grid.Row="3" Value="{Binding Pan}" Minimum="0" Maximum="1" LargeChange="0.1" />
+		<Slider Grid.Column="1" Grid.Row="0" Value="{Binding Gain}" Minimum="0" Maximum="1" LargeChange="0.05" SmallChange="0.05" PreviewMouseDown="ResetGain" />
+		<Slider Grid.Column="1" Grid.Row="1" Value="{Binding SampleDelayL}" Minimum="0" Maximum="1" LargeChange="0.1" PreviewMouseDown="ResetZero" />
+		<Slider Grid.Column="1" Grid.Row="2" Value="{Binding SampleDelayR}" Minimum="0" Maximum="1" LargeChange="0.1" PreviewMouseDown="ResetZero" />
+		<Slider Grid.Column="1" Grid.Row="3" Value="{Binding Pan}" Minimum="0" Maximum="1" LargeChange="0.1" PreviewMouseDown="ResetMid" />
 		<StackPanel Grid.Column="1" Grid.Row="4" Orientation="Horizontal">
 			<CheckBox VerticalAlignment="Center" IsChecked="{Binding InvertPhaseLeft}" />
 			<Label Margin="0,0,50,0">Left</Label>
@@ -80,12 +80,12 @@
 			<Label>Right</Label>
 		</StackPanel>
 
-		<Slider Grid.Column="1" Grid.Row="6" Value="{Binding LowCutLeft}" Minimum="0" Maximum="1" LargeChange="0.1" />
-		<Slider Grid.Column="1" Grid.Row="7" Value="{Binding LowCutRight}" Minimum="0" Maximum="1" LargeChange="0.1" />
-		<Slider Grid.Column="1" Grid.Row="8" Value="{Binding HighCutLeft}" Minimum="0" Maximum="1" LargeChange="0.1" />
-		<Slider Grid.Column="1" Grid.Row="9" Value="{Binding HighCutRight}" Minimum="0" Maximum="1" LargeChange="0.1" />
-		<Slider Grid.Column="1" Grid.Row="10" Value="{Binding WindowMethod}" Minimum="0" Maximum="1" LargeChange="0.1" />
-		<Slider Grid.Column="1" Grid.Row="11" Value="{Binding WindowLength}" Minimum="0" Maximum="1" LargeChange="0.1" />
+		<Slider Grid.Column="1" Grid.Row="6" Value="{Binding LowCutLeft}" Minimum="0" Maximum="1" LargeChange="0.1" PreviewMouseDown="ResetZero" />
+		<Slider Grid.Column="1" Grid.Row="7" Value="{Binding LowCutRight}" Minimum="0" Maximum="1" LargeChange="0.1" PreviewMouseDown="ResetZero" />
+		<Slider Grid.Column="1" Grid.Row="8" Value="{Binding HighCutLeft}" Minimum="0" Maximum="1" LargeChange="0.1" PreviewMouseDown="ResetMax" />
+		<Slider Grid.Column="1" Grid.Row="9" Value="{Binding HighCutRight}" Minimum="0" Maximum="1" LargeChange="0.1" PreviewMouseDown="ResetMax" />
+		<Slider Grid.Column="1" Grid.Row="10" Value="{Binding WindowMethod}" Minimum="0" Maximum="1" TickFrequency="0.3333" IsSnapToTickEnabled="True" SmallChange="0.3333" LargeChange="0.3333" />
+		<Slider Grid.Column="1" Grid.Row="11" Value="{Binding WindowLength}" Minimum="0" Maximum="1" LargeChange="0.1" PreviewMouseDown="ResetZero" />
 
 		<Label Grid.Row="0" Grid.Column="2" Content="{Binding GainReadout, FallbackValue=0.0dB}" />
 		<Label Grid.Row="1" Grid.Column="2" Content="{Binding SampleDelayLReadout, FallbackValue=0 Samples}" />

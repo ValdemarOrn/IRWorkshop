@@ -24,5 +24,14 @@ namespace ImpulseHd.Ui
 		{
 			InitializeComponent();
 		}
+
+		private void ResetWindowLength(object sender, MouseButtonEventArgs e)
+		{
+			if ((Keyboard.Modifiers & ModifierKeys.Control) == ModifierKeys.Control)
+			{
+				((Slider)sender).Value = 0.0;
+				e.Handled = true;
+			}
+		}
 	}
 }

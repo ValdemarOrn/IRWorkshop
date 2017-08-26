@@ -24,5 +24,41 @@ namespace ImpulseHd.Ui
         {
             InitializeComponent();
         }
-    }
+
+		private void ResetGain(object sender, MouseButtonEventArgs e)
+		{
+			if ((Keyboard.Modifiers & ModifierKeys.Control) == ModifierKeys.Control)
+			{
+				((Slider)sender).Value = 6.0 / 8.0;
+				e.Handled = true;
+			}
+		}
+
+	    private void ResetMid(object sender, MouseButtonEventArgs e)
+	    {
+		    if ((Keyboard.Modifiers & ModifierKeys.Control) == ModifierKeys.Control)
+		    {
+			    ((Slider)sender).Value = 0.5;
+			    e.Handled = true;
+			}
+	    }
+
+	    private void ResetZero(object sender, MouseButtonEventArgs e)
+	    {
+		    if ((Keyboard.Modifiers & ModifierKeys.Control) == ModifierKeys.Control)
+		    {
+			    ((Slider)sender).Value = 0.0;
+			    e.Handled = true;
+			}
+	    }
+
+	    private void ResetMax(object sender, MouseButtonEventArgs e)
+	    {
+		    if ((Keyboard.Modifiers & ModifierKeys.Control) == ModifierKeys.Control)
+		    {
+			    ((Slider)sender).Value = 1.0;
+			    e.Handled = true;
+			}
+	    }
+	}
 }

@@ -7,7 +7,6 @@ can delay different freq spectrums by different amount and that seems to work we
 Todo:
 
 switch to 2nd order filters for output
-Zero slider when double clicked
 
 Interpolate wav input samples
 Improve Logging, catch top-level application errors

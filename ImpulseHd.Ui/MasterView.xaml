@@ -77,7 +77,7 @@
 					<ComboBox Grid.Row="3" Grid.Column="1" Margin="2" ItemsSource="{Binding InputNames}" SelectedIndex="{Binding SelectedInputR}" />
 					<ComboBox Grid.Row="4" Grid.Column="1" Margin="2" ItemsSource="{Binding OutputNames}" SelectedIndex="{Binding SelectedOutputL}" />
 					<ComboBox Grid.Row="5" Grid.Column="1" Margin="2" ItemsSource="{Binding OutputNames}" SelectedIndex="{Binding SelectedOutputR}" />
-					<Slider Grid.Row="6" Grid.Column="1" Value="{Binding VolumeSlider}" Maximum="1"  SmallChange="0.1" LargeChange="0.2" />
+					<Slider Grid.Row="6" Grid.Column="1" Value="{Binding VolumeSlider}" Maximum="1" SmallChange="0.05" LargeChange="0.05" />
 					<StackPanel Grid.Row="7" Grid.Column="1" HorizontalAlignment="Left" VerticalAlignment="Center" Orientation="Horizontal" Margin="2">
 						<Border BorderThickness="1" BorderBrush="Black" Background="{Binding ClipLBrush,FallbackValue=Red}" Width="12" Height="12"></Border>
 						<Label>Left Channel</Label>
@@ -89,7 +89,7 @@
 					<Slider Grid.Row="11"  Grid.Column="1" Value="{Binding Samplerate}" Maximum="1" TickFrequency="0.33333" SmallChange="0.33333" LargeChange="0.33333" IsSnapToTickEnabled="True" />
 					<Slider Grid.Row="12"  Grid.Column="1" Value="{Binding ImpulseLength}" Maximum="1" TickFrequency="0.25" SmallChange="0.2" LargeChange="0.2" IsSnapToTickEnabled="True" />
 					<Slider Grid.Row="13" Grid.Column="1" Value="{Binding WindowMethod}" Maximum="1" TickFrequency="0.33333" SmallChange="0.33333" LargeChange="0.33333" IsSnapToTickEnabled="True" />
-					<Slider Grid.Row="14" Grid.Column="1" Value="{Binding WindowLength}" Maximum="1" SmallChange="0.2" LargeChange="0.2" />
+					<Slider Grid.Row="14" Grid.Column="1" Value="{Binding WindowLength}" Maximum="1" SmallChange="0.2" LargeChange="0.2" PreviewMouseDown="ResetWindowLength" />
 
 					<Label Grid.Row="6" Grid.Column="2" Content="{Binding VolumeReadout, FallbackValue=0.0dB, Mode=OneWay}" />
 					<Label Grid.Row="11" Grid.Column="2" Content="{Binding SamplerateReadout, FallbackValue=x, Mode=OneWay}" />
