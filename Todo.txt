@@ -6,12 +6,10 @@ can delay different freq spectrums by different amount and that seems to work we
 
 Todo:
 
-clone impulses
 switch to 2nd order filters for output
-New/Open/Save feature
 Zero slider when double clicked
 
-Interpolate wav input 15:17 26/08/2017samples
+Interpolate wav input samples
 Improve Logging, catch top-level application errors
 Allow logs and stacktraces to be accessed for reporting
 Move realtime processing to separate process

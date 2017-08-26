@@ -37,5 +37,24 @@ namespace ImpulseHd.Serializer
 			var preset = JsonConvert.DeserializeObject<ImpulsePreset>(json);
 			return preset;
 		}
+
+		public static string SerializeImpulse(ImpulseConfig impulseConfig)
+		{
+			JsonSerializerSettings settings = new JsonSerializerSettings
+			{
+				ContractResolver = new WritablePropertiesOnlyResolver()
+			};
+
+			settings.Formatting = Formatting.Indented;
+
+			string json = JsonConvert.SerializeObject(impulseConfig, settings);
+			return json;
+		}
+
+		public static ImpulseConfig DeserializeImpulse(string json)
+		{
+			var preset = JsonConvert.DeserializeObject<ImpulseConfig>(json);
+			return preset;
+		}
 	}
 }

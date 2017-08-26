@@ -14,7 +14,7 @@ namespace ImpulseHd
 		{
 			Samplerate = 0.3333333;
 			ImpulseLength = 0.5;
-			WindowLength = 0.01;
+			WindowLength = 0.00;
 			ImpulseConfig = new ImpulseConfig[0];
 		}
 

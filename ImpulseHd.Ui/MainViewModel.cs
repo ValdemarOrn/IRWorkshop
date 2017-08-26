@@ -176,9 +176,7 @@ namespace ImpulseHd.Ui
 				NotifyPropertyChanged(nameof(SamplerateWarning));
 			}
 	    }
-
-	    public string SamplerateReadout => preset.SamplerateTransformed.ToString();
-
+		
 	    public double ImpulseLength
 	    {
 		    get { return preset.ImpulseLength; }
@@ -197,9 +195,7 @@ namespace ImpulseHd.Ui
 			    updateRateLimiter.Pulse();
 			}
 	    }
-
-	    public string ImpulseLengthReadout => preset.ImpulseLengthTransformed + " - " + string.Format("{0:0.0}ms", preset.ImpulseLengthTransformed / (double)preset.SamplerateTransformed * 1000);
-
+		
 	    public double WindowMethod
 	    {
 		    get { return preset.WindowMethod; }
@@ -211,9 +207,7 @@ namespace ImpulseHd.Ui
 			    updateRateLimiter.Pulse();
 			}
 	    }
-
-	    public string WindowMethodReadout => preset.WindowMethodTransformed.ToString();
-
+		
 	    public double WindowLength
 	    {
 		    get { return preset.WindowLength; }
@@ -225,9 +219,7 @@ namespace ImpulseHd.Ui
 			    updateRateLimiter.Pulse();
 			}
 	    }
-
-	    public string WindowLengthReadout => preset.WindowLengthTransformed.ToString();
-
+		
 		public double VolumeSlider
 	    {
 		    get { return volumeSlider; }
@@ -239,7 +231,11 @@ namespace ImpulseHd.Ui
 	    }
 
 	    public double VolumeDb => (VolumeSlider * 80 - 60);
-		
+
+	    public string SamplerateReadout => preset.SamplerateTransformed.ToString();
+		public string ImpulseLengthReadout => preset.ImpulseLengthTransformed + " - " + string.Format("{0:0.0}ms", preset.ImpulseLengthTransformed / (double)preset.SamplerateTransformed * 1000);
+		public string WindowMethodReadout => preset.WindowMethodTransformed.ToString();
+		public string WindowLengthReadout => $"{preset.WindowLengthTransformed * 100:0.00}%";
 		public string VolumeReadout => $"{VolumeDb:0.0}dB";
 
 	    public string SamplerateWarning => (host.Config != null && host.Config.Samplerate != preset.SamplerateTransformed)
@@ -355,8 +351,16 @@ namespace ImpulseHd.Ui
 		    }
 
 		    SelectedImpulseConfigIndex = 0;
-		    updateRateLimiter.Pulse();
-	    }
+		    NotifyPropertyChanged(nameof(Samplerate));
+		    NotifyPropertyChanged(nameof(ImpulseLength));
+		    NotifyPropertyChanged(nameof(WindowMethod));
+		    NotifyPropertyChanged(nameof(WindowLength));
+		    NotifyPropertyChanged(nameof(SamplerateReadout));
+		    NotifyPropertyChanged(nameof(ImpulseLengthReadout));
+		    NotifyPropertyChanged(nameof(WindowMethodReadout));
+		    NotifyPropertyChanged(nameof(WindowLengthReadout));
+			updateRateLimiter.Pulse();
+		}
 		
 	    private void SavePreset()
 	    {
@@ -375,9 +379,19 @@ namespace ImpulseHd.Ui
 		}
 
 		private void CloneImpulse()
-	    {
-		    
-	    }
+		{
+			var idx = selectedImpulseConfigIndex;
+			if (idx < 0 || idx >= preset.ImpulseConfig.Length)
+				return;
+
+			var json = PresetSerializer.SerializeImpulse(preset.ImpulseConfig[selectedImpulseConfigIndex]);
+			var ic = PresetSerializer.DeserializeImpulse(json);
+
+			preset.ImpulseConfig = preset.ImpulseConfig.Concat(new[] { ic }).ToArray();
+			var vm = AddImpulseConfigVm(ic);
+			Task.Delay(100).ContinueWith(_ => vm.Update());
+			SelectedImpulseConfigIndex = ImpulseConfig.Count - 1;
+		}
 
 		private void MoveImpulseRight()
 	    {
@@ -443,8 +457,7 @@ namespace ImpulseHd.Ui
 	    {
 			var ic = new ImpulseConfig {Name = "New Impulse", Samplerate = preset.SamplerateTransformed };
 		    preset.ImpulseConfig = preset.ImpulseConfig.Concat(new[] { ic }).ToArray();
-
-		    var vm = AddImpulseConfigVm(ic);
+			var vm = AddImpulseConfigVm(ic);
 			Task.Delay(100).ContinueWith(_ => vm.Update());
 			SelectedImpulseConfigIndex = ImpulseConfig.Count - 1;
 		}
