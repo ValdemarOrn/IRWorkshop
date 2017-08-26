@@ -17,6 +17,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LowProfile.Core", "..\..\Li
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ImpulseHd.Convolution", "ImpulseHd.Convolution\ImpulseHd.Convolution.vcxproj", "{888B7FD9-5C58-4064-8081-C6E3A8D70B77}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ImpulseHd.RealtimeProcessing", "ImpulseHd.RealtimeProcessing\ImpulseHd.RealtimeProcessing.csproj", "{68BF11CB-545D-4D08-9B33-E51DCEBD7A9D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -109,6 +111,18 @@ Global
 		{888B7FD9-5C58-4064-8081-C6E3A8D70B77}.Release|x64.Build.0 = Release|x64
 		{888B7FD9-5C58-4064-8081-C6E3A8D70B77}.Release|x86.ActiveCfg = Release|Win32
 		{888B7FD9-5C58-4064-8081-C6E3A8D70B77}.Release|x86.Build.0 = Release|Win32
+		{68BF11CB-545D-4D08-9B33-E51DCEBD7A9D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{68BF11CB-545D-4D08-9B33-E51DCEBD7A9D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{68BF11CB-545D-4D08-9B33-E51DCEBD7A9D}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{68BF11CB-545D-4D08-9B33-E51DCEBD7A9D}.Debug|x64.Build.0 = Debug|Any CPU
+		{68BF11CB-545D-4D08-9B33-E51DCEBD7A9D}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{68BF11CB-545D-4D08-9B33-E51DCEBD7A9D}.Debug|x86.Build.0 = Debug|Any CPU
+		{68BF11CB-545D-4D08-9B33-E51DCEBD7A9D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{68BF11CB-545D-4D08-9B33-E51DCEBD7A9D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{68BF11CB-545D-4D08-9B33-E51DCEBD7A9D}.Release|x64.ActiveCfg = Release|Any CPU
+		{68BF11CB-545D-4D08-9B33-E51DCEBD7A9D}.Release|x64.Build.0 = Release|Any CPU
+		{68BF11CB-545D-4D08-9B33-E51DCEBD7A9D}.Release|x86.ActiveCfg = Release|Any CPU
+		{68BF11CB-545D-4D08-9B33-E51DCEBD7A9D}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

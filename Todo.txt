@@ -8,6 +8,8 @@ Todo:
 
 Interpolate wav input samples
 Move realtime processing to separate process
+Seed and Shift for gain randomization
+verify that samplerate changes are OK and that everythign works at different samplerates - make sure you can change samplerate easy during process
 
 -----------------------------------
 This is a bit too complex for a first draft...
