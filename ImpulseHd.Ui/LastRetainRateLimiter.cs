@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using LowProfile.Core.Extensions;
 
 namespace ImpulseHd.Ui
 {
@@ -44,11 +45,20 @@ namespace ImpulseHd.Ui
 		{
 			while (running)
 			{
-				var isSet = updateEvent.WaitOne(refreshMillis);
-				if (!isSet)
-					continue;
+				try
+				{
+					var isSet = updateEvent.WaitOne(refreshMillis);
+					if (!isSet)
+						continue;
 
-				action();
+					action();
+				}
+				catch (Exception ex)
+				{
+					Logging.Exception(ex.Message, ex.GetTrace());
+					Thread.Sleep(1000);
+				}
+
 				Thread.Sleep(refreshMillis);
 			}
 		}

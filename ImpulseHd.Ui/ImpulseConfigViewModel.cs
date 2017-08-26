@@ -168,7 +168,15 @@ namespace ImpulseHd.Ui
 		    if (string.IsNullOrWhiteSpace(FilePath) || !File.Exists(FilePath))
 			    return;
 
-			impulseConfig.LoadSampleData();
+			try
+		    {
+			    impulseConfig.LoadSampleData();
+		    }
+		    catch (Exception ex)
+		    {
+			    Logging.Exception($"Failed to load the selected sample.\r\n{FilePath}\r\n{ex.Message}", ex.GetTrace());
+		    }
+
 		    Update();
 		}
 

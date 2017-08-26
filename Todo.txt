@@ -7,8 +7,6 @@ can delay different freq spectrums by different amount and that seems to work we
 Todo:
 
 Interpolate wav input samples
-Improve Logging, catch top-level application errors
-Allow logs and stacktraces to be accessed for reporting
 Move realtime processing to separate process
 
 -----------------------------------

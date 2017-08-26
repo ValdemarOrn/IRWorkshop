@@ -56,6 +56,7 @@ namespace ImpulseHd.Ui
 
 		public MainViewModel()
 		{
+			Logging.SetupLogging();
 			Title = "CabIR Studio - v" + Assembly.GetExecutingAssembly().GetName().Version;
 			settingsFile = Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), "settings.json");
 			this.updateRateLimiter = new LastRetainRateLimiter(250, UpdateSample);
@@ -588,21 +589,29 @@ namespace ImpulseHd.Ui
 	    {
 		    while (true)
 		    {
-			    if ((DateTime.UtcNow - clipTimeLeft).TotalMilliseconds < 500)
+			    try
 			    {
-					if (ClipLBrush == Brushes.Transparent)
-					    ClipLBrush = Brushes.Red;
-				}
-			    else
-				    ClipLBrush = Brushes.Transparent;
+				    if ((DateTime.UtcNow - clipTimeLeft).TotalMilliseconds < 500)
+				    {
+					    if (ClipLBrush == Brushes.Transparent)
+						    ClipLBrush = Brushes.Red;
+				    }
+				    else
+					    ClipLBrush = Brushes.Transparent;
 
-			    if ((DateTime.UtcNow - clipTimeRight).TotalMilliseconds < 500)
-			    {
-					if (ClipRBrush == Brushes.Transparent)
-						ClipRBrush = Brushes.Red;
+				    if ((DateTime.UtcNow - clipTimeRight).TotalMilliseconds < 500)
+				    {
+					    if (ClipRBrush == Brushes.Transparent)
+						    ClipRBrush = Brushes.Red;
+				    }
+				    else
+					    ClipRBrush = Brushes.Transparent;
 			    }
-			    else
-				    ClipRBrush = Brushes.Transparent;
+			    catch (Exception)
+			    {
+				    Thread.Sleep(500);
+					// swallow
+			    }
 
 			    Thread.Sleep(20);
 		    }
@@ -725,7 +734,14 @@ namespace ImpulseHd.Ui
 
 			while (true)
 			{
-				create();
+				try
+				{
+					create();
+				}
+				catch (Exception)
+				{
+					//swallow
+				}
 				Thread.Sleep(1000);
 			}
 	    }
