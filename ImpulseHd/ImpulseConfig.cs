@@ -66,6 +66,8 @@ namespace ImpulseHd
 			HighCutRight = 1.0;
 			WindowMethod = 0.7;
 			WindowLength = 0.0;
+			LowCut12dB = false;
+			HighCut12dB = true;
 		}
 
 		public double Gain { get; set; }
@@ -74,6 +76,8 @@ namespace ImpulseHd
 		public double Pan { get; set; }
 		public bool InvertPhaseLeft { get; set; }
 		public bool InvertPhaseRight { get; set; }
+		public bool LowCut12dB { get; set; }
+		public bool HighCut12dB { get; set; }
 		public double LowCutLeft { get; set; }
 		public double LowCutRight { get; set; }
 		public double HighCutLeft { get; set; }

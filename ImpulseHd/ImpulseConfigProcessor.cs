@@ -480,16 +480,33 @@ namespace ImpulseHd
 			var rightDelay = config.OutputStage.SampleDelayRTransformed;
 			var windowLen = config.OutputStage.WindowLengthTransformed;
 			var windowType = config.OutputStage.WindowMethodTransformed;
+			var low12db = config.OutputStage.LowCut12dB;
+			var high12db = config.OutputStage.HighCut12dB;
 
-			var lpLeft = new ZeroLp1();
-			var lpRight = new ZeroLp1();
-			var hpLeft = new ZeroHp1();
-			var hpRight = new ZeroHp1();
+			var lp1Left = new ZeroLp1();
+			var lp1Right = new ZeroLp1();
+			var hp1Left = new ZeroHp1();
+			var hp1Right = new ZeroHp1();
 
-			lpLeft.SetFc(config.OutputStage.HighCutLeftTransformed / (config.Samplerate / 2));
-			lpRight.SetFc(config.OutputStage.HighCutRightTransformed / (config.Samplerate / 2));
-			hpLeft.SetFc(config.OutputStage.LowCutLeftTransformed / (config.Samplerate / 2));
-			hpRight.SetFc(config.OutputStage.LowCutRightTransformed / (config.Samplerate / 2));
+			lp1Left.SetFc(config.OutputStage.HighCutLeftTransformed / (config.Samplerate / 2));
+			lp1Right.SetFc(config.OutputStage.HighCutRightTransformed / (config.Samplerate / 2));
+			hp1Left.SetFc(config.OutputStage.LowCutLeftTransformed / (config.Samplerate / 2));
+			hp1Right.SetFc(config.OutputStage.LowCutRightTransformed / (config.Samplerate / 2));
+
+			var lp2Left = new Biquad { Q = 1.0, Type = Biquad.FilterType.LowPass, Gain = 1, Samplerate = config.Samplerate };
+			var lp2Right = new Biquad { Q = 1.0, Type = Biquad.FilterType.LowPass, Gain = 1, Samplerate = config.Samplerate };
+			var hp2Left = new Biquad { Q = 1.0, Type = Biquad.FilterType.HighPass, Gain = 1, Samplerate = config.Samplerate };
+			var hp2Right = new Biquad { Q = 1.0, Type = Biquad.FilterType.HighPass, Gain = 1, Samplerate = config.Samplerate };
+
+			lp2Left.Frequency = config.OutputStage.HighCutLeftTransformed;
+			lp2Right.Frequency = config.OutputStage.HighCutRightTransformed;
+			hp2Left.Frequency = config.OutputStage.LowCutLeftTransformed;
+			hp2Right.Frequency = config.OutputStage.LowCutRightTransformed;
+
+			lp2Left.Update();
+			lp2Right.Update();
+			hp2Left.Update();
+			hp2Right.Update();
 
 			var outputLeft = new double[signal.Length];
 			var outputRight = new double[signal.Length];
@@ -500,12 +517,28 @@ namespace ImpulseHd
 				var lSample = sample * leftPan * leftInvert;
 				var rSample = sample * rightPan * rightInvert;
 
-				lSample = lpLeft.Process(lSample);
-				rSample = lpRight.Process(rSample);
-				
-				lSample = hpLeft.Process(lSample);
-				rSample = hpRight.Process(rSample);
-				
+				if (high12db)
+				{
+					lSample = lp2Left.Process(lSample);
+					rSample = lp2Right.Process(rSample);
+				}
+				else
+				{
+					lSample = lp1Left.Process(lSample);
+					rSample = lp1Right.Process(rSample);
+				}
+
+				if (low12db)
+				{
+					lSample = hp2Left.Process(lSample);
+					rSample = hp2Right.Process(rSample);
+				}
+				else
+				{
+					lSample = hp1Left.Process(lSample);
+					rSample = hp1Right.Process(rSample);
+				}
+
 				if (i + leftDelay < signal.Length)
 					outputLeft[i + leftDelay] = lSample;
 

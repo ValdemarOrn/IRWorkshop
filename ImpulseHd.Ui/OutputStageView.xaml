@@ -62,6 +62,7 @@
 		<Label Grid.Row="2" Grid.Column="0">Delay Right</Label>
 		<Label Grid.Row="3" Grid.Column="0">Pan</Label>
 		<Label Grid.Row="4" Grid.Column="0">Invert Phase</Label>
+		<Label Grid.Row="5" Grid.Column="0">12dB Rolloff</Label>
 		<Label Grid.Row="6" Grid.Column="0">Low Cut Left</Label>
 		<Label Grid.Row="7" Grid.Column="0">Low Cut Right</Label>
 		<Label Grid.Row="8" Grid.Column="0">High Cut Left</Label>
@@ -78,6 +79,12 @@
 			<Label Margin="0,0,50,0">Left</Label>
 			<CheckBox VerticalAlignment="Center" IsChecked="{Binding InvertPhaseRight}" />
 			<Label>Right</Label>
+		</StackPanel>
+		<StackPanel Grid.Column="1" Grid.Row="5" Orientation="Horizontal">
+			<CheckBox VerticalAlignment="Center" IsChecked="{Binding LowCut12dB}" />
+			<Label Margin="0,0,50,0">Low</Label>
+			<CheckBox VerticalAlignment="Center" IsChecked="{Binding HighCut12dB}" />
+			<Label>High</Label>
 		</StackPanel>
 
 		<Slider Grid.Column="1" Grid.Row="6" Value="{Binding LowCutLeft}" Minimum="0" Maximum="1" LargeChange="0.1" PreviewMouseDown="ResetZero" />

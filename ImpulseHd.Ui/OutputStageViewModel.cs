@@ -54,6 +54,18 @@ namespace ImpulseHd.Ui
 			set { stage.InvertPhaseRight = value; NotifyPropertyChanged(); onUpdateCallback(); }
 		}
 
+		public bool LowCut12dB
+		{
+			get { return stage.LowCut12dB; }
+			set { stage.LowCut12dB = value; NotifyPropertyChanged(); onUpdateCallback(); }
+		}
+
+		public bool HighCut12dB
+		{
+			get { return stage.HighCut12dB; }
+			set { stage.HighCut12dB = value; NotifyPropertyChanged(); onUpdateCallback(); }
+		}
+
 		public double LowCutLeft
 		{
 			get { return stage.LowCutLeft; }
