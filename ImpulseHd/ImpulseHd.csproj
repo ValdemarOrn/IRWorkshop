@@ -5,7 +5,7 @@
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{EBC0D0F9-20CB-495E-A85D-D973A6111089}</ProjectGuid>
-    <OutputType>WinExe</OutputType>
+    <OutputType>Library</OutputType>
     <RootNamespace>ImpulseHd</RootNamespace>
     <AssemblyName>ImpulseHd</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
@@ -62,7 +62,6 @@
     <Compile Include="ImpulseConfigProcessor.cs" />
     <Compile Include="ImpulsePresetProcessor.cs" />
     <Compile Include="ProcessConv.cs" />
-    <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -13,13 +14,16 @@ namespace ImpulseHd
 
 		public ImpulseConfig()
 		{
-			SpectrumStages = new SpectrumStage[0];
+			SpectrumStages = new [] { new SpectrumStage() };
 			OutputStage = new OutputStage();
+			Enable = true;
 		}
 
 		public string Name { get; set; }
 		public string FilePath { get; set; }
-		public double Samplerate { get; set; }
+		public bool Enable { get; set; }
+		public bool Solo { get; set; }
+		public int Samplerate { get; set; }
 		public int ImpulseLength { get; set; }
 
 		public double[] RawSampleData { get; set; }
@@ -29,13 +33,22 @@ namespace ImpulseHd
 
 		public void LoadSampleData()
 		{
-			var format = WaveFiles.ReadWaveFormat(FilePath);
-			if (format.SampleRate != 48000)
-				throw new Exception("Only 48Khz files supported currently");
+			double[] waveData;
 
-			Samplerate = format.SampleRate;
-			var waveData = WaveFiles.ReadWaveFile(FilePath)[0];
-			//waveData = new[] {1.0, 0.0, 0.0, 0.0};
+			if (string.IsNullOrWhiteSpace(FilePath) || !File.Exists(FilePath))
+			{
+				// load pure impulse as fallback
+				waveData = new[] { 1.0, 0.0, 0.0, 0.0 };
+			}
+			else
+			{
+				var format = WaveFiles.ReadWaveFormat(FilePath);
+				if (format.SampleRate != Samplerate)
+					throw new Exception($"Only files with the specified samplerate ({Samplerate}Hz) can currently be loaded");
+
+				waveData = WaveFiles.ReadWaveFile(FilePath)[0];
+			}
+
 			RawSampleData = waveData.Take(MaxSampleLength).ToArray();
 			RawSampleData = RawSampleData.Concat(new double[MaxSampleLength - RawSampleData.Length]).ToArray();
 		}
@@ -96,6 +109,36 @@ namespace ImpulseHd
 
 	public class SpectrumStage
 	{
+		public SpectrumStage()
+		{
+			IsEnabled = true;
+			MinimumPhase = true;
+			MinFreq = 0;
+			MaxFreq = 1;
+			LowBlendOcts = 0;
+			HighBlendOcts = 0;
+			Gain = 0.6;
+			DelaySamples = 0;
+
+			GainSmoothingOctaves = 0.2;
+			GainSmoothingAmount = 0.5;
+			GainSmoothingMode = 0.5;
+
+			RandomGainFiltering = 0.2;
+			RandomGainSeed = 0;
+			RandomGainAmount = 0.0;
+			RandomSkewAmount = 0.5;
+			RandomGainMode = 0.5;
+
+			FrequencySkew = 0.5;
+			PinToHighFrequency = false;
+
+			PhaseBands = 0.5;
+			PhaseBandDelayAmount = 0;
+			PhaseBandFreqTrack = 0.5;
+			PhaseBandSeed = 0;
+		}
+
 		// Basic settings
 		public bool IsEnabled { get; set; }
 		public bool MinimumPhase { get; set; }
@@ -173,39 +216,7 @@ namespace ImpulseHd
 		public double PhaseBandDelayAmountTransformed => (int)(ValueTables.Get(PhaseBandDelayAmount, ValueTables.Response2Dec) * 4096);
 		public double PhaseBandFreqTrackTransformed => 2 * PhaseBandFreqTrack - 1;
 		public int PhaseBandSeedTransformed => (int)(PhaseBandSeed * 10000);
-
-
-		public static SpectrumStage GetDefaultStage()
-		{
-			return new SpectrumStage
-			{
-				IsEnabled = true,
-				MinFreq = 0,
-				MaxFreq = 1,
-				LowBlendOcts = 0,
-				HighBlendOcts = 0,
-				Gain = 0.6,
-				DelaySamples = 0,
-
-				GainSmoothingOctaves = 0.2,
-				GainSmoothingAmount = 0.5,
-				GainSmoothingMode = 0.5,
-
-				RandomGainFiltering = 0.2,
-				RandomGainSeed = 0,
-				RandomGainAmount = 0.0,
-				RandomSkewAmount = 0.5,
-				RandomGainMode = 0.5,
-
-				FrequencySkew = 0.5,
-				PinToHighFrequency = false,
-				
-				PhaseBands = 0.5,
-				PhaseBandDelayAmount = 0,
-				PhaseBandFreqTrack = 0.5,
-				PhaseBandSeed = 0,
-			};
-		}
+		
 	}
 
 	public enum WindowMethod

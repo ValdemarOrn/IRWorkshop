@@ -52,8 +52,6 @@ namespace ImpulseHd
 
 		public void ProcessStage(SpectrumStage stage)
 		{
-			// todo: fill in features
-
 			if (!stage.IsEnabled)
 				return;
 
@@ -472,7 +470,7 @@ namespace ImpulseHd
 		public double[][] ProcessOutputStage()
 		{
 			var signal = TimeSignal.ToArray();
-			var gain = AudioLib.Utils.DB2gain(config.OutputStage.GainTransformed);
+			var gain = Utils.DB2gain(config.OutputStage.GainTransformed);
 			var pan = config.OutputStage.PanTransformed;
 			var leftPan = pan <= 0 ? 1.0 : 1 - Math.Abs(pan);
 			var rightPan = pan >= 0 ? 1.0 : 1 - Math.Abs(pan);

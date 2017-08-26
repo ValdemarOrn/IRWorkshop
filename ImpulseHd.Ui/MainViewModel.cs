@@ -52,7 +52,7 @@ namespace ImpulseHd.Ui
 	    private Brush clipLBrush;
 	    private Brush clipRBrush;
 	    private TabItem selectedTab;
-	    private ImpulseConfigViewModel selectedImpulse;
+	    private int selectedImpulseConfigIndex;
 
 		public MainViewModel()
 		{
@@ -60,22 +60,10 @@ namespace ImpulseHd.Ui
 			settingsFile = Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), "settings.json");
 			this.updateRateLimiter = new LastRetainRateLimiter(250, UpdateSample);
 			
-			var ic = new ImpulseConfig() {Name = "My Impulse 123", Samplerate = 48000, FilePath = @"E:\Sound\Samples\Impulses\catharsis-awesometime-fredman\48Khz\2off-pres5.wav" };
 			preset = new ImpulsePreset();
-		    preset.ImpulseConfig = new[] {ic};
-			ImpulseLengthSlider = 0.5;
+		    ImpulseLengthSlider = 0.5;
 			SamplerateSlider = 0.4;
-
 			ImpulseConfig = new ObservableCollection<ImpulseConfigViewModel>();
-			ImpulseConfig.Add(new ImpulseConfigViewModel(ic)
-			{
-				OnUpdateCallback = () => updateRateLimiter.Pulse(),
-				OnLoadSampleCallback = dir => loadSampleDirectory = Path.GetDirectoryName(dir),
-				ImpulseLength = preset.ImpulseLength,
-				Samplerate = preset.Samplerate
-			});
-			ImpulseConfig[0].LoadSampleData();
-			
 
 			// The host lives in a singleton withing. It can not be created directly 
 			// and only one host can exists within an application context
@@ -85,11 +73,16 @@ namespace ImpulseHd.Ui
 			// Assign the static process method in this class to be the callback
 			host.Process = ProcessAudio;
 			
-		    AudioSetupCommand = new DelegateCommand(_ => AudioSetup());
+			AudioSetupCommand = new DelegateCommand(_ => AudioSetup());
 			ExportWavCommand = new DelegateCommand(_ => ExportWav());
 			ShowAboutCommand = new DelegateCommand(_ => ShowAbout());
 			CheckForUpdatesCommand = new DelegateCommand(_ => Process.Start("https://github.com/ValdemarOrn/ImpulseEngine"));
 
+			AddImpulseCommand = new DelegateCommand(_ => AddImpulse());
+			RemoveImpulseCommand = new DelegateCommand(_ => RemoveImpulse());
+			MoveImpulseLeftCommand = new DelegateCommand(_ => MoveImpulseLeft());
+			MoveImpulseRightCommand = new DelegateCommand(_ => MoveImpulseRight());
+			CloneImpulseCommand = new DelegateCommand(_ => CloneImpulse());
 			selectedInputL = -1;
 		    selectedInputR = -1;
 		    selectedOutputL = -1;
@@ -104,32 +97,55 @@ namespace ImpulseHd.Ui
 			var t3 = new Thread(UpdateClipIndicators) { IsBackground = true };
 			t3.Priority = ThreadPriority.Lowest;
 			t3.Start();
-		}
 
+			AddImpulse();
+		}
+		
 	    public string Title { get; set; }
 		
 	    public ObservableCollection<ImpulseConfigViewModel> ImpulseConfig
 		{
-			get;
-			private set;
+			get; set;
 		}
+
+	    public int SelectedImpulseConfigIndex
+	    {
+		    get { return selectedImpulseConfigIndex; }
+		    set
+			{
+				selectedImpulseConfigIndex = value;
+				NotifyPropertyChanged();
+
+				NotifyPropertyChanged(nameof(PlotTop));
+				NotifyPropertyChanged(nameof(PlotBottom));
+			}
+	    }
+
 
 	    public ImpulseConfigViewModel SelectedImpulse
 	    {
-		    get { return selectedImpulse; }
-		    set
+		    get
 		    {
-			    selectedImpulse = value;
-				NotifyPropertyChanged();
-			    NotifyPropertyChanged(nameof(PlotTop));
-			    NotifyPropertyChanged(nameof(PlotBottom));
-			}
+				var idx = SelectedImpulseConfigIndex;
+				var configs = ImpulseConfig;
+
+				if (idx < 0 || idx >= configs.Count)
+					return null;
+
+			    return configs[idx];
+		    }
 	    }
 
 	    public ICommand AudioSetupCommand { get; private set; }
 		public ICommand ExportWavCommand { get; private set; }
 		public ICommand ShowAboutCommand { get; private set; }
 		public ICommand CheckForUpdatesCommand { get; private set; }
+
+	    public ICommand AddImpulseCommand { get; private set; }
+	    public ICommand RemoveImpulseCommand { get; private set; }
+	    public ICommand MoveImpulseLeftCommand { get; private set; }
+	    public ICommand MoveImpulseRightCommand { get; private set; }
+		public ICommand CloneImpulseCommand { get; set; }
 
 		public string[] InputNames
 	    {
@@ -185,7 +201,7 @@ namespace ImpulseHd.Ui
 			    else if (iVal == 4)
 				    preset.ImpulseLength = 4096;
 
-			    if (ImpulseConfig != null)
+			    if (ImpulseConfig != null) // triggered on the VM rather than underlying model because this updates the Gui as well
 			    {
 				    foreach (var ic in ImpulseConfig)
 					    ic.ImpulseLength = preset.ImpulseLength;
@@ -289,8 +305,90 @@ namespace ImpulseHd.Ui
 
 	    public PlotModel PlotTop => selectedTab?.Header?.ToString() == "Master" ? PlotImpulseLeft : SelectedImpulse?.Plot1;
 	    public PlotModel PlotBottom => selectedTab?.Header?.ToString() == "Master" ? PlotImpulseRight : SelectedImpulse?.Plot2;
-		
-	    private void ShowAbout()
+
+		private void CloneImpulse()
+	    {
+		    
+	    }
+
+		private void MoveImpulseRight()
+	    {
+		    var idx = selectedImpulseConfigIndex;
+
+			if (SelectedImpulse == null)
+				return;
+			if (idx == ImpulseConfig.Count - 1)
+				return;
+
+		    var aVm = ImpulseConfig[idx];
+			var bVm = ImpulseConfig[idx + 1];
+		    var aIc = preset.ImpulseConfig[idx];
+		    var bIc = preset.ImpulseConfig[idx + 1];
+
+			preset.ImpulseConfig[idx] = bIc;
+			preset.ImpulseConfig[idx + 1] = aIc;
+			ImpulseConfig[idx] = bVm;
+			ImpulseConfig[idx + 1] = aVm;
+
+		    SelectedImpulseConfigIndex = idx + 1;
+		}
+
+	    private void MoveImpulseLeft()
+	    {
+		    var idx = selectedImpulseConfigIndex;
+
+			if (SelectedImpulse == null)
+			    return;
+		    if (idx == 0)
+			    return;
+
+		    var aVm = ImpulseConfig[idx];
+		    var bVm = ImpulseConfig[idx - 1];
+		    var aIc = preset.ImpulseConfig[idx];
+		    var bIc = preset.ImpulseConfig[idx - 1];
+
+		    preset.ImpulseConfig[idx] = bIc;
+		    preset.ImpulseConfig[idx - 1] = aIc;
+		    ImpulseConfig[idx] = bVm;
+		    ImpulseConfig[idx - 1] = aVm;
+
+		    SelectedImpulseConfigIndex = idx - 1;
+	    }
+
+	    private void RemoveImpulse()
+	    {
+		    if (SelectedImpulse == null)
+			    return;
+
+		    var impulses = new List<ImpulseConfig>();
+		    foreach (var ic in preset.ImpulseConfig)
+		    {
+			    if (ic != SelectedImpulse.ImpulseConfig)
+				    impulses.Add(ic);
+		    }
+
+			preset.ImpulseConfig = impulses.ToArray();
+		    ImpulseConfig.RemoveAt(selectedImpulseConfigIndex);
+		}
+
+	    private void AddImpulse()
+	    {
+			var ic = new ImpulseConfig {Name = "New Impulse", Samplerate = preset.Samplerate };
+		    preset.ImpulseConfig = preset.ImpulseConfig.Concat(new[] { ic }).ToArray();
+
+		    ImpulseConfig.Add(new ImpulseConfigViewModel(ic)
+		    {
+			    OnUpdateCallback = () => updateRateLimiter.Pulse(),
+			    OnLoadSampleCallback = dir => loadSampleDirectory = Path.GetDirectoryName(dir),
+			    ImpulseLength = preset.ImpulseLength,
+			    Samplerate = preset.Samplerate
+		    });
+
+		    SelectedImpulseConfigIndex = ImpulseConfig.Count - 1;
+			//Task.Delay(200).ContinueWith(_ => { SelectedImpulseConfigIndex = ImpulseConfig.Length - 1;});
+		}
+
+		private void ShowAbout()
 	    {
 		    var w = new AboutWindow();
 		    w.Owner = Application.Current.MainWindow;
@@ -546,7 +644,7 @@ namespace ImpulseHd.Ui
 	    private int bufferIndexL, bufferIndexR;
 		private float[] bufferL = new float[65536 * 2];
 	    private float[] bufferR = new float[65536 * 2];
-
+	    
 	    private unsafe void ProcessAudioDirect(float** inputs, float** outputs, int bufferSize)
 	    {
 		    if (ir == null)

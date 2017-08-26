@@ -7,10 +7,14 @@ can delay different freq spectrums by different amount and that seems to work we
 Todo:
 
 Add/remove/reorder/clone impulses
-solo per impulse
+switch to 2nd order filters for output
 Windowing on master output
 New/Open/Save feature
 Zero slider when double clicked
+
+Improve Logging, catch top-level application errors
+Allow logs and stacktraces to be accessed for reporting
+Move realtime processing to separate process
 
 -----------------------------------
 This is a bit too complex for a first draft...

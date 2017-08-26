@@ -35,8 +35,9 @@ namespace ImpulseHd.Ui
 
 	    public ImpulseConfigViewModel(ImpulseConfig config)
 	    {
-		    this.updateRateLimiter = new LastRetainRateLimiter(250, UpdateInner);
-			this.impulseConfig = config;
+		    this.impulseConfig = config;
+
+			this.updateRateLimiter = new LastRetainRateLimiter(250, UpdateInner);
 			LoadSampleCommand = new DelegateCommand(_ => LoadSampleDialog());
 		    AddStageCommand = new DelegateCommand(_ => AddStage());
 		    RemoveStageCommand = new DelegateCommand(_ => RemoveStage());
@@ -46,7 +47,9 @@ namespace ImpulseHd.Ui
 			LoadSampleData();
 	    }
 
-	    public Complex[] PlottedFftSignal { get; private set; }
+	    public ImpulseConfig ImpulseConfig => impulseConfig;
+		
+		public Complex[] PlottedFftSignal { get; private set; }
 	    public double[] PlottedImpulseSignal { get; private set; }
 
 	    public double[] ImpulseLeft { get; private set; }
@@ -72,7 +75,29 @@ namespace ImpulseHd.Ui
 		    }
 		}
 
-	    public double Samplerate
+	    public bool Enable
+	    {
+		    get { return impulseConfig.Enable; }
+		    set
+		    {
+			    impulseConfig.Enable = value;
+			    base.NotifyPropertyChanged();
+			    Update();
+		    }
+	    }
+
+		public bool Solo
+	    {
+		    get { return impulseConfig.Solo; }
+		    set
+		    {
+			    impulseConfig.Solo = value;
+			    base.NotifyPropertyChanged();
+			    Update();
+			}
+	    }
+
+		public int Samplerate
 	    {
 		    get { return impulseConfig.Samplerate; }
 		    set
@@ -197,7 +222,7 @@ namespace ImpulseHd.Ui
 
 	    private void AddStage()
 	    {
-		    impulseConfig.SpectrumStages = impulseConfig.SpectrumStages.Concat(new[] {SpectrumStage.GetDefaultStage()}).ToArray();
+		    impulseConfig.SpectrumStages = impulseConfig.SpectrumStages.Concat(new[] { new SpectrumStage() }).ToArray();
 			NotifyPropertyChanged(nameof(SpectrumStages));
 		    SelectedSpectrumStageIndex = impulseConfig.SpectrumStages.Length - 1;
 		}
@@ -265,7 +290,7 @@ namespace ImpulseHd.Ui
 	    private PlotModel PlotReal()
 	    {
 		    var sampleCount = 8192;
-		    var time = sampleCount / Samplerate * 1000;
+		    var time = sampleCount / (double)Samplerate * 1000;
 			var plottedIr = PlottedImpulseSignal.Take(sampleCount).ToArray();
 		    var plottedLeft = ImpulseLeft.Take(sampleCount).ToArray();
 		    var plottedRight = ImpulseRight.Take(sampleCount).ToArray();
@@ -273,7 +298,7 @@ namespace ImpulseHd.Ui
 		    var pm = new PlotModel();
 
 			// end of sample marker
-		    var millisLine = ImpulseLength / Samplerate * 1000;
+		    var millisLine = ImpulseLength / (double)Samplerate * 1000;
 		    var line = pm.AddLine(new[] { millisLine - 0.0001, millisLine + 0.0001 }, new[] { -1000.0, 1000.0 });
 		    line.StrokeThickness = 2.0;
 		    line.Color = OxyColor.FromArgb(50, 255, 0, 0);
@@ -326,7 +351,7 @@ namespace ImpulseHd.Ui
 		    var magData = data.Take(data.Length / 2).Select(x => x.Abs).Select(x => Utils.Gain2DB(x)).ToArray();
 		    var phaseData = data.Take(data.Length / 2).Select(x => x.Arg).ToArray();
 		    //phaseData = AudioLib.Utils.UnrollPhase(phaseData);
-			var hz = Utils.Linspace(0, 0.5, magData.Length).Select(x => x * Samplerate).ToArray();
+			var hz = Utils.Linspace(0, 0.5, magData.Length).Select(x => x * (double)Samplerate).ToArray();
 
 		    var pm = new PlotModel();
 

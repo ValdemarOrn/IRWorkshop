@@ -14,6 +14,7 @@
 				<MenuItem Header="Open"></MenuItem>
 				<MenuItem Header="Save"></MenuItem>
 				<Separator></Separator>
+				<MenuItem Header="Clone Impulse" Command="{Binding CloneImpulseCommand}"></MenuItem>
 				<MenuItem Header="Export Wav" Command="{Binding ExportWavCommand}"></MenuItem>
 				<MenuItem Header="Audio Setup" Command="{Binding AudioSetupCommand}"></MenuItem>
 				<Separator></Separator>
@@ -49,16 +50,20 @@
 						</TabItem>
 					</TabControl>-->
 					<Grid>
-						<TabControl TabStripPlacement="Left" ItemsSource="{Binding ImpulseConfig}" SelectedItem="{Binding SelectedImpulse}">
+						<TabControl TabStripPlacement="Left" ItemsSource="{Binding ImpulseConfig}" SelectedIndex="{Binding SelectedImpulseConfigIndex}">
 							<TabControl.Resources>
 								<Style TargetType="TabItem">
 									<Setter Property="Width" Value="130" />
+									<Setter Property="HorizontalAlignment" Value="Left" />
 								</Style>
 							</TabControl.Resources>
 							<TabControl.ItemTemplate>
 								 <!--this is the header template-->
 								<DataTemplate>
-									<TextBlock Text="{Binding Name}" />
+									<StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
+										<CheckBox IsChecked="{Binding Enable}" Margin="0,0,3,0" />
+										<TextBlock Text="{Binding Name}" />
+									</StackPanel>
 								</DataTemplate>
 							</TabControl.ItemTemplate>
 							<TabControl.ContentTemplate>
@@ -68,29 +73,29 @@
 							</TabControl.ContentTemplate>
 						</TabControl>
 
-						<StackPanel HorizontalAlignment="Left" Orientation="Horizontal" VerticalAlignment="Bottom">
-							<Button Command="{Binding AddStageCommand}">
+						<StackPanel HorizontalAlignment="Left" Orientation="Horizontal" VerticalAlignment="Bottom" Margin="2,0,0,0">
+							<Button Command="{Binding AddImpulseCommand}">
 								<Button.Template>
 									<ControlTemplate>
 										<Label Padding="0" VerticalAlignment="Center" Margin="4" Foreground="#446eba" Cursor="Hand">Add</Label>
 									</ControlTemplate>
 								</Button.Template>
 							</Button>
-							<Button Command="{Binding RemoveStageCommand}">
+							<Button Command="{Binding RemoveImpulseCommand}">
 								<Button.Template>
 									<ControlTemplate>
 										<Label Padding="0" VerticalAlignment="Center" Margin="4" Foreground="#446eba" Cursor="Hand">Remove</Label>
 									</ControlTemplate>
 								</Button.Template>
 							</Button>
-							<Button Command="{Binding RemoveStageCommand}">
+							<Button Command="{Binding MoveImpulseLeftCommand}">
 								<Button.Template>
 									<ControlTemplate>
 										<Label Padding="0" VerticalAlignment="Center" Margin="4" Foreground="#446eba" Cursor="Hand">&lt;--</Label>
 									</ControlTemplate>
 								</Button.Template>
 							</Button>
-							<Button Command="{Binding RemoveStageCommand}">
+							<Button Command="{Binding MoveImpulseRightCommand}">
 								<Button.Template>
 									<ControlTemplate>
 										<Label Padding="0" VerticalAlignment="Center" Margin="4" Foreground="#446eba" Cursor="Hand">--&gt;</Label>

@@ -19,9 +19,15 @@ namespace ImpulseHd
 		{
 			var outputL = new double[preset.ImpulseLength];
 			var outputR = new double[preset.ImpulseLength];
+			var hasSolo = preset.ImpulseConfig.Any(x => x.Solo);
 
 			foreach (var impulse in preset.ImpulseConfig)
 			{
+				if (hasSolo && !impulse.Solo)
+					continue;
+				if (!impulse.Enable)
+					continue;
+
 				var processor = new ImpulseConfigProcessor(impulse);
 				foreach(var stage in processor.Stages)
 				{
