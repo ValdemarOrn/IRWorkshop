@@ -41,14 +41,17 @@ namespace ImpulseHd.Ui
 			ExceptionDialog.ShowDialog(message, traceMessage);
 		}
 
-		public static void ShowMessage(string message, LogType type)
+		public static void ShowMessage(string message, LogType type, bool showImmediate = false)
 		{
 			MessageBoxImage img = MessageBoxImage.None;
 			if (type == LogType.Information) img = MessageBoxImage.Information;
 			if (type == LogType.Warning) img = MessageBoxImage.Exclamation;
 			if (type == LogType.Error) img = MessageBoxImage.Error;
 
-			Task.Delay(200).ContinueWith(_ => MessageBox.Show(message, type.ToString(), MessageBoxButton.OK, img));
+			if (showImmediate)
+				MessageBox.Show(message, type.ToString(), MessageBoxButton.OK, img);
+			else
+				Task.Delay(200).ContinueWith(_ => MessageBox.Show(message, type.ToString(), MessageBoxButton.OK, img)); // prevents some weirdness in wpf
 		}
 	}
 }

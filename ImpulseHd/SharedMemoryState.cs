@@ -11,8 +11,8 @@ namespace ImpulseHd
 	{
 		public int Id;
 
-		public DateTime ClipTimeLeft;
-		public DateTime ClipTimeRight;
+		//public DateTime ClipTimeLeft;
+		//public DateTime ClipTimeRight;
 
 		public int SelectedInputLeft;
 		public int SelectedInputRight;
@@ -29,8 +29,8 @@ namespace ImpulseHd
 		{
 			accessor.Write(0, Id);
 
-			accessor.Write(4, (ClipTimeLeft - new DateTime(1970, 1, 1)).TotalMilliseconds);
-			accessor.Write(12, (ClipTimeRight - new DateTime(1970, 1, 1)).TotalMilliseconds);
+			//accessor.Write(4, (ClipTimeLeft - new DateTime(1970, 1, 1)).TotalMilliseconds);
+			//accessor.Write(12, (ClipTimeRight - new DateTime(1970, 1, 1)).TotalMilliseconds);
 
 			accessor.Write(16, SelectedInputLeft);
 			accessor.Write(20, SelectedInputRight);
@@ -55,14 +55,14 @@ namespace ImpulseHd
 			}
 		}
 
-		public static SharedMemoryState Load(MemoryMappedViewAccessor accessor, int currentIndex)
+		public static SharedMemoryState Read(MemoryMappedViewAccessor accessor, int currentIndex)
 		{
 			var id = accessor.ReadInt32(0);
-			if (id == currentIndex)
+			if (id <= currentIndex)
 				return null;
 
-			var clipTimeLeftMillis = accessor.ReadDouble(4);
-			var clipTimeRightMillis = accessor.ReadDouble(12);
+			//var clipTimeLeftMillis = accessor.ReadDouble(4);
+			//var clipTimeRightMillis = accessor.ReadDouble(12);
 
 			var selectedInputLeft = accessor.ReadInt32(16);
 			var selectedInputRight = accessor.ReadInt32(20);
@@ -90,8 +90,6 @@ namespace ImpulseHd
 
 			return new SharedMemoryState
 			{
-				ClipTimeLeft = new DateTime(1970, 1, 1).AddMilliseconds(clipTimeLeftMillis),
-				ClipTimeRight = new DateTime(1970, 1, 1).AddMilliseconds(clipTimeRightMillis),
 				Gain = gain,
 				Id = id,
 				IrLeft = irLeft,
@@ -103,5 +101,22 @@ namespace ImpulseHd
 				SelectedOutputRight = selectedOutputRight
 			};
 		}
+
+		public static void WriteClipIndicators(MemoryMappedViewAccessor accessor, DateTime left, DateTime right)
+		{
+			accessor.Write(4, (left - new DateTime(1970, 1, 1)).TotalMilliseconds);
+			accessor.Write(12, (right - new DateTime(1970, 1, 1)).TotalMilliseconds);
+		}
+
+		public static DateTime[] ReadClipIndicators(MemoryMappedViewAccessor accessor)
+		{
+			var clipTimeLeftMillis = accessor.ReadDouble(4);
+			var clipTimeRightMillis = accessor.ReadDouble(12);
+
+			var clipTimeLeft = new DateTime(1970, 1, 1).AddMilliseconds(clipTimeLeftMillis);
+			var clipTimeRight = new DateTime(1970, 1, 1).AddMilliseconds(clipTimeRightMillis);
+			return new[] { clipTimeLeft, clipTimeRight };
+		}
+
 	}
 }

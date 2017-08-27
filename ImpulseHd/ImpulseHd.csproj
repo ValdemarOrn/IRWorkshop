@@ -66,6 +66,7 @@
     <Compile Include="ImpulsePresetProcessor.cs" />
     <Compile Include="ProcessConv.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="RealtimeProcessManager.cs" />
     <Compile Include="Serializer\PresetSerializer.cs" />
     <Compile Include="SharedMemoryState.cs" />
   </ItemGroup>
@@ -74,6 +75,10 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\..\Libraries\LowProfile.Common\LowProfile.Core\LowProfile.Core.csproj">
+      <Project>{6f6a3fb4-5e5f-4076-b91a-f8c7fe84e37c}</Project>
+      <Name>LowProfile.Core</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\..\Libraries\LowProfile.Common\LowProfile.Visuals\LowProfile.Visuals.csproj">
       <Project>{4cd32a63-494f-4769-a07d-802f1e9945a7}</Project>
       <Name>LowProfile.Visuals</Name>

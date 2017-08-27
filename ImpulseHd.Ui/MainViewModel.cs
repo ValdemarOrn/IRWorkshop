@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
@@ -10,7 +9,6 @@ using System.Linq;
 using System.Reflection;
 using System.Security.AccessControl;
 using System.Security.Principal;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
@@ -21,11 +19,9 @@ using AudioLib;
 using AudioLib.PortAudioInterop;
 using ImpulseHd.Serializer;
 using LowProfile.Core.Ui;
-using LowProfile.Fourier.Double;
 using LowProfile.Visuals;
 using Microsoft.Win32;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using OxyPlot;
 
 namespace ImpulseHd.Ui
@@ -35,13 +31,17 @@ namespace ImpulseHd.Ui
 	    private readonly string settingsFile;
 		private readonly LastRetainRateLimiter updateRateLimiter;
 
+		// These must be kept or the memory map gets disposed!
 	    private MemoryMappedFile memoryMap;
 		private MemoryMappedViewAccessor mmAccessor;
+	    private RealtimeProcessManager realtimeProcess;
+
 		private ImpulsePreset preset;
 		private string[] inputNames;
 	    private string[] outputNames;
 
-	    private string currentJsonSettings;
+	    private float[][] outputIr;
+		private string currentJsonSettings;
 	    private int selectedInputL;
 	    private int selectedInputR;
 	    private int selectedOutputL;
@@ -49,8 +49,6 @@ namespace ImpulseHd.Ui
 	    private string loadSampleDirectory;
 	    private string saveSampleDirectory;
 	    private string savePresetDirectory;
-		private DateTime clipTimeLeft;
-	    private DateTime clipTimeRight;
 	    private double volumeSlider;
 	    private PlotModel plotImpulseLeft;
 	    private PlotModel plotImpulseRight;
@@ -60,18 +58,37 @@ namespace ImpulseHd.Ui
 	    private int selectedImpulseConfigIndex;
 	    private int stateIndex;
 
-	    private bool audioEngineRunning;
 	    private RealtimeHostConfig realtimeConfig;
 
 		public MainViewModel()
 		{
 			Logging.SetupLogging();
 			PortAudio.Pa_Initialize();
-			
+
+			var realtimeProcesingExePath = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "ImpulseHd.RealtimeProcessing.exe");
+			realtimeProcess = new RealtimeProcessManager(realtimeProcesingExePath);
+			realtimeProcess.PrematureTerminationCallback = () => Logging.ShowMessage("Audio engine has died", LogType.Error);
+
+			//ensure copy dependency
+			var ttt = typeof(RealtimeProcessing.Program);
+
 			var mSec = new MemoryMappedFileSecurity();
 			mSec.AddAccessRule(new AccessRule<MemoryMappedFileRights>(new SecurityIdentifier(WellKnownSidType.WorldSid, null), MemoryMappedFileRights.FullControl, AccessControlType.Allow));
-			this.memoryMap = MemoryMappedFile.CreateOrOpen("Global\\CabIRMap", 4096 * 2 + 120, MemoryMappedFileAccess.ReadWrite, MemoryMappedFileOptions.None, mSec, HandleInheritability.Inheritable);
-			this.mmAccessor = memoryMap.CreateViewAccessor();
+			try
+			{
+				this.memoryMap = MemoryMappedFile.CreateNew("Global\\CabIRMap", 4096 * 2 + 120, MemoryMappedFileAccess.ReadWrite, MemoryMappedFileOptions.None, mSec, HandleInheritability.Inheritable);
+				this.mmAccessor = memoryMap.CreateViewAccessor();
+			}
+			catch (IOException ex)
+			{
+				if (ex.Message.Contains("already exists"))
+				{
+					Logging.ShowMessage("CabIR Studio is already running", LogType.Information, true);
+					Environment.Exit(0);
+				}
+
+				throw;
+			}
 
 			Title = "CabIR Studio - v" + Assembly.GetExecutingAssembly().GetName().Version;
 			settingsFile = Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), "settings.json");
@@ -85,6 +102,7 @@ namespace ImpulseHd.Ui
 			SavePresetCommand = new DelegateCommand(_ => SavePreset());
 
 			AudioSetupCommand = new DelegateCommand(_ => AudioSetup());
+			RestartAudioEngineCommand = new DelegateCommand(_ => RestartAudioEngine());
 			ExportWavCommand = new DelegateCommand(_ => ExportWav());
 			ShowAboutCommand = new DelegateCommand(_ => ShowAbout());
 			CheckForUpdatesCommand = new DelegateCommand(_ => Process.Start("https://github.com/ValdemarOrn/ImpulseEngine"));
@@ -100,9 +118,7 @@ namespace ImpulseHd.Ui
 		    selectedOutputR = -1;
 
 			LoadSettings();
-
 			
-
 			var t = new Thread(SaveSettingsLoop) {IsBackground = true};
 			t.Priority = ThreadPriority.Lowest;
 			t.Start();
@@ -112,17 +128,19 @@ namespace ImpulseHd.Ui
 			t3.Start();
 
 			AddImpulse();
+			UpdateMemoryMap();
+			StartAudioEngine();
 		}
-
+		
 	    private void UpdateMemoryMap()
 	    {
 		    var state = new SharedMemoryState
 		    {
 			    Gain = (float)Utils.DB2gain(VolumeDb),
 			    Id = ++stateIndex,
-			    IrLeft = ir[0],
-			    IrRight = ir[1],
-			    IrLength = ir[0].Length,
+			    IrLeft = outputIr[0],
+			    IrRight = outputIr[1],
+			    IrLength = outputIr[0].Length,
 			    SelectedInputLeft = SelectedInputL,
 			    SelectedInputRight = selectedInputR,
 			    SelectedOutputLeft = SelectedOutputL,
@@ -167,20 +185,21 @@ namespace ImpulseHd.Ui
 		    }
 	    }
 
-		public ICommand NewPresetCommand { get; private set; }
-	    public ICommand OpenPresetCommand { get; private set; }
-	    public ICommand SavePresetCommand { get; private set; }
+		public ICommand NewPresetCommand { get; }
+	    public ICommand OpenPresetCommand { get; }
+	    public ICommand SavePresetCommand { get; }
 		
-		public ICommand AudioSetupCommand { get; private set; }
-		public ICommand ExportWavCommand { get; private set; }
-		public ICommand ShowAboutCommand { get; private set; }
-		public ICommand CheckForUpdatesCommand { get; private set; }
+		public ICommand RestartAudioEngineCommand { get; }
+		public ICommand AudioSetupCommand { get; }
+		public ICommand ExportWavCommand { get; }
+		public ICommand ShowAboutCommand { get; }
+		public ICommand CheckForUpdatesCommand { get; }
 
-	    public ICommand AddImpulseCommand { get; private set; }
-	    public ICommand RemoveImpulseCommand { get; private set; }
-	    public ICommand MoveImpulseLeftCommand { get; private set; }
-	    public ICommand MoveImpulseRightCommand { get; private set; }
-		public ICommand CloneImpulseCommand { get; set; }
+	    public ICommand AddImpulseCommand { get; }
+	    public ICommand RemoveImpulseCommand { get; }
+	    public ICommand MoveImpulseLeftCommand { get; }
+	    public ICommand MoveImpulseRightCommand { get; }
+		public ICommand CloneImpulseCommand { get; }
 
 		public string[] InputNames
 	    {
@@ -268,7 +287,7 @@ namespace ImpulseHd.Ui
 		public string WindowLengthReadout => $"{preset.WindowLengthTransformed * 100:0.00}%";
 		public string VolumeReadout => $"{VolumeDb:0.0}dB";
 
-	    public string SamplerateWarning => (audioEngineRunning && realtimeConfig.Samplerate != preset.SamplerateTransformed)
+	    public string SamplerateWarning => (realtimeProcess.IsRunning && realtimeConfig.Samplerate != preset.SamplerateTransformed)
 		    ? "For accurate results, impulse samplerate should match\r\naudio device samplerate"
 		    : "";
 
@@ -508,7 +527,7 @@ namespace ImpulseHd.Ui
 
 			if (saveFileDialog.ShowDialog() == true)
 		    {
-			    var doubleIr = new[] {ir[0].Select(x => (double)x).ToArray(), ir[1].Select(x => (double)x).ToArray()};
+			    var doubleIr = new[] {outputIr[0].Select(x => (double)x).ToArray(), outputIr[1].Select(x => (double)x).ToArray()};
 			    var fileWithoutExt = saveFileDialog.FileName.Substring(0, saveFileDialog.FileName.Length - 4);
 			    saveSampleDirectory = Path.GetDirectoryName(saveFileDialog.FileName);
 
@@ -518,26 +537,31 @@ namespace ImpulseHd.Ui
 		    }
 	    }
 
+	    private void RestartAudioEngine()
+	    {
+		    StartAudioEngine();
+	    }
+
 		private void AudioSetup()
 	    {
-			if (audioEngineRunning)
-				StopAudioEngine();
+			StopAudioEngine();
 
 			try
 		    {
 				// Use the graphical editor to create a new config
-				realtimeConfig = RealtimeHostConfig.CreateConfig(realtimeConfig);
-			    UpdateMemoryMap();
+			    var config = RealtimeHostConfig.CreateConfig(realtimeConfig);
+				if (config != null)
+					realtimeConfig = config;
 		    }
 		    catch (Exception)
 		    {
 				realtimeConfig = RealtimeHostConfig.CreateConfig();
-			    UpdateMemoryMap();
 		    }
 
-		    GetChannelNames(realtimeConfig);
+			GetChannelNames(realtimeConfig);
 			NotifyPropertyChanged(nameof(SamplerateWarning));
 		    SaveSettings();
+		    UpdateMemoryMap();
 			StartAudioEngine();
 	    }
 		
@@ -557,6 +581,13 @@ namespace ImpulseHd.Ui
 
 		private void GetChannelNames(RealtimeHostConfig config)
 	    {
+		    if (config == null)
+		    {
+			    InputNames = new string[0];
+			    OutputNames = new string[0];
+				return;
+		    }
+
 			var inputDeviceInfo = PortAudio.Pa_GetDeviceInfo(config.InputDeviceID);
 		    var outputDeviceInfo = PortAudio.Pa_GetDeviceInfo(config.OutputDeviceID);
 
@@ -581,14 +612,14 @@ namespace ImpulseHd.Ui
 
 	    private void StopAudioEngine()
 	    {
-			
-		}
+		    realtimeProcess.StopProcess();
+	    }
 
 	    private void StartAudioEngine()
 	    {
 		    try
 		    {
-
+			    realtimeProcess.StartProcess();
 		    }
 		    catch (Exception ex)
 		    {
@@ -602,7 +633,9 @@ namespace ImpulseHd.Ui
 		    {
 			    try
 			    {
-				    if ((DateTime.UtcNow - clipTimeLeft).TotalMilliseconds < 500)
+				    var clipTimes = SharedMemoryState.ReadClipIndicators(mmAccessor);
+
+				    if ((DateTime.UtcNow - clipTimes[0]).TotalMilliseconds < 500)
 				    {
 					    if (ClipLBrush == Brushes.Transparent)
 						    ClipLBrush = Brushes.Red;
@@ -610,7 +643,7 @@ namespace ImpulseHd.Ui
 				    else
 					    ClipLBrush = Brushes.Transparent;
 
-				    if ((DateTime.UtcNow - clipTimeRight).TotalMilliseconds < 500)
+				    if ((DateTime.UtcNow - clipTimes[1]).TotalMilliseconds < 500)
 				    {
 					    if (ClipRBrush == Brushes.Transparent)
 						    ClipRBrush = Brushes.Red;
@@ -633,7 +666,7 @@ namespace ImpulseHd.Ui
 	    {	
 			var processor = new ImpulsePresetProcessor(preset);
 			var output = processor.Process();
-			ir = new[] {output[0].Select(x => (float)x).ToArray(), output[1].Select(x => (float)x).ToArray()};
+			outputIr = new[] {output[0].Select(x => (float)x).ToArray(), output[1].Select(x => (float)x).ToArray()};
 		    UpdateMemoryMap();
 		    UpdatePlots();
 	    }
@@ -649,7 +682,7 @@ namespace ImpulseHd.Ui
 		    line.StrokeThickness = 1.0;
 		    line.Color = OxyColor.FromArgb(50, 0, 0, 0);
 
-		    line = pm.AddLine(millis, ir[0].Select(x => (double)x));
+		    line = pm.AddLine(millis, outputIr[0].Select(x => (double)x));
 		    line.StrokeThickness = 1.0;
 		    line.Color = OxyColors.Black;
 
@@ -662,7 +695,7 @@ namespace ImpulseHd.Ui
 		    line.StrokeThickness = 1.0;
 		    line.Color = OxyColor.FromArgb(50, 0, 0, 0);
 
-		    line = pm.AddLine(millis, ir[1].Select(x => (double)x));
+		    line = pm.AddLine(millis, outputIr[1].Select(x => (double)x));
 		    line.StrokeThickness = 1.0;
 		    line.Color = OxyColors.Black;
 
@@ -682,7 +715,6 @@ namespace ImpulseHd.Ui
 				    {
 						realtimeConfig = RealtimeHostConfig.Deserialize(dict["AudioSettings"]);
 						GetChannelNames(realtimeConfig);
-					    StartAudioEngine();
 				    }
 
 				    if (dict.ContainsKey(nameof(SelectedInputL)))
@@ -754,136 +786,6 @@ namespace ImpulseHd.Ui
 				}
 				Thread.Sleep(1000);
 			}
-	    }
-
-		// ---------------------------------------------- Audio Processing ----------------------------------------
-
-		private float[][] ir;
-	    private int bufferIndexL, bufferIndexR;
-		private float[] bufferL = new float[65536 * 2];
-	    private float[] bufferR = new float[65536 * 2];
-	    
-	    private unsafe void ProcessAudioDirect(float** inputs, float** outputs, int bufferSize)
-	    {
-		    if (ir == null)
-			    return;
-
-		    var irLeft = ir[0];
-		    var irRight = ir[1];
-		    if (irLeft == null || irRight == null || irLeft.Length != irRight.Length)
-			    return;
-
-		    var selInL = selectedInputL;
-		    var selInR = selectedInputR;
-		    var selOutL = selectedOutputL;
-		    var selOutR = selectedOutputR;
-		    var gain = (float)Utils.DB2gain(VolumeDb);
-
-		    //if (selInL >= 0 && selInL < inputs.Length)
-		    //{
-		    //if (selOutL >= 0 && selOutL < outputs.Length)
-		    //{
-		    bool clipped = false;
-		    //ProcessAudioChannel(inputs[selInL], outputs[selOutL], gain, ref bufferIndexL, irLeft, bufferL, ref clipped);
-		    Console.WriteLine($"{DateTime.UtcNow:mm:ss.fff} = Pop");
-		    ProcessConv.ProcessUnsafe(inputs[selInL], outputs[selOutL], bufferSize, gain, ref bufferIndexL, irLeft, bufferL, ref clipped);
-
-		    if (clipped)
-			    clipTimeLeft = DateTime.UtcNow;
-
-		    //}
-		    //}
-
-		    //if (selInR >= 0 && selInR < inputs.Length)
-		    //{
-		    //if (selOutR >= 0 && selOutR < outputs.Length)
-		    //{
-		    bool clipped2 = false;
-		    //ProcessAudioChannel(inputs[selInR], outputs[selOutR], gain, ref bufferIndexR, irRight, bufferR, ref clipped);
-		    ProcessConv.ProcessUnsafe(inputs[selInR], outputs[selOutR], bufferSize, gain, ref bufferIndexR, irRight, bufferR, ref clipped2);
-		    if (clipped2)
-			    clipTimeRight = DateTime.UtcNow;
-		    //}
-		    //}*/
-	    }
-
-		private void ProcessAudio(float[][] inputs, float[][] outputs)
-		{
-			if (ir == null)
-				return;
-
-			var irLeft = ir[0];
-			var irRight = ir[1];
-			if (irLeft == null || irRight == null || irLeft.Length != irRight.Length)
-				return;
-
-			var selInL = selectedInputL;
-			var selInR = selectedInputR;
-			var selOutL = selectedOutputL;
-			var selOutR = selectedOutputR;
-			var gain = (float)Utils.DB2gain(VolumeDb);
-
-			if (selInL >= 0 && selInL < inputs.Length)
-			{
-				if (selOutL >= 0 && selOutL < outputs.Length)
-				{
-					bool clipped = false;
-					//ProcessAudioChannel(inputs[selInL], outputs[selOutL], ref idxL, ir[0], bufferL, ref clipped);
-					ProcessConv.Process(inputs[selInL], outputs[selOutL], gain, ref bufferIndexL, irLeft, bufferL, ref clipped);
-
-					if (clipped)
-						clipTimeLeft = DateTime.UtcNow;
-
-				}
-			}
-
-			if (selInR >= 0 && selInR < inputs.Length)
-			{
-				if (selOutR >= 0 && selOutR < outputs.Length)
-				{
-					bool clipped = false;
-					//ProcessAudioChannel(inputs[selInR], outputs[selOutR], ref idxR, ir[1], bufferR, ref clipped);
-					ProcessConv.Process(inputs[selInR], outputs[selOutR], gain, ref bufferIndexR, irRight, bufferR, ref clipped);
-					if (clipped)
-						clipTimeRight = DateTime.UtcNow;
-				}
-			}
-		}
-
-	    private void ProcessAudioChannel(float[] input, float[] output, float gain, ref int idx, float[] ir, float[] buffer, ref bool clipped)
-	    {
-			var size = buffer.Length - 1;
-			var ix = idx;
-
-			for (int i = 0; i < output.Length; i++)
-			{
-				 var readPos = (ix + i) & size;
-				var sample = input[i];
-				
-				for (int j = 0; j < ir.Length; j++)
-				{
-					var writePos = (readPos + j) & size;
-					buffer[writePos] += sample * ir[j];
-				}
-				
-				var outputSample = buffer[readPos] * gain;
-				buffer[readPos] = 0.0f;
-				if (outputSample < -0.98f)
-				{
-					outputSample = -0.98f;
-					clipped = true;
-				}
-				if (outputSample > 0.98f)
-				{
-					outputSample = 0.98f;
-					clipped = true;
-				}
-				output[i] = outputSample;
-			}
-
-			idx += output.Length;
-			if (idx > buffer.Length)
-				idx -= buffer.Length;
 	    }
     }
 }

@@ -2,23 +2,18 @@
 using System.Collections.Generic;
 using System.IO;
 using System.IO.MemoryMappedFiles;
-using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
-using AudioLib;
 using AudioLib.PortAudioInterop;
 using Newtonsoft.Json;
 
 namespace ImpulseHd.RealtimeProcessing
 {
-	class Program
+	public class Program
 	{
 		// set by external process
 
 		private int stateIndex;
-		private float[][] ir;
+		private float[][] impulseResponse;
 		private int selectedInputL;
 		private int selectedInputR;
 		private int selectedOutputL;
@@ -41,6 +36,7 @@ namespace ImpulseHd.RealtimeProcessing
 		
 		static void Main(string[] args)
 		{
+			//System.Diagnostics.Debugger.Launch();
 			new Program().Start();
 		}
 		
@@ -51,12 +47,8 @@ namespace ImpulseHd.RealtimeProcessing
 			selectedOutputL = 0;
 			selectedOutputR = 1;
 
-			// The host lives in a singleton withing. It can not be created directly 
-			// and only one host can exists within an application context
+			// initialize PortAudio and get singleton host object
 			host = RealtimeHost.Host;
-
-			// host.Process is the callback method that processes audio data. 
-			// Assign the static process method in this class to be the callback
 			host.Process = ProcessAudio;
 
 			var settingsFile = Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), "settings.json");
@@ -66,20 +58,30 @@ namespace ImpulseHd.RealtimeProcessing
 			
 			try
 			{
-				this.memoryMap = MemoryMappedFile.OpenExisting("Global\\CabIRMap");
-				this.mmAccessor = memoryMap.CreateViewAccessor();
+				memoryMap = MemoryMappedFile.OpenExisting("Global\\CabIRMap");
+				mmAccessor = memoryMap.CreateViewAccessor();
 			}
 			catch (FileNotFoundException)
 			{
 				Console.WriteLine("Failed to open memory map");
 				Environment.Exit(1);
+
+				/*
+				// for testing only
+				this.memoryMap = MemoryMappedFile.CreateNew("Global\\CabIRMap", 65536 * 4);
+				this.mmAccessor = memoryMap.CreateViewAccessor();
+				var state = new SharedMemoryState { Gain = 1.0f, Id = 1, IrLeft = new[] { 1.0f, 0.0f }, IrRight = new[] { 1.0f, 0.0f }, IrLength = 2, SelectedInputLeft = 0, SelectedInputRight = 0, SelectedOutputLeft = 0, SelectedOutputRight = 0 };
+				state.Write(mmAccessor);
+				*/
 			}
 
 			LoadAudioConfig(realtimeConfig);
 
 			while (true)
 			{
-				Thread.Sleep(100);
+				//Thread.Sleep(100);
+				Console.ReadLine();
+				throw new Exception("alasdasdasdas das");
 			}
 		}
 		
@@ -114,13 +116,14 @@ namespace ImpulseHd.RealtimeProcessing
 				host.StartStream();
 		}
 
-		private void CheckMemoryMap()
+		private void ReadMemoryMap()
 		{
-			var state = SharedMemoryState.Load(this.mmAccessor, stateIndex);
+			var state = SharedMemoryState.Read(mmAccessor, stateIndex);
 			if (state != null)
 			{
+				Console.WriteLine("Status update, StateId: {0}, Left IR Length: {1} Right IR Length: {2}", state.Id, state.IrLeft.Length, state.IrRight.Length);
 				stateIndex = state.Id;
-				ir = new[] { state.IrLeft, state.IrRight };
+				impulseResponse = new[] { state.IrLeft, state.IrRight };
 				selectedInputL = state.SelectedInputLeft;
 				selectedInputR = state.SelectedInputRight;
 				selectedOutputL = state.SelectedOutputLeft;
@@ -131,13 +134,13 @@ namespace ImpulseHd.RealtimeProcessing
 
 		private void ProcessAudio(float[][] inputs, float[][] outputs)
 		{
-			CheckMemoryMap();
+			ReadMemoryMap();
 
-			if (ir == null)
+			if (impulseResponse == null)
 				return;
 
-			var irLeft = ir[0];
-			var irRight = ir[1];
+			var irLeft = impulseResponse[0];
+			var irRight = impulseResponse[1];
 			if (irLeft == null || irRight == null || irLeft.Length != irRight.Length)
 				return;
 
@@ -145,6 +148,7 @@ namespace ImpulseHd.RealtimeProcessing
 			var selInR = selectedInputR;
 			var selOutL = selectedOutputL;
 			var selOutR = selectedOutputR;
+			bool clipAny = false;
 
 			if (selInL >= 0 && selInL < inputs.Length)
 			{
@@ -152,10 +156,10 @@ namespace ImpulseHd.RealtimeProcessing
 				{
 					bool clipped = false;
 					ProcessConv.Process(inputs[selInL], outputs[selOutL], gain, ref bufferIndexL, irLeft, bufferL, ref clipped);
+					clipAny = clipped;
 
 					if (clipped)
 						clipTimeLeft = DateTime.UtcNow;
-
 				}
 			}
 
@@ -165,10 +169,15 @@ namespace ImpulseHd.RealtimeProcessing
 				{
 					bool clipped = false;
 					ProcessConv.Process(inputs[selInR], outputs[selOutR], gain, ref bufferIndexR, irRight, bufferR, ref clipped);
+					clipAny = clipAny | clipped;
+
 					if (clipped)
 						clipTimeRight = DateTime.UtcNow;
 				}
 			}
+
+			if(clipAny)
+				SharedMemoryState.WriteClipIndicators(mmAccessor, clipTimeLeft, clipTimeRight);
 		}
 	}
 }

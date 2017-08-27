@@ -73,6 +73,7 @@
 					<Label Grid.Row="14" Grid.Column="0">Window Length</Label>
 
 					<Button Grid.Row="1" Grid.Column="1" Margin="2" Width="100" HorizontalAlignment="Left" Command="{Binding AudioSetupCommand}">Edit</Button>
+					<Button Grid.Row="1" Grid.Column="1" Margin="105,2,2,2" Width="130" HorizontalAlignment="Left" Command="{Binding RestartAudioEngineCommand}">Restart Audio Engine</Button>
 					<ComboBox Grid.Row="2" Grid.Column="1" Margin="2" ItemsSource="{Binding InputNames}" SelectedIndex="{Binding SelectedInputL}" />
 					<ComboBox Grid.Row="3" Grid.Column="1" Margin="2" ItemsSource="{Binding InputNames}" SelectedIndex="{Binding SelectedInputR}" />
 					<ComboBox Grid.Row="4" Grid.Column="1" Margin="2" ItemsSource="{Binding OutputNames}" SelectedIndex="{Binding SelectedOutputL}" />

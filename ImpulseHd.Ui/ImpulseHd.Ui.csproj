@@ -181,6 +181,10 @@
       <Project>{937ccecf-3bf1-4ed2-b3a9-89157d8b0664}</Project>
       <Name>LowProfile.Fourier</Name>
     </ProjectReference>
+    <ProjectReference Include="..\ImpulseHd.RealtimeProcessing\ImpulseHd.RealtimeProcessing.csproj">
+      <Project>{68bf11cb-545d-4d08-9b33-e51dcebd7a9d}</Project>
+      <Name>ImpulseHd.RealtimeProcessing</Name>
+    </ProjectReference>
     <ProjectReference Include="..\ImpulseHd\ImpulseHd.csproj">
       <Project>{ebc0d0f9-20cb-495e-a85d-d973a6111089}</Project>
       <Name>ImpulseHd</Name>
