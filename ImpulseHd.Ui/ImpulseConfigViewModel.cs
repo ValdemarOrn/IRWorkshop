@@ -33,20 +33,22 @@ namespace ImpulseHd.Ui
 	    private bool plotImpulseLeft;
 	    private bool plotImpulseRight;
 
-	    public ImpulseConfigViewModel(ImpulseConfig config)
+	    public ImpulseConfigViewModel(ImpulseConfig config, string loadSampleDirectory)
 	    {
 		    this.impulseConfig = config;
-
-			this.updateRateLimiter = new LastRetainRateLimiter(250, UpdateInner);
+		    this.loadSampleDirectory = loadSampleDirectory;
+			this.updateRateLimiter = new LastRetainRateLimiter(100, UpdateInner);
 			LoadSampleCommand = new DelegateCommand(_ => LoadSampleDialog());
-		    AddStageCommand = new DelegateCommand(_ => AddStage());
+			PreviousSampleCommand = new DelegateCommand(_ => LoadPreviousSample());
+		    NextSampleCommand = new DelegateCommand(_ => LoadNextSample());
+			AddStageCommand = new DelegateCommand(_ => AddStage());
 		    RemoveStageCommand = new DelegateCommand(_ => RemoveStage());
 		    MoveStageLeftCommand = new DelegateCommand(_ => MoveStageLeft());
 		    MoveStageRightCommand = new DelegateCommand(_ => MoveStageRight());
 			PlotImpulseBase = true;
 			LoadSampleData();
 	    }
-
+		
 	    public ImpulseConfig ImpulseConfig => impulseConfig;
 		
 		public Complex[] PlottedFftSignal { get; private set; }
@@ -153,8 +155,36 @@ namespace ImpulseHd.Ui
 		    set { plotImpulseRight = value; NotifyPropertyChanged(); }
 	    }
 
+		public bool LeftChannelAvailable => true;
+	    public bool RightChannelAvailable => impulseConfig.FileIsStereo;
 
-	    public ICommand LoadSampleCommand { get; private set; }
+	    public bool UseLeftChannel
+	    {
+		    get { return !impulseConfig.UseRightChanel; }
+		    set
+		    {
+			    impulseConfig.UseRightChanel = false;
+				NotifyPropertyChanged();
+				NotifyPropertyChanged(nameof(UseRightChannel));
+			    Update();
+		    }
+	    }
+
+	    public bool UseRightChannel
+	    {
+		    get { return impulseConfig.UseRightChanel; }
+		    set
+		    {
+			    impulseConfig.UseRightChanel = true;
+				NotifyPropertyChanged();
+				NotifyPropertyChanged(nameof(UseLeftChannel));
+			    Update();
+			}
+		}
+		
+		public ICommand LoadSampleCommand { get; private set; }
+		public ICommand PreviousSampleCommand { get; private set; }
+	    public ICommand NextSampleCommand { get; private set; }
 		public ICommand AddStageCommand { get; private set; }
 	    public ICommand RemoveStageCommand { get; private set; }
 	    public ICommand MoveStageLeftCommand { get; private set; }
@@ -170,14 +200,18 @@ namespace ImpulseHd.Ui
 
 			try
 		    {
-			    impulseConfig.LoadSampleData();
+			    impulseConfig.LoadDataFromFile();
 		    }
 		    catch (Exception ex)
 		    {
 			    Logging.Exception($"Failed to load the selected sample.\r\n{FilePath}\r\n{ex.Message}", ex.GetTrace());
 		    }
 
-		    Update();
+		    NotifyPropertyChanged(nameof(UseLeftChannel));
+		    NotifyPropertyChanged(nameof(LeftChannelAvailable));
+		    NotifyPropertyChanged(nameof(UseRightChannel));
+		    NotifyPropertyChanged(nameof(RightChannelAvailable));
+			Update();
 		}
 
 	    public void Update()
@@ -254,8 +288,60 @@ namespace ImpulseHd.Ui
 
 		    LoadSampleData();
 	    }
-		
-	    private void UpdateInner()
+
+	    private void LoadNextSample()
+	    {
+		    var selSample = impulseConfig.FilePath;
+			if (selSample == null)
+				return;
+
+		    var fileName = Path.GetFileName(selSample);
+		    var dir = Path.GetDirectoryName(selSample);
+			if (!Directory.Exists(dir))
+				return;
+
+		    var files = Directory.GetFiles(dir, "*.wav").OrderBy(x => x).ToArray();
+		    string nextFile;
+		    if (files.Any(x => Path.GetFileName(x) == fileName))
+			    nextFile = files.SkipWhile(x => Path.GetFileName(x) != fileName).Skip(1).FirstOrDefault();
+		    else
+			    nextFile = files.FirstOrDefault();
+
+		    if (nextFile != null)
+		    {
+				FilePath = nextFile;
+			    OnLoadSampleCallback?.Invoke(FilePath);
+			    LoadSampleData();
+			}
+	    }
+
+	    private void LoadPreviousSample()
+	    {
+		    var selSample = impulseConfig.FilePath;
+		    if (selSample == null)
+			    return;
+
+		    var fileName = Path.GetFileName(selSample);
+		    var dir = Path.GetDirectoryName(selSample);
+		    if (!Directory.Exists(dir))
+			    return;
+
+		    var files = Directory.GetFiles(dir, "*.wav").OrderBy(x => x).ToArray();
+		    string prevFile;
+		    if (files.Any(x => Path.GetFileName(x) == fileName))
+			    prevFile = files.TakeWhile(x => Path.GetFileName(x) != fileName).LastOrDefault();
+		    else
+			    prevFile = files.FirstOrDefault();
+
+		    if (prevFile != null)
+		    {
+			    FilePath = prevFile;
+			    OnLoadSampleCallback?.Invoke(FilePath);
+			    LoadSampleData();
+			}
+		}
+
+		private void UpdateInner()
 	    {
 		    Console.WriteLine("{0:HH:mm:ss.fff} - Pow!", DateTime.UtcNow);
 		    ComputeFft();
@@ -264,9 +350,6 @@ namespace ImpulseHd.Ui
 
 		private void ComputeFft()
 	    {
-		    if (impulseConfig.RawSampleData == null)
-			    return;
-
 		    var processor = new ImpulseConfigProcessor(impulseConfig);
 
 		    for (int i = 0; i < impulseConfig.SpectrumStages.Length; i++)
@@ -275,15 +358,15 @@ namespace ImpulseHd.Ui
 			    processor.ProcessStage(stage);
 			    if (i == SelectedSpectrumStageIndex)
 			    {
-				    PlottedFftSignal = processor.FftSignal;
-				    PlottedImpulseSignal = processor.TimeSignal;
+				    PlottedFftSignal = processor.FftSignal.ToArray();
+				    PlottedImpulseSignal = processor.TimeSignal.ToArray();
 				}
 		    }
 
 		    if (impulseConfig.SpectrumStages.Length == 0 || SelectedSpectrumStageIndex < 0)
 		    {
-			    PlottedFftSignal = processor.FftSignal;
-			    PlottedImpulseSignal = processor.TimeSignal;
+			    PlottedFftSignal = processor.FftSignal.ToArray();
+			    PlottedImpulseSignal = processor.TimeSignal.ToArray();
 		    }
 			
 			var output = processor.ProcessOutputStage();

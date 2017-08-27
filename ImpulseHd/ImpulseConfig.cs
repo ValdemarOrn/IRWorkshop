@@ -12,6 +12,7 @@ namespace ImpulseHd
 	public class ImpulseConfig
 	{
 		public const int MaxSampleLength = 8192;
+		public const double MaxFrequency = 22000.0;
 
 		public ImpulseConfig()
 		{
@@ -28,31 +29,85 @@ namespace ImpulseHd
 		public int ImpulseLength { get; set; }
 
 		[JsonIgnore]
-		public double[] RawSampleData { get; set; }
+		public double[][] SampleDataFromFile { get; set; }
+		[JsonIgnore]
+		public bool SampleDataFromFileLoaded { get; set; }
+		[JsonIgnore]
+		public int SamplerateFromFile { get; set; }
+
+		public bool FileIsStereo => SampleDataFromFile != null && SampleDataFromFile.Length > 1;
+
+		// use right channel of the input .wav file
+		public bool UseRightChanel { get; set; }
+
+		[JsonIgnore]
+		public double[] ConvertedSampleData { get; set; }
 
 		public SpectrumStage[] SpectrumStages { get; set; }
-		public OutputStage OutputStage { get; private set; }
+		public OutputStage OutputStage { get; set; }
 
-		public void LoadSampleData()
+		/// <summary>
+		/// Loads the raw wav file data at the original samplerate into memory
+		/// </summary>
+		public void LoadDataFromFile()
+		{
+			if (string.IsNullOrWhiteSpace(FilePath) || !File.Exists(FilePath))
+			{
+				SampleDataFromFile = null;
+				SamplerateFromFile = 0;
+			}
+			else
+			{
+				var format = WaveFiles.ReadWaveFormat(FilePath);
+				SampleDataFromFile = WaveFiles.ReadWaveFile(FilePath);
+				SamplerateFromFile = format.SampleRate;
+				if (!FileIsStereo) UseRightChanel = false;
+			}
+
+			SampleDataFromFileLoaded = true;
+		}
+
+		/// <summary>
+		/// Converts the .wav data from its original samplerate to the desired samplerate
+		/// </summary>
+		public void ConvertSampleData()
 		{
 			double[] waveData;
 
-			if (string.IsNullOrWhiteSpace(FilePath) || !File.Exists(FilePath))
+			if (SampleDataFromFile == null)
 			{
 				// load pure impulse as fallback
 				waveData = new[] { 1.0, 0.0, 0.0, 0.0 };
 			}
 			else
 			{
-				var format = WaveFiles.ReadWaveFormat(FilePath);
-				if (format.SampleRate != Samplerate)
-					throw new Exception($"Only files with the specified samplerate ({Samplerate}Hz) can currently be loaded");
-
-				waveData = WaveFiles.ReadWaveFile(FilePath)[0];
+				waveData = GetInterpolatedData(SampleDataFromFile[(FileIsStereo && UseRightChanel) ? 1 : 0], SamplerateFromFile, Samplerate);
 			}
 
-			RawSampleData = waveData.Take(MaxSampleLength).ToArray();
-			RawSampleData = RawSampleData.Concat(new double[MaxSampleLength - RawSampleData.Length]).ToArray();
+			ConvertedSampleData = waveData.Take(MaxSampleLength).ToArray();
+			ConvertedSampleData = ConvertedSampleData.Concat(new double[MaxSampleLength - ConvertedSampleData.Length]).ToArray();
+		}
+
+		private double[] GetInterpolatedData(double[] data, int inputSamplerate, int desiredSamplerate)
+		{
+			if (inputSamplerate == desiredSamplerate)
+				return data.ToArray();
+
+			data = data.Concat(new[] { 0.0, 0.0 }).ToArray(); // to make sure interpolation can work at the very last samples
+			var factor = inputSamplerate / (double)desiredSamplerate;
+			var output = new List<double>();
+			double idx = 0.0;
+			while (true)
+			{
+				if (idx >= data.Length - 2)
+					break;
+
+				var sample = Interpolate.Spline(idx, data, false);
+				output.Add(sample);
+				idx += factor;
+			}
+
+			return output.ToArray();
 		}
 	}
 
@@ -132,6 +187,7 @@ namespace ImpulseHd
 
 			RandomGainFiltering = 0.2;
 			RandomGainSeed = 0;
+			RandomGainShift = 0;
 			RandomGainAmount = 0.0;
 			RandomSkewAmount = 0.5;
 			RandomGainMode = 0.5;
@@ -163,6 +219,7 @@ namespace ImpulseHd
 		// Applies random gain to the each frequency band.
 		public double RandomGainFiltering { get; set; }
 		public double RandomGainSeed { get; set; }
+		public double RandomGainShift { get; set; }
 		public double RandomGainAmount { get; set; }
 		public double RandomSkewAmount { get; set; }
 		public double RandomGainMode { get; set; }
@@ -179,8 +236,8 @@ namespace ImpulseHd
 
 
 		// Basic settings
-		public double MinFreqTransformed => ValueTables.Get(MinFreq, ValueTables.Response2Dec) * 24000;
-		public double MaxFreqTransformed => ValueTables.Get(MaxFreq, ValueTables.Response2Dec) * 24000;
+		public double MinFreqTransformed => ValueTables.Get(MinFreq, ValueTables.Response2Dec) * ImpulseConfig.MaxFrequency;
+		public double MaxFreqTransformed => ValueTables.Get(MaxFreq, ValueTables.Response2Dec) * ImpulseConfig.MaxFrequency;
 		public double LowBlendOctsTransformed => LowBlendOcts * 5;
 		public double HighBlendOctsTransformed => HighBlendOcts * 5;
 		public double GainTransformed => -60 + Gain * 100;
@@ -201,7 +258,8 @@ namespace ImpulseHd
 
 		// Applies random gain to the each frequency band.
 		public int RandomGainFilteringTransformed => (int)(ValueTables.Get(RandomGainFiltering, ValueTables.Response2Oct) * 128);
-		public int RandomGainSeedTransformed => (int)(RandomGainSeed * 10000);
+		public int RandomGainSeedTransformed => (int)(RandomGainSeed * 1000);
+		public int RandomGainShiftTransformed => (int)(RandomGainShift * 1000);
 		public double RandomGainAmountTransformed => RandomGainAmount * 40;
 		public double RandomSkewAmountTransformed => Math.Pow(3, RandomSkewAmount * 2 - 1);
 		public ApplyMode RandomGainModeTransformed

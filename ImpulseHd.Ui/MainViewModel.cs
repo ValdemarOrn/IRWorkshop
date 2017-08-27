@@ -78,7 +78,7 @@ namespace ImpulseHd.Ui
 			mSec.AddAccessRule(new AccessRule<MemoryMappedFileRights>(new SecurityIdentifier(WellKnownSidType.WorldSid, null), MemoryMappedFileRights.FullControl, AccessControlType.Allow));
 			try
 			{
-				memoryMap = MemoryMappedFile.CreateNew("Global\\CabIRMap", 4096 * 2 + 120, MemoryMappedFileAccess.ReadWrite, MemoryMappedFileOptions.None, mSec, HandleInheritability.Inheritable);
+				memoryMap = MemoryMappedFile.CreateNew("Global\\CabIRMap", 65536, MemoryMappedFileAccess.ReadWrite, MemoryMappedFileOptions.None, mSec, HandleInheritability.Inheritable);
 				mmAccessor = memoryMap.CreateViewAccessor();
 			}
 			catch (IOException ex)
@@ -92,13 +92,12 @@ namespace ImpulseHd.Ui
 				throw;
 			}
 
-			Title = "CabIR Studio - v" + Assembly.GetExecutingAssembly().GetName().Version;
-			settingsFile = Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), "settings.json");
-			updateRateLimiter = new LastRetainRateLimiter(250, Update);
-			
 			preset = new ImpulsePreset();
 			ImpulseConfig = new ObservableCollection<ImpulseConfigViewModel>();
 
+			Title = "CabIR Studio - v" + Assembly.GetExecutingAssembly().GetName().Version;
+			settingsFile = Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), "settings.json");
+			
 			NewPresetCommand = new DelegateCommand(_ => NewPreset());
 			OpenPresetCommand = new DelegateCommand(_ => OpenPreset());
 			SavePresetCommand = new DelegateCommand(_ => SavePreset());
@@ -118,6 +117,8 @@ namespace ImpulseHd.Ui
 		    selectedInputR = -1;
 		    selectedOutputL = -1;
 		    selectedOutputR = -1;
+
+			updateRateLimiter = new LastRetainRateLimiter(100, Update);
 
 			LoadSettings();
 			
@@ -221,9 +222,17 @@ namespace ImpulseHd.Ui
 		    set
 			{
 				preset.Samplerate = value;
+
+				if (ImpulseConfig != null)
+				{
+					foreach (var ic in ImpulseConfig)
+						ic.Update();
+				}
+
 				NotifyPropertyChanged();
 				NotifyPropertyChanged(nameof(SamplerateReadout));
 				NotifyPropertyChanged(nameof(SamplerateWarning));
+				updateRateLimiter.Pulse();
 			}
 	    }
 		
@@ -502,6 +511,7 @@ namespace ImpulseHd.Ui
 
 			preset.ImpulseConfig = impulses.ToArray();
 		    ImpulseConfig.RemoveAt(selectedImpulseConfigIndex);
+		    updateRateLimiter.Pulse();
 		}
 
 	    private void AddImpulse()
@@ -511,6 +521,7 @@ namespace ImpulseHd.Ui
 			var vm = AddImpulseConfigVm(ic);
 			Task.Delay(100).ContinueWith(_ => vm.Update());
 			SelectedImpulseConfigIndex = ImpulseConfig.Count - 1;
+		    updateRateLimiter.Pulse();
 		}
 
 		private void ShowAbout()
@@ -569,7 +580,7 @@ namespace ImpulseHd.Ui
 		
 	    private ImpulseConfigViewModel AddImpulseConfigVm(ImpulseConfig ic)
 	    {
-		    var vm = new ImpulseConfigViewModel(ic)
+		    var vm = new ImpulseConfigViewModel(ic, loadSampleDirectory)
 		    {
 			    OnUpdateCallback = () => updateRateLimiter.Pulse(),
 			    OnLoadSampleCallback = dir => loadSampleDirectory = Path.GetDirectoryName(dir),

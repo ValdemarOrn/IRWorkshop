@@ -102,9 +102,10 @@
 
 		<Label Grid.Row="21" Grid.Column="0">Smoothing</Label>
 		<Label Grid.Row="22" Grid.Column="0">Random Seed</Label>
-		<Label Grid.Row="23" Grid.Column="0">Amount</Label>
-		<Label Grid.Row="24" Grid.Column="0">Skew</Label>
-		<Label Grid.Row="25" Grid.Column="0">Mode</Label>
+		<Label Grid.Row="23" Grid.Column="0">Random Shift</Label>
+		<Label Grid.Row="24" Grid.Column="0">Amount</Label>
+		<Label Grid.Row="25" Grid.Column="0">Skew</Label>
+		<Label Grid.Row="26" Grid.Column="0">Mode</Label>
 
 		<Label Grid.Row="30" Grid.Column="0" Grid.ColumnSpan="3" FontWeight="Bold">Frequency Skew</Label>
 
@@ -134,9 +135,10 @@
 
 		<Slider Grid.Column="1" Grid.Row="21" Value="{Binding RandomGainFiltering}" Minimum="0" Maximum="1" SmallChange="0.1" LargeChange="0.1" PreviewMouseDown="ResetMid" />
 		<Slider Grid.Column="1" Grid.Row="22" Value="{Binding RandomGainSeed}" Minimum="0" Maximum="1" SmallChange="0.0001" LargeChange="0.0001" PreviewMouseDown="ResetZero" />
-		<Slider Grid.Column="1" Grid.Row="23" Value="{Binding RandomGainAmount}" Minimum="0" Maximum="1" SmallChange="0.1" LargeChange="0.1" PreviewMouseDown="ResetZero" />
-		<Slider Grid.Column="1" Grid.Row="24" Value="{Binding RandomSkewAmount}" Minimum="0" Maximum="1" SmallChange="0.1" LargeChange="0.1" PreviewMouseDown="ResetMid" />
-		<Slider Grid.Column="1" Grid.Row="25" Value="{Binding RandomGainMode}" Minimum="0" Maximum="1" SmallChange="0.1" LargeChange="0.1" PreviewMouseDown="ResetMid" />
+		<Slider Grid.Column="1" Grid.Row="23" Value="{Binding RandomGainShift}" Minimum="0" Maximum="1" SmallChange="0.0001" LargeChange="0.0001" PreviewMouseDown="ResetZero" />
+		<Slider Grid.Column="1" Grid.Row="24" Value="{Binding RandomGainAmount}" Minimum="0" Maximum="1" SmallChange="0.1" LargeChange="0.1" PreviewMouseDown="ResetZero" />
+		<Slider Grid.Column="1" Grid.Row="25" Value="{Binding RandomSkewAmount}" Minimum="0" Maximum="1" SmallChange="0.1" LargeChange="0.1" PreviewMouseDown="ResetMid" />
+		<Slider Grid.Column="1" Grid.Row="26" Value="{Binding RandomGainMode}" Minimum="0" Maximum="1" SmallChange="0.1" LargeChange="0.1" PreviewMouseDown="ResetMid" />
 
 		<Slider Grid.Column="1" Grid.Row="31" Value="{Binding FrequencySkew}" Minimum="0" Maximum="1" SmallChange="0.1" LargeChange="0.1" PreviewMouseDown="ResetMid" />
 		<CheckBox Grid.Column="1" Grid.Row="33" IsChecked="{Binding PinToHighFrequency}" />
@@ -159,9 +161,10 @@
 
 		<Label Grid.Row="21" Grid.Column="2" Content="{Binding RandomGainFilteringReadout, FallbackValue=0 Samples}" />
 		<Label Grid.Row="22" Grid.Column="2" Content="{Binding RandomGainSeedReadout, FallbackValue=0}" />
-		<Label Grid.Row="23" Grid.Column="2" Content="{Binding RandomGainAmountReadout, FallbackValue=0.0dB}" />
-		<Label Grid.Row="24" Grid.Column="2" Content="{Binding RandomSkewAmountReadout, FallbackValue=0.0}" />
-		<Label Grid.Row="25" Grid.Column="2" Content="{Binding RandomGainModeReadout, FallbackValue=Bipolar}" />
+		<Label Grid.Row="23" Grid.Column="2" Content="{Binding RandomGainShiftReadout, FallbackValue=0}" />
+		<Label Grid.Row="24" Grid.Column="2" Content="{Binding RandomGainAmountReadout, FallbackValue=0.0dB}" />
+		<Label Grid.Row="25" Grid.Column="2" Content="{Binding RandomSkewAmountReadout, FallbackValue=0.0}" />
+		<Label Grid.Row="26" Grid.Column="2" Content="{Binding RandomGainModeReadout, FallbackValue=Bipolar}" />
 
 		<Label Grid.Row="31" Grid.Column="2" Content="{Binding FrequencySkewReadout, FallbackValue=0.0}" />
 

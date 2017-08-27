@@ -27,7 +27,8 @@ namespace ImpulseHd
 
 		public void Write(MemoryMappedViewAccessor accessor)
 		{
-			accessor.Write(0, Id);
+			// done last to ensure all other changes are written before id is pulsed
+			//accessor.Write(0, Id);
 
 			//accessor.Write(4, (ClipTimeLeft - new DateTime(1970, 1, 1)).TotalMilliseconds);
 			//accessor.Write(12, (ClipTimeRight - new DateTime(1970, 1, 1)).TotalMilliseconds);
@@ -53,6 +54,8 @@ namespace ImpulseHd
 				accessor.Write(idx, IrRight[i]);
 				idx += 4;
 			}
+
+			accessor.Write(0, Id);
 		}
 
 		public static SharedMemoryState Read(MemoryMappedViewAccessor accessor, int currentIndex)

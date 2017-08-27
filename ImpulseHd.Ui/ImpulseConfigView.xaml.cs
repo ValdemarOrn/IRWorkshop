@@ -24,5 +24,13 @@ namespace ImpulseHd.Ui
 		{
 			InitializeComponent();
 		}
+
+		private void TextBox_TextChanged(object sender, TextChangedEventArgs e)
+		{
+			var textBox = ((TextBox)sender);
+			textBox.CaretIndex = textBox.Text.Length;
+			var rect = textBox.GetRectFromCharacterIndex(textBox.CaretIndex);
+			textBox.ScrollToHorizontalOffset(rect.Right);
+		}
 	}
 }

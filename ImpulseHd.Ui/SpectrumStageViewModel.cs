@@ -103,6 +103,12 @@ namespace ImpulseHd.Ui
 			set { stage.RandomGainSeed = value; NotifyPropertyChanged(); NotifyPropertyChanged(nameof(RandomGainSeedReadout)); onUpdateCallback(); }
 		}
 
+		public double RandomGainShift
+		{
+			get { return stage.RandomGainShift; }
+			set { stage.RandomGainShift = value; NotifyPropertyChanged(); NotifyPropertyChanged(nameof(RandomGainShiftReadout)); onUpdateCallback(); }
+		}
+
 		public double RandomGainAmount
 		{
 			get { return stage.RandomGainAmount; }
@@ -177,6 +183,7 @@ namespace ImpulseHd.Ui
 
 		public string RandomGainFilteringReadout => $"{stage.RandomGainFilteringTransformed:0} Samples";
 		public string RandomGainSeedReadout => $"{stage.RandomGainSeedTransformed:0}";
+		public string RandomGainShiftReadout => $"{stage.RandomGainShiftTransformed:0}";
 		public string RandomGainAmountReadout => $"{stage.RandomGainAmountTransformed:0.0}dB";
 		public string RandomSkewAmountReadout => $"{stage.RandomSkewAmountTransformed:0.00}";
 		public string RandomGainModeReadout => stage.RandomGainModeTransformed.ToString();

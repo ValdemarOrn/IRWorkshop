@@ -1,35 +1,13 @@
-delay in the Freq domain: 
-http://stackoverflow.com/questions/31586803/delay-a-signal-in-time-domain-with-a-phase-change-in-the-frequency-domain-after
-Ci = ci * Exp(-2*pi*i * sampleDelay / SIZE)
-can delay different freq spectrums by different amount and that seems to work well.
+More features that can be added:
 
+Adjust Phase band frequency bands by a multiplier
+On output stage (combined)
+	6 Band parametric EQ
+	Output Stage control
 
-Todo:
-
-Interpolate wav input samples
-Seed and Shift for gain randomization
-verify that samplerate changes are OK and that everythign works at different samplerates - make sure you can change samplerate easy during process
-
------------------------------------
-This is a bit too complex for a first draft...
-
-Place up to 8 sources on a distance/direction map for stereo effect.
-Each point has:
-Angle
-Distance
-Gain
-Phase Invert
-Low pass
-High Pass
-
-Ear Bleed Control - how much L channel affect R: - Note this is SEPARATE from the right ear hearing what's on the left side, for example.
-Low pass
-Gain
-Delay
-
-Some random toughts:
-
-Angle Falloff, the curve that controls the gain and low and high cut applied to a node based on its angle relative to ear placement.
+Stereo version of the phase bands - remove it from the spectrum stage instead
+stereo enhancing - investigate
+mono->stereo trick - add a few tapped delayed signal to the stereo spectrum, low passed, delayed and panned
 
 
 
@@ -37,4 +15,6 @@ Angle Falloff, the curve that controls the gain and low and high cut applied to 
 
 
 
-
+			<CheckBox IsChecked="{Binding UseLeftChannel}" IsEnabled="{Binding LeftChannelAvailable}" />
+			<Label>Right</Label>
+			<CheckBox IsChecked="{Binding UseRightChannel}" IsEnabled="{Binding RightChannelAvailable}" />

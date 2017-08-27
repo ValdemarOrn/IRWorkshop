@@ -26,11 +26,13 @@ namespace ImpulseHd
 			sampleCount = ImpulseConfig.MaxSampleLength;
 			samplerate = config.Samplerate;
 
-			if (config.RawSampleData == null)
-				config.LoadSampleData();
+			if (!config.SampleDataFromFileLoaded)
+				config.LoadDataFromFile();
+
+			config.ConvertSampleData();
 
 			this.fftTransform = new Transform(sampleCount);
-			var input = config.RawSampleData.Select(x => (Complex)x).ToArray();
+			var input = config.ConvertedSampleData.Select(x => (Complex)x).ToArray();
 
 			fftSignal = new Complex[input.Length];
 			fftTransform.FFT(input, fftSignal);
@@ -89,8 +91,6 @@ namespace ImpulseHd
 					var track = k * amountOfTracking + (1 - amountOfTracking);
 					delaySamples *= track;
 				}
-				//if (section[0] != 1)
-				//	delaySamples = 0;
 
 				var amount = delaySamples / (double)ImpulseConfig.MaxSampleLength;
 				for (int i = section[0]; i <= section[1]; i++)
@@ -157,9 +157,9 @@ namespace ImpulseHd
 
 		private void ProcessRandomGain(SpectrumStage stage, Strengths strengths)
 		{
-			var rand = new Random(0);
-			for (int i = 0; i < stage.RandomGainSeedTransformed; i++)
-				rand.NextDouble(); // pop off x number of samples, instead of re-seeding, we "move" the sequence forward
+			var rand = new Random(stage.RandomGainSeedTransformed);
+			for (int i = 0; i < stage.RandomGainShiftTransformed; i++)
+				rand.NextDouble(); // pop off x number of samples, "shifting" the sequence forward
 			
 			var filterCount = stage.RandomGainFilteringTransformed;
 			var gainAmount = stage.RandomGainAmountTransformed;
@@ -402,10 +402,21 @@ namespace ImpulseHd
 		{
 			var nyquist = samplerate / 2;
 			var absMaxIndex = fftSignal.Length / 2;
-			var fMin = Math.Round(stage.MinFreqTransformed / (double)nyquist * absMaxIndex);
-			var fMax = Math.Round(stage.MaxFreqTransformed / (double)nyquist * absMaxIndex);
+			var minFreq = stage.MinFreqTransformed;
+			var maxFreq = stage.MaxFreqTransformed;
 
-			if (stage.MinFreqTransformed >= stage.MaxFreqTransformed)
+			// slight hack, because we used a fixed frequency range, we don't pin it relative to the sampling frequency, then the absolute highest frequency 
+			// that can be selected is 22Khz (set in the MaxFreqTransformed getter) - IF this frequency is used, we stretch it up so that to the nyquist frequency
+			// to prevent a jump at 22Khz when using high sampling frequencies
+			if (Math.Abs(stage.MinFreqTransformed - ImpulseConfig.MaxFrequency) < 0.01)
+				minFreq = nyquist;
+			if (Math.Abs(stage.MaxFreqTransformed - ImpulseConfig.MaxFrequency) < 0.01)
+				maxFreq = nyquist;
+
+			var fMin = Math.Round(minFreq / (double)nyquist * absMaxIndex);
+			var fMax = Math.Round(maxFreq / (double)nyquist * absMaxIndex);
+			
+			if (minFreq >= maxFreq)
 				return new Strengths {FMax = 1, FMin = 1, Strength = new double[absMaxIndex + 1] };
 
 			if (fMin < 1) fMin = 1;
@@ -413,8 +424,8 @@ namespace ImpulseHd
 			if (fMin >= absMaxIndex) fMin = absMaxIndex;
 			if (fMax >= absMaxIndex) fMax = absMaxIndex;
 
-			var fBlendMin = Math.Round(Math.Pow(2, stage.LowBlendOctsTransformed) * stage.MinFreqTransformed / (double)nyquist * absMaxIndex);
-			var fBlendMax = Math.Round(Math.Pow(2, -stage.HighBlendOctsTransformed) * stage.MaxFreqTransformed / (double)nyquist * absMaxIndex);
+			var fBlendMin = Math.Round(Math.Pow(2, stage.LowBlendOctsTransformed) * minFreq / (double)nyquist * absMaxIndex);
+			var fBlendMax = Math.Round(Math.Pow(2, -stage.HighBlendOctsTransformed) * maxFreq / (double)nyquist * absMaxIndex);
 
 			if (fBlendMin < 1) fBlendMin = 1;
 			if (fBlendMax < 1) fBlendMax = 1;

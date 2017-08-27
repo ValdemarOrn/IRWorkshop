@@ -69,7 +69,7 @@ namespace ImpulseHd.RealtimeProcessing
 
 				/*
 				// for testing only
-				this.memoryMap = MemoryMappedFile.CreateNew("Global\\CabIRMap", 65536 * 4);
+				this.memoryMap = MemoryMappedFile.CreateNew("Global\\CabIRMap", 65536);
 				this.mmAccessor = memoryMap.CreateViewAccessor();
 				var state = new SharedMemoryState { Gain = 1.0f, Id = 1, IrLeft = new[] { 1.0f, 0.0f }, IrRight = new[] { 1.0f, 0.0f }, IrLength = 2, SelectedInputLeft = 0, SelectedInputRight = 0, SelectedOutputLeft = 0, SelectedOutputRight = 0 };
 				state.Write(mmAccessor);

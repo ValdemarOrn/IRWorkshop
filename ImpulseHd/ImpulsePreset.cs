@@ -10,8 +10,12 @@ namespace ImpulseHd
 {
 	public class ImpulsePreset
 	{
+		[JsonIgnore]
+		private double samplerate;
+
 		public ImpulsePreset()
 		{
+			PresetVersion = 1000;
 			Samplerate = 0.3333333;
 			ImpulseLength = 0.5;
 			WindowLength = 0.0;
@@ -21,7 +25,24 @@ namespace ImpulseHd
 
 		public ImpulseConfig[] ImpulseConfig { get; set; }
 
-		public double Samplerate { get; set; }
+		public int PresetVersion { get; set; }
+
+		public double Samplerate
+		{
+			get { return samplerate; }
+			set
+			{
+				samplerate = value;
+				if (ImpulseConfig == null)
+					return;
+
+				foreach (var ic in ImpulseConfig)
+				{
+					ic.Samplerate = SamplerateTransformed;
+				}
+			}
+		}
+
 		public double ImpulseLength { get; set; }
 		public double WindowMethod { get; set; }
 		public double WindowLength { get; set; }
