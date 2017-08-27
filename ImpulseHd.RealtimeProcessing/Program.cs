@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.IO.MemoryMappedFiles;
 using System.Reflection;
+using System.Threading;
 using AudioLib.PortAudioInterop;
 using Newtonsoft.Json;
 
@@ -79,14 +80,15 @@ namespace ImpulseHd.RealtimeProcessing
 
 			while (true)
 			{
-				//Thread.Sleep(100);
-				Console.ReadLine();
-				throw new Exception("alasdasdasdas das");
+				Thread.Sleep(1000);
 			}
 		}
 		
 		private void LoadAudioConfig(RealtimeHostConfig config)
 		{
+			Console.WriteLine("Loading RealtimeHostConfig with the following settings:");
+			Console.WriteLine(config.Serialize());
+
 			if (config != null)
 			{
 				host.SetConfig(config);

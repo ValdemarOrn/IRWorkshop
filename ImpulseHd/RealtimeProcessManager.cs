@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -15,6 +16,8 @@ namespace ImpulseHd
 		private Process process;
 		private bool shouldBeAlive;
 
+		private List<string> logOutput;
+
 		public RealtimeProcessManager(string exePath)
 		{
 			this.exePath = exePath;
@@ -24,7 +27,7 @@ namespace ImpulseHd
 			t.Start();
 		}
 
-		public Action PrematureTerminationCallback { get; set; }
+		public Action<IList<string>> PrematureTerminationCallback { get; set; }
 
 		private void Watcher()
 		{
@@ -32,7 +35,7 @@ namespace ImpulseHd
 			{
 				if (shouldBeAlive && (process == null || process.HasExited))
 				{
-					PrematureTerminationCallback?.Invoke();
+					PrematureTerminationCallback?.Invoke(logOutput.ToArray());
 					StopProcess();
 				}
 
@@ -46,14 +49,52 @@ namespace ImpulseHd
 		{
 			StopProcess();
 
+			logOutput = new List<string>();
 			this.process = new Process();
 			process.StartInfo = new ProcessStartInfo
 			{
 				FileName = exePath,
-
+				CreateNoWindow = true,
+				RedirectStandardError = true,
+				RedirectStandardInput = true,
+				RedirectStandardOutput = true,
+				UseShellExecute = false,
+				WindowStyle = ProcessWindowStyle.Hidden,
 			};
 
 			process.Start();
+
+			Task.Run(() =>
+			{
+				while (true)
+				{
+					var line = process.StandardOutput.ReadLine();
+					if (line == null)
+						break;
+
+					lock (logOutput)
+					{
+						logOutput.Add(line);
+					}
+				}
+			});
+
+			Task.Run(() =>
+			{
+				while (true)
+				{
+					var line = process.StandardError.ReadLine();
+					if (line == null)
+						break;
+
+					lock (logOutput)
+					{
+						logOutput.Add(line);
+					}
+				}
+			});
+			
+			
 			ChildProcessTracker.AddProcess(process);
 			shouldBeAlive = true;
 		}

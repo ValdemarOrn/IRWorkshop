@@ -6,8 +6,6 @@ can delay different freq spectrums by different amount and that seems to work we
 
 Todo:
 
-Move realtime processing to separate process
-    Encapsulate console output and handle exceptions / dead process, show useful error message
 Interpolate wav input samples
 Seed and Shift for gain randomization
 verify that samplerate changes are OK and that everythign works at different samplerates - make sure you can change samplerate easy during process

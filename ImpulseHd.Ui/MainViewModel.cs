@@ -32,9 +32,10 @@ namespace ImpulseHd.Ui
 		private readonly LastRetainRateLimiter updateRateLimiter;
 
 		// These must be kept or the memory map gets disposed!
-	    private MemoryMappedFile memoryMap;
-		private MemoryMappedViewAccessor mmAccessor;
-	    private RealtimeProcessManager realtimeProcess;
+	    // ReSharper disable once PrivateFieldCanBeConvertedToLocalVariable
+	    private readonly MemoryMappedFile memoryMap;
+		private readonly MemoryMappedViewAccessor mmAccessor;
+	    private readonly RealtimeProcessManager realtimeProcess;
 
 		private ImpulsePreset preset;
 		private string[] inputNames;
@@ -67,17 +68,18 @@ namespace ImpulseHd.Ui
 
 			var realtimeProcesingExePath = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "ImpulseHd.RealtimeProcessing.exe");
 			realtimeProcess = new RealtimeProcessManager(realtimeProcesingExePath);
-			realtimeProcess.PrematureTerminationCallback = () => Logging.ShowMessage("Audio engine has died", LogType.Error);
+			realtimeProcess.PrematureTerminationCallback = logOutput => ExceptionDialog.ShowDialog("Audio engine has died", string.Join("\r\n", logOutput));
 
 			//ensure copy dependency
+			// ReSharper disable once UnusedVariable
 			var ttt = typeof(RealtimeProcessing.Program);
 
 			var mSec = new MemoryMappedFileSecurity();
 			mSec.AddAccessRule(new AccessRule<MemoryMappedFileRights>(new SecurityIdentifier(WellKnownSidType.WorldSid, null), MemoryMappedFileRights.FullControl, AccessControlType.Allow));
 			try
 			{
-				this.memoryMap = MemoryMappedFile.CreateNew("Global\\CabIRMap", 4096 * 2 + 120, MemoryMappedFileAccess.ReadWrite, MemoryMappedFileOptions.None, mSec, HandleInheritability.Inheritable);
-				this.mmAccessor = memoryMap.CreateViewAccessor();
+				memoryMap = MemoryMappedFile.CreateNew("Global\\CabIRMap", 4096 * 2 + 120, MemoryMappedFileAccess.ReadWrite, MemoryMappedFileOptions.None, mSec, HandleInheritability.Inheritable);
+				mmAccessor = memoryMap.CreateViewAccessor();
 			}
 			catch (IOException ex)
 			{
@@ -92,7 +94,7 @@ namespace ImpulseHd.Ui
 
 			Title = "CabIR Studio - v" + Assembly.GetExecutingAssembly().GetName().Version;
 			settingsFile = Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), "settings.json");
-			this.updateRateLimiter = new LastRetainRateLimiter(250, Update);
+			updateRateLimiter = new LastRetainRateLimiter(250, Update);
 			
 			preset = new ImpulsePreset();
 			ImpulseConfig = new ObservableCollection<ImpulseConfigViewModel>();
@@ -637,7 +639,7 @@ namespace ImpulseHd.Ui
 
 				    if ((DateTime.UtcNow - clipTimes[0]).TotalMilliseconds < 500)
 				    {
-					    if (ClipLBrush == Brushes.Transparent)
+					    if (ClipLBrush.Equals(Brushes.Transparent))
 						    ClipLBrush = Brushes.Red;
 				    }
 				    else
@@ -645,7 +647,7 @@ namespace ImpulseHd.Ui
 
 				    if ((DateTime.UtcNow - clipTimes[1]).TotalMilliseconds < 500)
 				    {
-					    if (ClipRBrush == Brushes.Transparent)
+					    if (ClipRBrush.Equals(Brushes.Transparent))
 						    ClipRBrush = Brushes.Red;
 				    }
 				    else
@@ -659,7 +661,7 @@ namespace ImpulseHd.Ui
 
 			    Thread.Sleep(20);
 		    }
-
+		    // ReSharper disable once FunctionNeverReturns
 	    }
 
 		private void Update()
@@ -786,6 +788,7 @@ namespace ImpulseHd.Ui
 				}
 				Thread.Sleep(1000);
 			}
+		    // ReSharper disable once FunctionNeverReturns
 	    }
     }
 }
