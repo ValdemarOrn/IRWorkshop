@@ -5,8 +5,11 @@ using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
+using System.IO.MemoryMappedFiles;
 using System.Linq;
 using System.Reflection;
+using System.Security.AccessControl;
+using System.Security.Principal;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -29,14 +32,16 @@ namespace ImpulseHd.Ui
 {
     class MainViewModel : ViewModelBase
     {
-	    private readonly RealtimeHost host;
 	    private readonly string settingsFile;
 		private readonly LastRetainRateLimiter updateRateLimiter;
 
-	    private ImpulsePreset preset;
+	    private MemoryMappedFile memoryMap;
+		private MemoryMappedViewAccessor mmAccessor;
+		private ImpulsePreset preset;
 		private string[] inputNames;
 	    private string[] outputNames;
-	    
+
+	    private string currentJsonSettings;
 	    private int selectedInputL;
 	    private int selectedInputR;
 	    private int selectedOutputL;
@@ -53,24 +58,27 @@ namespace ImpulseHd.Ui
 	    private Brush clipRBrush;
 	    private TabItem selectedTab;
 	    private int selectedImpulseConfigIndex;
+	    private int stateIndex;
+
+	    private bool audioEngineRunning;
+	    private RealtimeHostConfig realtimeConfig;
 
 		public MainViewModel()
 		{
 			Logging.SetupLogging();
+			PortAudio.Pa_Initialize();
+			
+			var mSec = new MemoryMappedFileSecurity();
+			mSec.AddAccessRule(new AccessRule<MemoryMappedFileRights>(new SecurityIdentifier(WellKnownSidType.WorldSid, null), MemoryMappedFileRights.FullControl, AccessControlType.Allow));
+			this.memoryMap = MemoryMappedFile.CreateOrOpen("Global\\CabIRMap", 4096 * 2 + 120, MemoryMappedFileAccess.ReadWrite, MemoryMappedFileOptions.None, mSec, HandleInheritability.Inheritable);
+			this.mmAccessor = memoryMap.CreateViewAccessor();
+
 			Title = "CabIR Studio - v" + Assembly.GetExecutingAssembly().GetName().Version;
 			settingsFile = Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), "settings.json");
-			this.updateRateLimiter = new LastRetainRateLimiter(250, UpdateSample);
+			this.updateRateLimiter = new LastRetainRateLimiter(250, Update);
 			
 			preset = new ImpulsePreset();
 			ImpulseConfig = new ObservableCollection<ImpulseConfigViewModel>();
-
-			// The host lives in a singleton withing. It can not be created directly 
-			// and only one host can exists within an application context
-			host = RealtimeHost.Host;
-
-			// host.Process is the callback method that processes audio data. 
-			// Assign the static process method in this class to be the callback
-			host.Process = ProcessAudio;
 
 			NewPresetCommand = new DelegateCommand(_ => NewPreset());
 			OpenPresetCommand = new DelegateCommand(_ => OpenPreset());
@@ -93,7 +101,9 @@ namespace ImpulseHd.Ui
 
 			LoadSettings();
 
-		    var t = new Thread(SaveSettings) {IsBackground = true};
+			
+
+			var t = new Thread(SaveSettingsLoop) {IsBackground = true};
 			t.Priority = ThreadPriority.Lowest;
 			t.Start();
 
@@ -103,8 +113,26 @@ namespace ImpulseHd.Ui
 
 			AddImpulse();
 		}
-		
-		public string Title { get; set; }
+
+	    private void UpdateMemoryMap()
+	    {
+		    var state = new SharedMemoryState
+		    {
+			    Gain = (float)Utils.DB2gain(VolumeDb),
+			    Id = ++stateIndex,
+			    IrLeft = ir[0],
+			    IrRight = ir[1],
+			    IrLength = ir[0].Length,
+			    SelectedInputLeft = SelectedInputL,
+			    SelectedInputRight = selectedInputR,
+			    SelectedOutputLeft = SelectedOutputL,
+			    SelectedOutputRight = SelectedOutputR
+		    };
+
+		    state.Write(mmAccessor);
+	    }
+
+	    public string Title { get; set; }
 		
 	    public ObservableCollection<ImpulseConfigViewModel> ImpulseConfig
 		{
@@ -228,6 +256,7 @@ namespace ImpulseHd.Ui
 		    {
 			    volumeSlider = value;
 			    NotifyPropertyChanged(nameof(VolumeReadout));
+				UpdateMemoryMap();
 			}
 	    }
 
@@ -239,32 +268,32 @@ namespace ImpulseHd.Ui
 		public string WindowLengthReadout => $"{preset.WindowLengthTransformed * 100:0.00}%";
 		public string VolumeReadout => $"{VolumeDb:0.0}dB";
 
-	    public string SamplerateWarning => (host.Config != null && host.Config.Samplerate != preset.SamplerateTransformed)
+	    public string SamplerateWarning => (audioEngineRunning && realtimeConfig.Samplerate != preset.SamplerateTransformed)
 		    ? "For accurate results, impulse samplerate should match\r\naudio device samplerate"
 		    : "";
 
 	    public int SelectedInputL
 	    {
 		    get { return selectedInputL; }
-		    set { selectedInputL = value; }
+		    set { selectedInputL = value; UpdateMemoryMap(); }
 	    }
 
 	    public int SelectedInputR
 	    {
 		    get { return selectedInputR; }
-		    set { selectedInputR = value; }
+		    set { selectedInputR = value; UpdateMemoryMap(); }
 	    }
 
 	    public int SelectedOutputL
 	    {
 		    get { return selectedOutputL; }
-		    set { selectedOutputL = value; }
+		    set { selectedOutputL = value; UpdateMemoryMap(); }
 	    }
 
 	    public int SelectedOutputR
 	    {
 		    get { return selectedOutputR; }
-		    set { selectedOutputR = value; }
+		    set { selectedOutputR = value; UpdateMemoryMap(); }
 	    }
 
 	    public PlotModel PlotImpulseLeft
@@ -491,46 +520,27 @@ namespace ImpulseHd.Ui
 
 		private void AudioSetup()
 	    {
-		    try
-		    {
-				StopAudio();
+			if (audioEngineRunning)
+				StopAudioEngine();
 
+			try
+		    {
 				// Use the graphical editor to create a new config
-				var config = RealtimeHostConfig.CreateConfig(host.Config);
-				LoadAudioConfig(config);
+				realtimeConfig = RealtimeHostConfig.CreateConfig(realtimeConfig);
+			    UpdateMemoryMap();
 		    }
 		    catch (Exception)
 		    {
-				var config = RealtimeHostConfig.CreateConfig();
-			    LoadAudioConfig(config);
-		    }
-		}
-
-	    private void LoadAudioConfig(RealtimeHostConfig config)
-	    {
-		    try
-		    {
-			    if (config != null)
-			    {
-				    host.SetConfig(config);
-				    GetChannelNames(config);
-			    }
-
-			    if (host.Config != null)
-			    {
-				    StartAudio();
-				    StopAudio();
-				    StartAudio();
-			    }
-		    }
-		    catch (Exception ex)
-		    {
-			    Logging.ShowMessage("Unable to start audio engine: " + ex.Message, LogType.Error);
+				realtimeConfig = RealtimeHostConfig.CreateConfig();
+			    UpdateMemoryMap();
 		    }
 
-		    NotifyPropertyChanged(nameof(SamplerateWarning));
-		}
-
+		    GetChannelNames(realtimeConfig);
+			NotifyPropertyChanged(nameof(SamplerateWarning));
+		    SaveSettings();
+			StartAudioEngine();
+	    }
+		
 	    private ImpulseConfigViewModel AddImpulseConfigVm(ImpulseConfig ic)
 	    {
 		    var vm = new ImpulseConfigViewModel(ic)
@@ -569,20 +579,21 @@ namespace ImpulseHd.Ui
 			    .ToArray();
 		}
 
-	    private void StopAudio()
+	    private void StopAudioEngine()
 	    {
-			if (host.StreamState == StreamState.Started)
-				host.StopStream();
-			if (host.StreamState == StreamState.Stopped)
-				host.CloseStream();
+			
 		}
 
-	    private void StartAudio()
+	    private void StartAudioEngine()
 	    {
-			if (host.StreamState == StreamState.Closed)
-				host.OpenStream();
-			if (host.StreamState == StreamState.Open)
-				host.StartStream();
+		    try
+		    {
+
+		    }
+		    catch (Exception ex)
+		    {
+				Logging.ShowMessage("Unable to start audio engine: " + ex.Message, LogType.Error);
+			}
 		}
 
 		private void UpdateClipIndicators()
@@ -618,58 +629,60 @@ namespace ImpulseHd.Ui
 
 	    }
 
-		private void UpdateSample()
+		private void Update()
 	    {	
 			var processor = new ImpulsePresetProcessor(preset);
 			var output = processor.Process();
 			ir = new[] {output[0].Select(x => (float)x).ToArray(), output[1].Select(x => (float)x).ToArray()};
-			var millis = Utils.Linspace(0, preset.ImpulseLengthTransformed / (double)preset.SamplerateTransformed * 1000, preset.ImpulseLengthTransformed).ToArray();
-			/*
-			ir = new [] { new float[ir[0].Length], new float[ir[0].Length] };
-		    ir[0][0] = 1.0f;
-		    ir[1][0] = 1.0f;
-			*/
-			// Left
-			var pm = new PlotModel();
-
-			var line = pm.AddLine(millis, millis.Select(x => 0.0));
-			line.StrokeThickness = 1.0;
-			line.Color = OxyColor.FromArgb(50, 0, 0, 0);
-
-			line = pm.AddLine(millis, ir[0].Select(x => (double)x));
-			line.StrokeThickness = 1.0;
-			line.Color = OxyColors.Black;
-
-			PlotImpulseLeft = pm;
-
-			// Right
-			pm = new PlotModel();
-
-			line = pm.AddLine(millis, millis.Select(x => 0.0));
-			line.StrokeThickness = 1.0;
-			line.Color = OxyColor.FromArgb(50, 0, 0, 0);
-
-			line = pm.AddLine(millis, ir[1].Select(x => (double)x));
-			line.StrokeThickness = 1.0;
-			line.Color = OxyColors.Black;
-
-			PlotImpulseRight = pm;
+		    UpdateMemoryMap();
+		    UpdatePlots();
 	    }
+
+	    private void UpdatePlots()
+	    {
+			var millis = Utils.Linspace(0, preset.ImpulseLengthTransformed / (double)preset.SamplerateTransformed * 1000, preset.ImpulseLengthTransformed).ToArray();
+
+		    // Left
+		    var pm = new PlotModel();
+
+		    var line = pm.AddLine(millis, millis.Select(x => 0.0));
+		    line.StrokeThickness = 1.0;
+		    line.Color = OxyColor.FromArgb(50, 0, 0, 0);
+
+		    line = pm.AddLine(millis, ir[0].Select(x => (double)x));
+		    line.StrokeThickness = 1.0;
+		    line.Color = OxyColors.Black;
+
+		    PlotImpulseLeft = pm;
+
+		    // Right
+		    pm = new PlotModel();
+
+		    line = pm.AddLine(millis, millis.Select(x => 0.0));
+		    line.StrokeThickness = 1.0;
+		    line.Color = OxyColor.FromArgb(50, 0, 0, 0);
+
+		    line = pm.AddLine(millis, ir[1].Select(x => (double)x));
+		    line.StrokeThickness = 1.0;
+		    line.Color = OxyColors.Black;
+
+		    PlotImpulseRight = pm;
+		}
 
 	    private void LoadSettings()
 	    {
 		    try
 		    {
-
-			    if (File.Exists(settingsFile))
+				if (File.Exists(settingsFile))
 			    {
 				    var jsonString = File.ReadAllText(settingsFile);
 				    var dict = JsonConvert.DeserializeObject<Dictionary<string, string>>(jsonString);
 
 				    if (dict.ContainsKey("AudioSettings"))
 				    {
-					    var config = RealtimeHostConfig.Deserialize(dict["AudioSettings"]);
-					    LoadAudioConfig(config);
+						realtimeConfig = RealtimeHostConfig.Deserialize(dict["AudioSettings"]);
+						GetChannelNames(realtimeConfig);
+					    StartAudioEngine();
 				    }
 
 				    if (dict.ContainsKey(nameof(SelectedInputL)))
@@ -705,38 +718,35 @@ namespace ImpulseHd.Ui
 		    }
 	    }
 
-		private void SaveSettings()
+	    private void SaveSettings()
 	    {
-		    string currentJson = null;
-		    Action create = () =>
-		    {
-			    var dict = new Dictionary<string, string>();
-			    dict["AudioSettings"] = host.Config != null ? host.Config.Serialize() : "";
-			    dict[nameof(SelectedInputL)] = SelectedInputL.ToString();
-			    dict[nameof(SelectedInputR)] = SelectedInputR.ToString();
-			    dict[nameof(SelectedOutputL)] = SelectedOutputL.ToString();
-			    dict[nameof(SelectedOutputR)] = SelectedOutputR.ToString();
-			    dict[nameof(loadSampleDirectory)] = loadSampleDirectory;
-			    dict[nameof(saveSampleDirectory)] = saveSampleDirectory;
-			    dict[nameof(savePresetDirectory)] = savePresetDirectory;
-				dict[nameof(VolumeSlider)] = VolumeSlider.ToString("0.000", CultureInfo.InvariantCulture);
-				var jsonString = JsonConvert.SerializeObject(dict, Formatting.Indented);
-			    if (jsonString != currentJson)
-			    {
-					if (currentJson != null) // don't save on the first round, only compute the value you indend to save. This is so we don't touch the config every time the app opens
-						File.WriteAllText(settingsFile, jsonString);
+			var dict = new Dictionary<string, string>();
+			dict["AudioSettings"] = realtimeConfig != null ? realtimeConfig.Serialize() : "";
+			dict[nameof(SelectedInputL)] = SelectedInputL.ToString();
+			dict[nameof(SelectedInputR)] = SelectedInputR.ToString();
+			dict[nameof(SelectedOutputL)] = SelectedOutputL.ToString();
+			dict[nameof(SelectedOutputR)] = SelectedOutputR.ToString();
+			dict[nameof(loadSampleDirectory)] = loadSampleDirectory;
+			dict[nameof(saveSampleDirectory)] = saveSampleDirectory;
+			dict[nameof(savePresetDirectory)] = savePresetDirectory;
+			dict[nameof(VolumeSlider)] = VolumeSlider.ToString("0.000", CultureInfo.InvariantCulture);
+			var jsonString = JsonConvert.SerializeObject(dict, Formatting.Indented);
+			if (jsonString != currentJsonSettings)
+			{
+				if (currentJsonSettings != null) // don't save on the first round, only compute the value you indend to save. This is so we don't touch the config every time the app opens
+					File.WriteAllText(settingsFile, jsonString);
 
-					currentJson = jsonString;
-					
-			    }
-		    };
+				currentJsonSettings = jsonString;
+			}
+		}
 
-
+		private void SaveSettingsLoop()
+	    {
 			while (true)
 			{
 				try
 				{
-					create();
+					SaveSettings();
 				}
 				catch (Exception)
 				{
