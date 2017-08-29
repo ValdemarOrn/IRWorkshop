@@ -99,7 +99,7 @@
 			</TabControl.ItemTemplate>
 			<TabControl.ContentTemplate>
 				<DataTemplate>
-					<Border BorderBrush="#555" BorderThickness="1">
+					<Border BorderBrush="#acacac" BorderThickness="1">
 						<ScrollViewer>
 							<local:SpectrumStageView Margin="10" DataContext="{Binding}" />
 						</ScrollViewer>
@@ -120,7 +120,7 @@
 		</TabControl>-->
 
 		<Label  Grid.Column="1" Grid.ColumnSpan="2" Grid.Row="5" VerticalAlignment="Top" FontWeight="Bold" Foreground="#333">Output Stage</Label>
-		<Border BorderBrush="#555" Background="White" VerticalAlignment="Stretch" BorderThickness="1" Grid.Column="1" Grid.ColumnSpan="2" Grid.Row="5" Margin="2,24,2,2">
+		<Border BorderBrush="#acacac" Background="White" VerticalAlignment="Stretch" BorderThickness="1" Grid.Column="1" Grid.ColumnSpan="2" Grid.Row="5" Margin="2,24,2,2">
 			<ScrollViewer Padding="10">
 				<local:OutputStageView Margin="0" DataContext="{Binding OutputStage}" />
 			</ScrollViewer>

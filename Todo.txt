@@ -1,20 +1,22 @@
 More features that can be added:
 
 Adjust Phase band frequency bands by a multiplier
-On output stage (combined)
-	6 Band parametric EQ
-	Output Stage control
 
-Stereo version of the phase bands - remove it from the spectrum stage instead
-stereo enhancing - investigate
-mono->stereo trick - add a few tapped delayed signal to the stereo spectrum, low passed, delayed and panned
+EQ Left-right notcher
+Same 16 delayed bands and the phase banding, cuts a frequency band on one side while boosting it on the other
+see Waves PS22 plugin for inspiration
+Overall parameters:
+	Depth - Cnotrols the maximum boost/cut of each band
+	Smoothing (apply an average smoother to the response like in spectrum processor)
 
+16 delayed bands, like the phase banding effect in the spectrum processor
+	At center - no delay on either side
+	Full left - full amount of delay applied to left side
+	Full right - full amount of delay applied to right side
+Overall parameters:
+	Amount of delay - control how much delay is applied at the extremes of each band
+	Freq Shift - Move the fixed frequency bands up or down in Hz
 
+Mid and Side volume
 
-
-
-
-
-			<CheckBox IsChecked="{Binding UseLeftChannel}" IsEnabled="{Binding LeftChannelAvailable}" />
-			<Label>Right</Label>
-			<CheckBox IsChecked="{Binding UseRightChannel}" IsEnabled="{Binding RightChannelAvailable}" />
+top right chart - Stereo spce - show the left/right frequency plots (overlayed), and add a third, filled-line series to show the phase offset

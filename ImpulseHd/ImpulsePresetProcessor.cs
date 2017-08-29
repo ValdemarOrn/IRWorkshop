@@ -20,34 +20,42 @@ namespace ImpulseHd
 			var outputL = new double[preset.ImpulseLengthTransformed];
 			var outputR = new double[preset.ImpulseLengthTransformed];
 			var hasSolo = preset.ImpulseConfig.Any(x => x.Solo);
-			var windowLen = preset.WindowLengthTransformed;
-			var windowType = preset.WindowMethodTransformed;
 
-			foreach (var impulse in preset.ImpulseConfig)
+			foreach (var impulseConfig in preset.ImpulseConfig)
 			{
-				if (hasSolo && !impulse.Solo)
+				if (hasSolo && !impulseConfig.Solo)
 					continue;
-				if (!impulse.Enable)
+				if (!impulseConfig.Enable)
 					continue;
 
-				var processor = new ImpulseConfigProcessor(impulse);
+				var processor = new ImpulseConfigProcessor(impulseConfig);
 				foreach(var stage in processor.Stages)
 				{
 					processor.ProcessStage(stage);
 				}
-				var stageOutput = processor.ProcessOutputStage();
+
+				var outputProcessor = new OutputConfigProcessor(
+					new[] { processor.TimeSignal, processor.TimeSignal }, 
+					impulseConfig.OutputStage, 
+					impulseConfig.ImpulseLength,
+					impulseConfig.Samplerate);
+
+				var stageOutput = outputProcessor.ProcessOutputStage();
 				Sum(outputL, stageOutput[0]);
 				Sum(outputR, stageOutput[1]);
 			}
 
-			for (int i = 0; i < outputL.Length; i++)
-			{
-				var window = ImpulseConfigProcessor.GetWindow(i, preset.ImpulseLengthTransformed, windowLen, windowType);
-				outputL[i] *= window;
-				outputR[i] *= window;
-			}
+			var eqProcessor = new EqProcessor(preset.MixingConfig, preset.SamplerateTransformed);
+			var output = eqProcessor.Process(new[] { outputL, outputR });
 
-			return new[] {outputL, outputR};
+			var mixingOutputProcessor = new OutputConfigProcessor(
+				output,
+				preset.MixingConfig.OutputStage,
+				preset.ImpulseLengthTransformed,
+				preset.SamplerateTransformed);
+
+			var lr = mixingOutputProcessor.ProcessOutputStage();
+			return lr;
 		}
 
 		private void Sum(double[] outputL, double[] stageOutput)

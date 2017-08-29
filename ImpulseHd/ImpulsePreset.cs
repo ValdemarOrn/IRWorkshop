@@ -18,12 +18,12 @@ namespace ImpulseHd
 			PresetVersion = 1000;
 			Samplerate = 0.3333333;
 			ImpulseLength = 0.5;
-			WindowLength = 0.0;
-			WindowMethod = 0.7;
 			ImpulseConfig = new ImpulseConfig[0];
+			MixingConfig = new MixingConfig();
 		}
 
 		public ImpulseConfig[] ImpulseConfig { get; set; }
+		public MixingConfig MixingConfig { get; set; }
 
 		public int PresetVersion { get; set; }
 
@@ -44,8 +44,6 @@ namespace ImpulseHd
 		}
 
 		public double ImpulseLength { get; set; }
-		public double WindowMethod { get; set; }
-		public double WindowLength { get; set; }
 		
 		public int SamplerateTransformed
 		{
@@ -79,21 +77,5 @@ namespace ImpulseHd
 					return 4096;
 			}
 		}
-
-		public WindowMethod WindowMethodTransformed
-		{
-			get
-			{
-				if (WindowMethod < 0.25)
-					return ImpulseHd.WindowMethod.Truncate;
-				if (WindowMethod < 0.5)
-					return ImpulseHd.WindowMethod.Linear;
-				if (WindowMethod < 0.75)
-					return ImpulseHd.WindowMethod.Logarithmic;
-				else
-					return ImpulseHd.WindowMethod.Cosine;
-			}
-		}
-		public double WindowLengthTransformed => ValueTables.Get(WindowLength, ValueTables.Response2Oct) * 0.5;
 	}
 }

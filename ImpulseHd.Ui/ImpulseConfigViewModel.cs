@@ -343,7 +343,6 @@ namespace ImpulseHd.Ui
 
 		private void UpdateInner()
 	    {
-		    Console.WriteLine("{0:HH:mm:ss.fff} - Pow!", DateTime.UtcNow);
 		    ComputeFft();
 		    OnUpdateCallback?.Invoke();
 	    }
@@ -368,8 +367,9 @@ namespace ImpulseHd.Ui
 			    PlottedFftSignal = processor.FftSignal.ToArray();
 			    PlottedImpulseSignal = processor.TimeSignal.ToArray();
 		    }
-			
-			var output = processor.ProcessOutputStage();
+
+		    var outputProcessor = new OutputConfigProcessor(new [] { processor.TimeSignal, processor.TimeSignal }, impulseConfig.OutputStage, impulseConfig.ImpulseLength, impulseConfig.Samplerate);
+			var output = outputProcessor.ProcessOutputStage();
 		    ImpulseLeft = output[0];
 		    ImpulseRight = output[1];
 
@@ -445,8 +445,8 @@ namespace ImpulseHd.Ui
 
 		    var pm = new PlotModel();
 
-		    pm.Axes.Add(new LogarithmicAxis { Position = AxisPosition.Bottom, Minimum = 10});
-		    var leftAxis = new LinearAxis {Position = AxisPosition.Left, Key = "LeftAxis"};
+		    pm.Axes.Add(new LogarithmicAxis { Position = AxisPosition.Bottom, Minimum = 20});
+		    var leftAxis = new LinearAxis {Position = AxisPosition.Left, Key = "LeftAxis", Minimum = -80 };
 		    var rightAxis = new LinearAxis {Position = AxisPosition.Right, Key = "RightAxis", Minimum = -Math.PI - 0.1, Maximum = Math.PI + 0.1};
 			pm.Axes.Add(leftAxis);
 		    pm.Axes.Add(rightAxis);

@@ -1,0 +1,265 @@
+﻿<UserControl x:Class="ImpulseHd.Ui.MixingView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:ImpulseHd.Ui"
+             mc:Ignorable="d" 
+             d:DesignHeight="620" d:DesignWidth="600">
+	<Grid>
+		<Grid.Resources>
+			<Style TargetType="CheckBox">
+				<Setter Property="VerticalAlignment" Value="Center"></Setter>
+			</Style>
+			<Style TargetType="Slider">
+				<Setter Property="VerticalAlignment" Value="Center"></Setter>
+			</Style>
+		</Grid.Resources>
+		<Grid.ColumnDefinitions>
+			<ColumnDefinition Width="5" />
+			<ColumnDefinition Width="Auto" />
+			<ColumnDefinition Width="*" />
+			<ColumnDefinition Width="0*" />
+		</Grid.ColumnDefinitions>
+		<Grid.RowDefinitions>
+			<RowDefinition Height="Auto" />
+			<RowDefinition Height="Auto" />
+			<RowDefinition Height="Auto" />
+			<RowDefinition Height="Auto" />
+			<RowDefinition Height="1.4*" />
+			<RowDefinition Height="*" />
+		</Grid.RowDefinitions>
+
+		<TabControl Grid.Column="1" Grid.ColumnSpan="2" Grid.Row="4" SelectedIndex="{Binding SelectedTagIndex}" Margin="0,5,2,0" >
+			<TabItem Header="Equalizer">
+				<Grid Margin="20,20,0,0">
+					<Grid.ColumnDefinitions>
+						<ColumnDefinition Width="Auto" />
+						<ColumnDefinition Width="Auto" />
+						<ColumnDefinition Width="Auto" />
+						<ColumnDefinition Width="*" />
+						<ColumnDefinition Width="Auto" />
+						<ColumnDefinition Width="Auto" />
+						<ColumnDefinition Width="Auto" />
+						<ColumnDefinition Width="*" />
+						<ColumnDefinition Width="Auto" />
+						<ColumnDefinition Width="Auto" />
+						<ColumnDefinition Width="Auto" />
+						<ColumnDefinition Width="*" />
+					</Grid.ColumnDefinitions>
+					<Grid.RowDefinitions>
+						<RowDefinition Height="Auto" />
+						<RowDefinition Height="20" />
+						<RowDefinition Height="Auto" />
+						<RowDefinition Height="*" />
+					</Grid.RowDefinitions>
+
+					<Slider Grid.Column="0" Grid.Row="0" Orientation="Vertical" Width="20" Height="100" Margin="5" Minimum="0" Maximum="1" LargeChange="0.0002" Value="{Binding Eq1Freq}" PreviewMouseDown="ResetMid" />
+					<Slider Grid.Column="1" Grid.Row="0" Orientation="Vertical" Width="20" Height="100" Margin="5" Minimum="0" Maximum="1" LargeChange="0.1" Value="{Binding Eq1Q}" PreviewMouseDown="ResetMid" />
+					<Slider Grid.Column="2" Grid.Row="0" Orientation="Vertical" Width="20" Height="100" Margin="5" Minimum="0" Maximum="1" LargeChange="0.1" Value="{Binding Eq1GainDb}" PreviewMouseDown="ResetMid" />
+					<StackPanel Grid.Column="3" Grid.Row="0">
+						<Label Content="{Binding Eq1FreqReadout, FallbackValue=100Hz}" />
+						<Label Content="{Binding Eq1QReadout, FallbackValue=1.4}" />
+						<Label Content="{Binding Eq1GainDbReadout, FallbackValue=10.5dB}" />
+					</StackPanel>
+
+					<Slider Grid.Column="4" Grid.Row="0" Orientation="Vertical" Width="20" Height="100" Margin="5" Minimum="0" Maximum="1" LargeChange="0.0002" Value="{Binding Eq2Freq}" PreviewMouseDown="ResetMid" />
+					<Slider Grid.Column="5" Grid.Row="0" Orientation="Vertical" Width="20" Height="100" Margin="5" Minimum="0" Maximum="1" LargeChange="0.1" Value="{Binding Eq2Q}" PreviewMouseDown="ResetMid" />
+					<Slider Grid.Column="6" Grid.Row="0" Orientation="Vertical" Width="20" Height="100" Margin="5" Minimum="0" Maximum="1" LargeChange="0.1" Value="{Binding Eq2GainDb}" PreviewMouseDown="ResetMid" />
+					<StackPanel Grid.Column="7" Grid.Row="0">
+						<Label Content="{Binding Eq2FreqReadout, FallbackValue=100Hz}" />
+						<Label Content="{Binding Eq2QReadout, FallbackValue=1.4}" />
+						<Label Content="{Binding Eq2GainDbReadout, FallbackValue=10.5dB}" />
+					</StackPanel>
+
+					<Slider Grid.Column="8" Grid.Row="0" Orientation="Vertical" Width="20" Height="100" Margin="5" Minimum="0" Maximum="1" LargeChange="0.0002" Value="{Binding Eq3Freq}" PreviewMouseDown="ResetMid" />
+					<Slider Grid.Column="9" Grid.Row="0" Orientation="Vertical" Width="20" Height="100" Margin="5" Minimum="0" Maximum="1" LargeChange="0.1" Value="{Binding Eq3Q}" PreviewMouseDown="ResetMid" />
+					<Slider Grid.Column="10" Grid.Row="0" Orientation="Vertical" Width="20" Height="100" Margin="5" Minimum="0" Maximum="1" LargeChange="0.1" Value="{Binding Eq3GainDb}" PreviewMouseDown="ResetMid" />
+					<StackPanel Grid.Column="11" Grid.Row="0">
+						<Label Content="{Binding Eq3FreqReadout, FallbackValue=100Hz}" />
+						<Label Content="{Binding Eq3QReadout, FallbackValue=1.4}" />
+						<Label Content="{Binding Eq3GainDbReadout, FallbackValue=10.5dB}" />
+					</StackPanel>
+
+					<Slider Grid.Column="0" Grid.Row="2" Orientation="Vertical" Width="20" Height="100" Margin="5" Minimum="0" Maximum="1" LargeChange="0.0002" Value="{Binding Eq4Freq}" PreviewMouseDown="ResetMid" />
+					<Slider Grid.Column="1" Grid.Row="2" Orientation="Vertical" Width="20" Height="100" Margin="5" Minimum="0" Maximum="1" LargeChange="0.1" Value="{Binding Eq4Q}" PreviewMouseDown="ResetMid" />
+					<Slider Grid.Column="2" Grid.Row="2" Orientation="Vertical" Width="20" Height="100" Margin="5" Minimum="0" Maximum="1" LargeChange="0.1" Value="{Binding Eq4GainDb}" PreviewMouseDown="ResetMid" />
+					<StackPanel Grid.Column="3" Grid.Row="2">
+						<Label Content="{Binding Eq4FreqReadout, FallbackValue=100Hz}" />
+						<Label Content="{Binding Eq4QReadout, FallbackValue=1.4}" />
+						<Label Content="{Binding Eq4GainDbReadout, FallbackValue=10.5dB}" />
+					</StackPanel>
+
+					<Slider Grid.Column="4" Grid.Row="2" Orientation="Vertical" Width="20" Height="100" Margin="5" Minimum="0" Maximum="1" LargeChange="0.0002" Value="{Binding Eq5Freq}" PreviewMouseDown="ResetMid" />
+					<Slider Grid.Column="5" Grid.Row="2" Orientation="Vertical" Width="20" Height="100" Margin="5" Minimum="0" Maximum="1" LargeChange="0.1" Value="{Binding Eq5Q}" PreviewMouseDown="ResetMid" />
+					<Slider Grid.Column="6" Grid.Row="2" Orientation="Vertical" Width="20" Height="100" Margin="5" Minimum="0" Maximum="1" LargeChange="0.1" Value="{Binding Eq5GainDb}" PreviewMouseDown="ResetMid" />
+					<StackPanel Grid.Column="7" Grid.Row="2">
+						<Label Content="{Binding Eq5FreqReadout, FallbackValue=100Hz}" />
+						<Label Content="{Binding Eq5QReadout, FallbackValue=1.4}" />
+						<Label Content="{Binding Eq5GainDbReadout, FallbackValue=10.5dB}" />
+					</StackPanel>
+
+					<Slider Grid.Column="8" Grid.Row="2" Orientation="Vertical" Width="20" Height="100" Margin="5" Minimum="0" Maximum="1" LargeChange="0.0002" Value="{Binding Eq6Freq}" PreviewMouseDown="ResetMid" />
+					<Slider Grid.Column="9" Grid.Row="2" Orientation="Vertical" Width="20" Height="100" Margin="5" Minimum="0" Maximum="1" LargeChange="0.1" Value="{Binding Eq6Q}" PreviewMouseDown="ResetMid" />
+					<Slider Grid.Column="10" Grid.Row="2" Orientation="Vertical" Width="20" Height="100" Margin="5" Minimum="0" Maximum="1" LargeChange="0.1" Value="{Binding Eq6GainDb}" PreviewMouseDown="ResetMid" />
+					<StackPanel Grid.Column="11" Grid.Row="2">
+						<Label Content="{Binding Eq6FreqReadout, FallbackValue=100Hz}" />
+						<Label Content="{Binding Eq6QReadout, FallbackValue=1.4}" />
+						<Label Content="{Binding Eq6GainDbReadout, FallbackValue=10.5dB}" />
+					</StackPanel>
+
+				</Grid>
+			</TabItem>
+			<TabItem Header="Stereo Space">
+				<ScrollViewer VerticalScrollBarVisibility="Visible">
+					<Grid Margin="10,20">
+						<Grid.Resources>
+							<Style TargetType="Label" x:Key="AngledLabel">
+								<Setter Property="Grid.ColumnSpan" Value="2" />
+								<Setter Property="VerticalAlignment" Value="Top" />
+								<Setter Property="HorizontalAlignment" Value="Left" />
+								<Setter Property="Margin" Value="5,0,0,0" />
+								<Setter Property="Padding" Value="0" />
+								<Setter Property="LayoutTransform">
+									<Setter.Value>
+										<RotateTransform Angle="45" />
+									</Setter.Value>
+								</Setter>
+							</Style>
+						</Grid.Resources>
+						<Grid.ColumnDefinitions>
+							<ColumnDefinition Width="*" />
+							<ColumnDefinition Width="Auto" />
+							<ColumnDefinition Width="Auto" />
+							<ColumnDefinition Width="Auto" />
+							<ColumnDefinition Width="Auto" />
+							<ColumnDefinition Width="Auto" />
+							<ColumnDefinition Width="Auto" />
+							<ColumnDefinition Width="Auto" />
+							<ColumnDefinition Width="Auto" />
+							<ColumnDefinition Width="Auto" />
+							<ColumnDefinition Width="Auto" />
+							<ColumnDefinition Width="Auto" />
+							<ColumnDefinition Width="Auto" />
+							<ColumnDefinition Width="Auto" />
+							<ColumnDefinition Width="Auto" />
+							<ColumnDefinition Width="Auto" />
+							<ColumnDefinition Width="Auto" />
+							<ColumnDefinition Width="*" />
+						</Grid.ColumnDefinitions>
+						<Grid.RowDefinitions>
+							<RowDefinition Height="Auto" />
+							<RowDefinition Height="Auto" />
+							<RowDefinition Height="Auto" />
+							<RowDefinition Height="Auto" />
+							<RowDefinition Height="Auto" />
+							<RowDefinition Height="Auto" />
+							<RowDefinition Height="Auto" />
+							<RowDefinition Height="Auto" />
+							<RowDefinition Height="Auto" />
+							<RowDefinition Height="Auto" />
+							<RowDefinition Height="Auto" />
+							<RowDefinition Height="*" />
+						</Grid.RowDefinitions>
+
+						<Slider Grid.Column="2" Grid.Row="1" Grid.ColumnSpan="6" Orientation="Horizontal" HorizontalAlignment="Stretch" Margin="5" Minimum="0" Maximum="1" LargeChange="0.1" Value="{Binding EqDepthDb}" />
+						<Label Grid.Column="2" Grid.Row="2" Grid.ColumnSpan="3" HorizontalAlignment="Left" Padding="2">EQ Depth</Label>
+						<Label Grid.Column="5" Grid.Row="2" Grid.ColumnSpan="3" HorizontalAlignment="Left" Padding="2" Content="{Binding EqDepthDbReadout, FallbackValue=10.2 dB}" />
+
+						<Slider Grid.Column="2" Grid.Row="3" Grid.ColumnSpan="6" Orientation="Horizontal" HorizontalAlignment="Stretch" Margin="5" Minimum="0" Maximum="1" LargeChange="0.1" Value="{Binding EqSmoothingOctaves}" />
+						<Label Grid.Column="2" Grid.Row="4" Grid.ColumnSpan="3" HorizontalAlignment="Left" Padding="2">EQ Smoothing</Label>
+						<Label Grid.Column="5" Grid.Row="4" Grid.ColumnSpan="3" HorizontalAlignment="Left" Padding="2" Content="{Binding EqSmoothingOctavesReadout, FallbackValue=0.25 Octaves}" />
+
+						<Slider Grid.Column="10" Grid.Row="1" Grid.ColumnSpan="6" Orientation="Horizontal" HorizontalAlignment="Stretch" Margin="5" Minimum="0" Maximum="1" LargeChange="0.1" Value="{Binding DelayAmount}" />
+						<Label Grid.Column="10" Grid.Row="2" Grid.ColumnSpan="3" HorizontalAlignment="Left" Padding="2">Delay Amount</Label>
+						<Label Grid.Column="13" Grid.Row="2" Grid.ColumnSpan="3" HorizontalAlignment="Left" Padding="2" Content="{Binding DelayAmountReadout, FallbackValue=230 Samples}" />
+
+						<Slider Grid.Column="10" Grid.Row="3" Grid.ColumnSpan="6" Orientation="Horizontal" HorizontalAlignment="Stretch" Margin="5" Minimum="0" Maximum="1" LargeChange="0.1" Value="{Binding FreqShift}" />
+						<Label Grid.Column="10" Grid.Row="4" Grid.ColumnSpan="3" HorizontalAlignment="Left" Padding="2">Freq Shift</Label>
+						<Label Grid.Column="13" Grid.Row="4" Grid.ColumnSpan="3" HorizontalAlignment="Left" Padding="2" Content="{Binding FreqShiftReadout, FallbackValue=1.00x}" />
+
+						<Label  Grid.Column="1" Grid.ColumnSpan="5" Grid.Row="7" VerticalAlignment="Top" FontWeight="Bold" Foreground="#333" Margin="0,5,0,0">Equalizer</Label>
+						<Slider Grid.Column="1" Grid.Row="8" Orientation="Vertical" Width="20" Height="100" Margin="5" Minimum="0" Maximum="1" LargeChange="0.1" Value="{Binding StereoEq[0]}" />
+						<Slider Grid.Column="2" Grid.Row="8" Orientation="Vertical" Width="20" Height="100" Margin="5" Minimum="0" Maximum="1" LargeChange="0.1" Value="{Binding StereoEq[1]}" />
+						<Slider Grid.Column="3" Grid.Row="8" Orientation="Vertical" Width="20" Height="100" Margin="5" Minimum="0" Maximum="1" LargeChange="0.1" Value="{Binding StereoEq[2]}" />
+						<Slider Grid.Column="4" Grid.Row="8" Orientation="Vertical" Width="20" Height="100" Margin="5" Minimum="0" Maximum="1" LargeChange="0.1" Value="{Binding StereoEq[3]}" />
+
+						<Slider Grid.Column="5" Grid.Row="8" Orientation="Vertical" Width="20" Height="100" Margin="5" Minimum="0" Maximum="1" LargeChange="0.1" Value="{Binding StereoEq[4]}" />
+						<Slider Grid.Column="6" Grid.Row="8" Orientation="Vertical" Width="20" Height="100" Margin="5" Minimum="0" Maximum="1" LargeChange="0.1" Value="{Binding StereoEq[5]}" />
+						<Slider Grid.Column="7" Grid.Row="8" Orientation="Vertical" Width="20" Height="100" Margin="5" Minimum="0" Maximum="1" LargeChange="0.1" Value="{Binding StereoEq[6]}" />
+						<Slider Grid.Column="8" Grid.Row="8" Orientation="Vertical" Width="20" Height="100" Margin="5" Minimum="0" Maximum="1" LargeChange="0.1" Value="{Binding StereoEq[7]}" />
+
+						<Slider Grid.Column="9" Grid.Row="8" Orientation="Vertical" Width="20" Height="100" Margin="5" Minimum="0" Maximum="1" LargeChange="0.1" Value="{Binding StereoEq[8]}" />
+						<Slider Grid.Column="10" Grid.Row="8" Orientation="Vertical" Width="20" Height="100" Margin="5" Minimum="0" Maximum="1" LargeChange="0.1" Value="{Binding StereoEq[9]}" />
+						<Slider Grid.Column="11" Grid.Row="8" Orientation="Vertical" Width="20" Height="100" Margin="5" Minimum="0" Maximum="1" LargeChange="0.1" Value="{Binding StereoEq[10]}" />
+						<Slider Grid.Column="12" Grid.Row="8" Orientation="Vertical" Width="20" Height="100" Margin="5" Minimum="0" Maximum="1" LargeChange="0.1" Value="{Binding StereoEq[11]}" />
+
+						<Slider Grid.Column="13" Grid.Row="8" Orientation="Vertical" Width="20" Height="100" Margin="5" Minimum="0" Maximum="1" LargeChange="0.1" Value="{Binding StereoEq[12]}" />
+						<Slider Grid.Column="14" Grid.Row="8" Orientation="Vertical" Width="20" Height="100" Margin="5" Minimum="0" Maximum="1" LargeChange="0.1" Value="{Binding StereoEq[13]}" />
+						<Slider Grid.Column="15" Grid.Row="8" Orientation="Vertical" Width="20" Height="100" Margin="5" Minimum="0" Maximum="1" LargeChange="0.1" Value="{Binding StereoEq[14]}" />
+						<Slider Grid.Column="16" Grid.Row="8" Orientation="Vertical" Width="20" Height="100" Margin="5" Minimum="0" Maximum="1" LargeChange="0.1" Value="{Binding StereoEq[15]}" />
+
+
+						<Label  Grid.Column="1" Grid.ColumnSpan="5" Grid.Row="9" VerticalAlignment="Top" FontWeight="Bold" Foreground="#333" Margin="0,5,0,0">Phase Shifter</Label>
+
+						<Slider Grid.Column="1" Grid.Row="10" Orientation="Vertical" Width="20" Height="100" Margin="5" Minimum="0" Maximum="1" LargeChange="0.1" Value="{Binding StereoPhase[0]}" />
+						<Slider Grid.Column="2" Grid.Row="10" Orientation="Vertical" Width="20" Height="100" Margin="5" Minimum="0" Maximum="1" LargeChange="0.1" Value="{Binding StereoPhase[1]}" />
+						<Slider Grid.Column="3" Grid.Row="10" Orientation="Vertical" Width="20" Height="100" Margin="5" Minimum="0" Maximum="1" LargeChange="0.1" Value="{Binding StereoPhase[2]}" />
+						<Slider Grid.Column="4" Grid.Row="10" Orientation="Vertical" Width="20" Height="100" Margin="5" Minimum="0" Maximum="1" LargeChange="0.1" Value="{Binding StereoPhase[3]}" />
+
+						<Slider Grid.Column="5" Grid.Row="10" Orientation="Vertical" Width="20" Height="100" Margin="5" Minimum="0" Maximum="1" LargeChange="0.1" Value="{Binding StereoPhase[4]}" />
+						<Slider Grid.Column="6" Grid.Row="10" Orientation="Vertical" Width="20" Height="100" Margin="5" Minimum="0" Maximum="1" LargeChange="0.1" Value="{Binding StereoPhase[5]}" />
+						<Slider Grid.Column="7" Grid.Row="10" Orientation="Vertical" Width="20" Height="100" Margin="5" Minimum="0" Maximum="1" LargeChange="0.1" Value="{Binding StereoPhase[6]}" />
+						<Slider Grid.Column="8" Grid.Row="10" Orientation="Vertical" Width="20" Height="100" Margin="5" Minimum="0" Maximum="1" LargeChange="0.1" Value="{Binding StereoPhase[7]}" />
+
+						<Slider Grid.Column="9" Grid.Row="10" Orientation="Vertical" Width="20" Height="100" Margin="5" Minimum="0" Maximum="1" LargeChange="0.1" Value="{Binding StereoPhase[8]}" />
+						<Slider Grid.Column="10" Grid.Row="10" Orientation="Vertical" Width="20" Height="100" Margin="5" Minimum="0" Maximum="1" LargeChange="0.1" Value="{Binding StereoPhase[9]}" />
+						<Slider Grid.Column="11" Grid.Row="10" Orientation="Vertical" Width="20" Height="100" Margin="5" Minimum="0" Maximum="1" LargeChange="0.1" Value="{Binding StereoPhase[10]}" />
+						<Slider Grid.Column="12" Grid.Row="10" Orientation="Vertical" Width="20" Height="100" Margin="5" Minimum="0" Maximum="1" LargeChange="0.1" Value="{Binding StereoPhase[11]}" />
+
+						<Slider Grid.Column="13" Grid.Row="10" Orientation="Vertical" Width="20" Height="100" Margin="5" Minimum="0" Maximum="1" LargeChange="0.1" Value="{Binding StereoPhase[12]}" />
+						<Slider Grid.Column="14" Grid.Row="10" Orientation="Vertical" Width="20" Height="100" Margin="5" Minimum="0" Maximum="1" LargeChange="0.1" Value="{Binding StereoPhase[13]}" />
+						<Slider Grid.Column="15" Grid.Row="10" Orientation="Vertical" Width="20" Height="100" Margin="5" Minimum="0" Maximum="1" LargeChange="0.1" Value="{Binding StereoPhase[14]}" />
+						<Slider Grid.Column="16" Grid.Row="10" Orientation="Vertical" Width="20" Height="100" Margin="5" Minimum="0" Maximum="1" LargeChange="0.1" Value="{Binding StereoPhase[15]}" />
+
+						<Label Grid.Column="1" Grid.Row="11" Style="{StaticResource AngledLabel}" Content="{Binding Frequencies[0], FallbackValue=100}" />
+						<Label Grid.Column="2" Grid.Row="11" Style="{StaticResource AngledLabel}" Content="{Binding Frequencies[1], FallbackValue=100}" />
+						<Label Grid.Column="3" Grid.Row="11" Style="{StaticResource AngledLabel}" Content="{Binding Frequencies[2], FallbackValue=100}" />
+						<Label Grid.Column="4" Grid.Row="11" Style="{StaticResource AngledLabel}" Content="{Binding Frequencies[3], FallbackValue=100}" />
+
+						<Label Grid.Column="5" Grid.Row="11" Style="{StaticResource AngledLabel}" Content="{Binding Frequencies[4], FallbackValue=100}" />
+						<Label Grid.Column="6" Grid.Row="11" Style="{StaticResource AngledLabel}" Content="{Binding Frequencies[5], FallbackValue=100}" />
+						<Label Grid.Column="7" Grid.Row="11" Style="{StaticResource AngledLabel}" Content="{Binding Frequencies[6], FallbackValue=100}" />
+						<Label Grid.Column="8" Grid.Row="11" Style="{StaticResource AngledLabel}" Content="{Binding Frequencies[7], FallbackValue=100}" />
+
+						<Label Grid.Column="9" Grid.Row="11" Style="{StaticResource AngledLabel}" Content="{Binding Frequencies[8], FallbackValue=100}" />
+						<Label Grid.Column="10" Grid.Row="11" Style="{StaticResource AngledLabel}" Content="{Binding Frequencies[9], FallbackValue=100}" />
+						<Label Grid.Column="11" Grid.Row="11" Style="{StaticResource AngledLabel}" Content="{Binding Frequencies[10], FallbackValue=100}" />
+						<Label Grid.Column="12" Grid.Row="11" Style="{StaticResource AngledLabel}" Content="{Binding Frequencies[11], FallbackValue=100}" />
+
+						<Label Grid.Column="13" Grid.Row="11" Style="{StaticResource AngledLabel}" Content="{Binding Frequencies[12], FallbackValue=100}" />
+						<Label Grid.Column="14" Grid.Row="11" Style="{StaticResource AngledLabel}" Content="{Binding Frequencies[13], FallbackValue=100}" />
+						<Label Grid.Column="15" Grid.Row="11" Style="{StaticResource AngledLabel}" Content="{Binding Frequencies[14], FallbackValue=100}" />
+						<Label Grid.Column="16" Grid.Row="11" Style="{StaticResource AngledLabel}" Content="{Binding Frequencies[15], FallbackValue=100}" />
+
+
+					</Grid>
+				</ScrollViewer>
+			</TabItem>
+		</TabControl>
+
+		<Label  Grid.Column="1" Grid.ColumnSpan="2" Grid.Row="5" VerticalAlignment="Top" FontWeight="Bold" Foreground="#333">Output Stage</Label>
+		<Border BorderBrush="#acacac" Background="White" VerticalAlignment="Stretch" BorderThickness="1" Grid.Column="1" Grid.ColumnSpan="2" Grid.Row="5" Margin="2,24,2,2">
+			<ScrollViewer Padding="10">
+				<local:OutputStageView Margin="0" DataContext="{Binding OutputStage}" />
+			</ScrollViewer>
+		</Border>
+
+		<Grid Grid.Column="3" Grid.Row="0" Grid.RowSpan="6" HorizontalAlignment="Stretch">
+			<Grid.RowDefinitions>
+				<RowDefinition Height="Auto" />
+				<RowDefinition Height="Auto" />
+			</Grid.RowDefinitions>
+		</Grid>
+	</Grid>
+</UserControl>

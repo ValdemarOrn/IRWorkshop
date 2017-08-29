@@ -19,10 +19,12 @@ using AudioLib;
 using AudioLib.PortAudioInterop;
 using ImpulseHd.Serializer;
 using LowProfile.Core.Ui;
+using LowProfile.Fourier.Double;
 using LowProfile.Visuals;
 using Microsoft.Win32;
 using Newtonsoft.Json;
 using OxyPlot;
+using OxyPlot.Axes;
 
 namespace ImpulseHd.Ui
 {
@@ -41,7 +43,10 @@ namespace ImpulseHd.Ui
 		private string[] inputNames;
 	    private string[] outputNames;
 
+	    private bool switchGraphs;
 	    private float[][] outputIr;
+	    private Complex[] fftLeft;
+	    private Complex[] fftRight;
 		private string currentJsonSettings;
 	    private int selectedInputL;
 	    private int selectedInputR;
@@ -51,9 +56,9 @@ namespace ImpulseHd.Ui
 	    private string saveSampleDirectory;
 	    private string savePresetDirectory;
 	    private double volumeSlider;
-	    private PlotModel plotImpulseLeft;
-	    private PlotModel plotImpulseRight;
-	    private Brush clipLBrush;
+		private PlotModel plotImpulseOutputTop;
+		private PlotModel plotImpulseOutputBottom;
+		private Brush clipLBrush;
 	    private Brush clipRBrush;
 	    private TabItem selectedTab;
 	    private int selectedImpulseConfigIndex;
@@ -94,6 +99,7 @@ namespace ImpulseHd.Ui
 
 			preset = new ImpulsePreset();
 			ImpulseConfig = new ObservableCollection<ImpulseConfigViewModel>();
+			MixingConfig = new MixingViewModel(preset.MixingConfig, preset.SamplerateTransformed) { OnUpdateCallback = () => updateRateLimiter.Pulse() };
 
 			Title = "CabIR Studio - v" + Assembly.GetExecutingAssembly().GetName().Version;
 			settingsFile = Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), "settings.json");
@@ -113,6 +119,7 @@ namespace ImpulseHd.Ui
 			MoveImpulseLeftCommand = new DelegateCommand(_ => MoveImpulseLeft());
 			MoveImpulseRightCommand = new DelegateCommand(_ => MoveImpulseRight());
 			CloneImpulseCommand = new DelegateCommand(_ => CloneImpulse());
+			SwitchGraphsCommand = new DelegateCommand(_ => SwitchGraphs());
 			selectedInputL = -1;
 		    selectedInputR = -1;
 		    selectedOutputL = -1;
@@ -134,7 +141,7 @@ namespace ImpulseHd.Ui
 			UpdateMemoryMap();
 			StartAudioEngine();
 		}
-		
+
 	    private void UpdateMemoryMap()
 	    {
 		    var state = new SharedMemoryState
@@ -155,10 +162,8 @@ namespace ImpulseHd.Ui
 
 	    public string Title { get; set; }
 		
-	    public ObservableCollection<ImpulseConfigViewModel> ImpulseConfig
-		{
-			get; set;
-		}
+	    public ObservableCollection<ImpulseConfigViewModel> ImpulseConfig { get; set; }
+	    public MixingViewModel MixingConfig { get; set; }
 
 	    public int SelectedImpulseConfigIndex
 	    {
@@ -203,6 +208,7 @@ namespace ImpulseHd.Ui
 	    public ICommand MoveImpulseLeftCommand { get; }
 	    public ICommand MoveImpulseRightCommand { get; }
 		public ICommand CloneImpulseCommand { get; }
+		public ICommand SwitchGraphsCommand { get; }
 
 		public string[] InputNames
 	    {
@@ -227,6 +233,11 @@ namespace ImpulseHd.Ui
 				{
 					foreach (var ic in ImpulseConfig)
 						ic.Update();
+				}
+
+				if (MixingConfig != null)
+				{
+					MixingConfig.Samplerate = preset.SamplerateTransformed;
 				}
 
 				NotifyPropertyChanged();
@@ -254,31 +265,7 @@ namespace ImpulseHd.Ui
 			    updateRateLimiter.Pulse();
 			}
 	    }
-		
-	    public double WindowMethod
-	    {
-		    get { return preset.WindowMethod; }
-		    set
-		    {
-			    preset.WindowMethod = value;
-			    NotifyPropertyChanged();
-			    NotifyPropertyChanged(nameof(WindowMethodReadout));
-			    updateRateLimiter.Pulse();
-			}
-	    }
-		
-	    public double WindowLength
-	    {
-		    get { return preset.WindowLength; }
-		    set
-		    {
-			    preset.WindowLength = value;
-			    NotifyPropertyChanged();
-			    NotifyPropertyChanged(nameof(WindowLengthReadout));
-			    updateRateLimiter.Pulse();
-			}
-	    }
-		
+	
 		public double VolumeSlider
 	    {
 		    get { return volumeSlider; }
@@ -294,8 +281,6 @@ namespace ImpulseHd.Ui
 
 	    public string SamplerateReadout => preset.SamplerateTransformed.ToString();
 		public string ImpulseLengthReadout => preset.ImpulseLengthTransformed + " - " + string.Format("{0:0.0}ms", preset.ImpulseLengthTransformed / (double)preset.SamplerateTransformed * 1000);
-		public string WindowMethodReadout => preset.WindowMethodTransformed.ToString();
-		public string WindowLengthReadout => $"{preset.WindowLengthTransformed * 100:0.00}%";
 		public string VolumeReadout => $"{VolumeDb:0.0}dB";
 
 	    public string SamplerateWarning => (realtimeProcess.IsRunning && realtimeConfig.Samplerate != preset.SamplerateTransformed)
@@ -326,28 +311,6 @@ namespace ImpulseHd.Ui
 		    set { selectedOutputR = value; UpdateMemoryMap(); }
 	    }
 
-	    public PlotModel PlotImpulseLeft
-	    {
-		    get { return plotImpulseLeft; }
-		    set
-		    {
-			    plotImpulseLeft = value;
-				NotifyPropertyChanged();
-			    NotifyPropertyChanged(nameof(PlotTop));
-			}
-	    }
-
-	    public PlotModel PlotImpulseRight
-	    {
-		    get { return plotImpulseRight; }
-		    set
-		    {
-			    plotImpulseRight = value;
-				NotifyPropertyChanged();
-			    NotifyPropertyChanged(nameof(PlotBottom));
-			}
-	    }
-
 	    public Brush ClipLBrush
 	    {
 		    get { return clipLBrush; }
@@ -372,10 +335,44 @@ namespace ImpulseHd.Ui
 			}
 	    }
 
-	    public PlotModel PlotTop => selectedTab?.Header?.ToString() == "Master" ? PlotImpulseLeft : SelectedImpulse?.Plot1;
-	    public PlotModel PlotBottom => selectedTab?.Header?.ToString() == "Master" ? PlotImpulseRight : SelectedImpulse?.Plot2;
+	    public string SelectedTabHeader => selectedTab?.Header?.ToString();
+
+		public PlotModel PlotTop
+	    {
+		    get
+		    {
+				if (SelectedTabHeader == "Master")
+					return plotImpulseOutputTop;
+				if (SelectedTabHeader == "Impulses")
+					return SelectedImpulse?.Plot1;
+			    if (SelectedTabHeader == "Mixing")
+				    return MixingConfig.Plot1;
+				return null;
+		    }
+	    }
+
+	    public PlotModel PlotBottom
+	    {
+		    get
+			{
+				if (SelectedTabHeader == "Master")
+					return plotImpulseOutputBottom;
+				if (SelectedTabHeader == "Impulses")
+					return SelectedImpulse?.Plot2;
+				if (SelectedTabHeader == "Mixing")
+					return plotImpulseOutputBottom;
+				return null;
+			}
+	    }
 		
-	    private void NewPreset()
+	    private void SwitchGraphs()
+	    {
+		    switchGraphs = !switchGraphs;
+		    UpdateFftPlot();
+		    UpdateTimePlot();
+		}
+
+		private void NewPreset()
 	    {
 		    var dir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
 		    var defaultPreset = Path.Combine(dir, "Default.cabir");
@@ -414,11 +411,8 @@ namespace ImpulseHd.Ui
 		    NotifyPropertyChanged(nameof(Samplerate));
 		    NotifyPropertyChanged(nameof(ImpulseLength));
 		    NotifyPropertyChanged(nameof(WindowMethod));
-		    NotifyPropertyChanged(nameof(WindowLength));
 		    NotifyPropertyChanged(nameof(SamplerateReadout));
 		    NotifyPropertyChanged(nameof(ImpulseLengthReadout));
-		    NotifyPropertyChanged(nameof(WindowMethodReadout));
-		    NotifyPropertyChanged(nameof(WindowLengthReadout));
 			updateRateLimiter.Pulse();
 		}
 		
@@ -680,16 +674,79 @@ namespace ImpulseHd.Ui
 			var processor = new ImpulsePresetProcessor(preset);
 			var output = processor.Process();
 			outputIr = new[] {output[0].Select(x => (float)x).ToArray(), output[1].Select(x => (float)x).ToArray()};
-		    UpdateMemoryMap();
-		    UpdatePlots();
+
+			// convert final, commplete output back to Fft to show the final frequency response
+
+			var fftTransform = new LowProfile.Fourier.Double.Transform(outputIr.Length);
+
+			var timeDomainLeft = outputIr[0].Select(x => (Complex)x).ToArray();
+			fftLeft = new Complex[timeDomainLeft.Length];
+		    fftTransform.FFT(timeDomainLeft, fftLeft);
+
+		    var timeDomainRight = outputIr[1].Select(x => (Complex)x).ToArray();
+		    fftRight = new Complex[timeDomainRight.Length];
+		    fftTransform.FFT(timeDomainRight, fftRight);
+			
+			UpdateMemoryMap();
+		    UpdateFftPlot();
+			UpdateTimePlot();
 	    }
 
-	    private void UpdatePlots()
+	    private void UpdateFftPlot()
+	    {
+		    var magDataLeft = fftLeft.Take(fftLeft.Length / 2).Select(x => x.Abs).Select(x => Utils.Gain2DB(x)).ToArray();
+		    var magDataRight = fftRight.Take(fftRight.Length / 2).Select(x => x.Abs).Select(x => Utils.Gain2DB(x)).ToArray();
+			var hz = Utils.Linspace(0, 0.5, magDataLeft.Length).Select(x => x * (double)preset.SamplerateTransformed).ToArray();
+
+		    var pm = new PlotModel();
+
+		    pm.Axes.Add(new LogarithmicAxis { Position = AxisPosition.Bottom, Minimum = 20 });
+		    var leftAxis = new LinearAxis { Position = AxisPosition.Left, Key = "LeftAxis", Minimum = -80 };
+		    //var rightAxis = new LinearAxis { Position = AxisPosition.Right, Key = "RightAxis", Minimum = -Math.PI - 0.1, Maximum = Math.PI + 0.1 };
+		    pm.Axes.Add(leftAxis);
+		    //pm.Axes.Add(rightAxis);
+
+		    var line = pm.AddLine(hz, hz.Select(x => 0.0));
+		    line.StrokeThickness = 1.0;
+		    line.Color = OxyColor.FromArgb(50, 0, 0, 0);
+
+		    line = pm.AddLine(hz, hz.Select(x => -20.0));
+		    line.StrokeThickness = 1.0;
+		    line.Color = OxyColor.FromArgb(50, 0, 0, 0);
+
+		    line = pm.AddLine(hz, hz.Select(x => -40.0));
+		    line.StrokeThickness = 1.0;
+		    line.Color = OxyColor.FromArgb(50, 0, 0, 0);
+
+		    line = pm.AddLine(hz, hz.Select(x => -60.0));
+		    line.StrokeThickness = 1.0;
+		    line.Color = OxyColor.FromArgb(50, 0, 0, 0);
+
+			line = pm.AddLine(hz, magDataLeft);
+		    line.StrokeThickness = 1.0;
+		    line.Color = OxyColor.FromAColor(127, OxyColors.Blue);
+		    line.YAxisKey = "LeftAxis";
+
+		    line = pm.AddLine(hz, magDataRight);
+		    line.StrokeThickness = 1.0;
+			line.Color = OxyColor.FromAColor(127, OxyColors.Red);
+			line.YAxisKey = "LeftAxis";
+
+			if (switchGraphs)
+				plotImpulseOutputTop = pm;
+			else
+				plotImpulseOutputBottom = pm;
+
+			NotifyPropertyChanged(nameof(PlotTop));
+		    NotifyPropertyChanged(nameof(PlotBottom));
+		}
+
+	    private void UpdateTimePlot()
 	    {
 			var millis = Utils.Linspace(0, preset.ImpulseLengthTransformed / (double)preset.SamplerateTransformed * 1000, preset.ImpulseLengthTransformed).ToArray();
-
-		    // Left
-		    var pm = new PlotModel();
+			
+			// left and right
+			var pm = new PlotModel();
 
 		    var line = pm.AddLine(millis, millis.Select(x => 0.0));
 		    line.StrokeThickness = 1.0;
@@ -697,22 +754,19 @@ namespace ImpulseHd.Ui
 
 		    line = pm.AddLine(millis, outputIr[0].Select(x => (double)x));
 		    line.StrokeThickness = 1.0;
-		    line.Color = OxyColors.Black;
-
-		    PlotImpulseLeft = pm;
-
-		    // Right
-		    pm = new PlotModel();
-
-		    line = pm.AddLine(millis, millis.Select(x => 0.0));
-		    line.StrokeThickness = 1.0;
-		    line.Color = OxyColor.FromArgb(50, 0, 0, 0);
+		    line.Color = OxyColor.FromAColor(127, OxyColors.Blue);
 
 		    line = pm.AddLine(millis, outputIr[1].Select(x => (double)x));
 		    line.StrokeThickness = 1.0;
-		    line.Color = OxyColors.Black;
+		    line.Color = OxyColor.FromAColor(127, OxyColors.Red);
 
-		    PlotImpulseRight = pm;
+			if (switchGraphs)
+				plotImpulseOutputBottom = pm;
+			else
+				plotImpulseOutputTop = pm;
+
+			NotifyPropertyChanged(nameof(PlotTop));
+		    NotifyPropertyChanged(nameof(PlotBottom));
 		}
 
 	    private void LoadSettings()

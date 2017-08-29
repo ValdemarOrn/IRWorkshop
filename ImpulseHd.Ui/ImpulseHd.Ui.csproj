@@ -83,6 +83,10 @@
     <Compile Include="MasterView.xaml.cs">
       <DependentUpon>MasterView.xaml</DependentUpon>
     </Compile>
+    <Compile Include="MixingView.xaml.cs">
+      <DependentUpon>MixingView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="MixingViewModel.cs" />
     <Compile Include="OutputStageViewModel.cs" />
     <Compile Include="SpectrumStageView.xaml.cs">
       <DependentUpon>SpectrumStageView.xaml</DependentUpon>
@@ -115,6 +119,10 @@
       <SubType>Code</SubType>
     </Compile>
     <Page Include="MasterView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="MixingView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

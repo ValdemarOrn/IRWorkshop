@@ -100,11 +100,33 @@
 						</StackPanel>
 					</Grid>
 				</TabItem>
-				
+
+				<TabItem Header="Mixing">
+					<local:MixingView DataContext="{Binding MixingConfig}"></local:MixingView>
+				</TabItem>
 			</TabControl>
 
 			<oxy:PlotView Grid.Column="1" Grid.Row="1" Margin="4" Model="{Binding PlotTop}"></oxy:PlotView>
 			<oxy:PlotView Grid.Column="1" Grid.Row="2" Margin="4" Model="{Binding PlotBottom}"></oxy:PlotView>
+			<Button Grid.Column="1" Grid.Row="2" VerticalAlignment="Bottom" HorizontalAlignment="Left" Margin="5" Command="{Binding SwitchGraphsCommand}">
+				<Button.Template>
+					<ControlTemplate>
+						<Label Padding="0" Margin="0" FontWeight="SemiBold">
+							<Label.Style>
+								<Style TargetType="Label">
+									<Setter Property="Foreground" Value="#555"/>
+									<Style.Triggers>
+										<Trigger Property="IsMouseOver" Value="True">
+											<Setter Property="Foreground" Value="#ccc"/>
+										</Trigger>
+									</Style.Triggers>
+								</Style>
+							</Label.Style>
+							&lt;&gt;	
+						</Label>
+					</ControlTemplate>
+				</Button.Template>
+			</Button>
 		</Grid>
 	</DockPanel>
 </Window>
