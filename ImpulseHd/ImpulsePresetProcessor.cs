@@ -17,8 +17,8 @@ namespace ImpulseHd
 		
 		public double[][] Process()
 		{
-			var outputL = new double[preset.ImpulseLengthTransformed];
-			var outputR = new double[preset.ImpulseLengthTransformed];
+			var bufferLeft = new double[ImpulseConfig.MaxSampleLength];
+			var bufferRight = new double[ImpulseConfig.MaxSampleLength];
 			var hasSolo = preset.ImpulseConfig.Any(x => x.Solo);
 
 			foreach (var impulseConfig in preset.ImpulseConfig)
@@ -41,12 +41,15 @@ namespace ImpulseHd
 					impulseConfig.Samplerate);
 
 				var stageOutput = outputProcessor.ProcessOutputStage();
-				Sum(outputL, stageOutput[0]);
-				Sum(outputR, stageOutput[1]);
+				Sum(bufferLeft, stageOutput[0]);
+				Sum(bufferRight, stageOutput[1]);
 			}
 
 			var eqProcessor = new EqProcessor(preset.MixingConfig, preset.SamplerateTransformed);
-			var output = eqProcessor.Process(new[] { outputL, outputR });
+			var output = eqProcessor.Process(new[] { bufferLeft, bufferRight });
+
+			var stereoProcessor = new StereoEnhancerProcessor(preset.MixingConfig, preset.SamplerateTransformed);
+			output = stereoProcessor.Process(output);
 
 			var mixingOutputProcessor = new OutputConfigProcessor(
 				output,
@@ -54,8 +57,13 @@ namespace ImpulseHd
 				preset.ImpulseLengthTransformed,
 				preset.SamplerateTransformed);
 
-			var lr = mixingOutputProcessor.ProcessOutputStage();
-			return lr;
+			output = mixingOutputProcessor.ProcessOutputStage();
+
+			return new []
+			{
+				output[0].Take(preset.ImpulseLengthTransformed).ToArray(),
+				output[1].Take(preset.ImpulseLengthTransformed).ToArray()
+			};
 		}
 
 		private void Sum(double[] outputL, double[] stageOutput)

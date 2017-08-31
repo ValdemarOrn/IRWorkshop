@@ -40,6 +40,7 @@ namespace ImpulseHd
 			EqSmoothingOctaves = 0.5;
 			DelayAmount = 0.5;
 			FreqShift = 0.5;
+			BlendAmount = 0.0;
 
 			StereoEq = Utils.Linspace(0.5, 0.5, BandCount);
 			StereoPhase = Utils.Linspace(0.5, 0.5, BandCount);
@@ -97,12 +98,14 @@ namespace ImpulseHd
 		public double EqSmoothingOctaves { get; set; }
 		public double DelayAmount { get; set; }
 		public double FreqShift { get; set; }
+		public double BlendAmount { get; set; }
 
 		public double EqDepthDbTransformed => 12 * EqDepthDb;
 		public double EqSmoothingOctavesTransformed => ValueTables.Get(EqSmoothingOctaves, ValueTables.Response2Dec) * 2;
 		public int DelayAmountTransformed => (int)(ValueTables.Get(DelayAmount, ValueTables.Response2Dec) * 4096);
 		public double FreqShiftTransformed => 0.5 + FreqShift;
-
+		public double BlendAmountTransformed => -40 + 40 * BlendAmount;
+		
 		public double[] StereoEq { get; set; }
 		public double[] StereoPhase { get; set; }
 

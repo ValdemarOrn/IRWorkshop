@@ -626,7 +626,8 @@ namespace ImpulseHd.Ui
 	    {
 		    try
 		    {
-			    realtimeProcess.StartProcess();
+				if (realtimeConfig != null)
+					realtimeProcess.StartProcess();
 		    }
 		    catch (Exception ex)
 		    {

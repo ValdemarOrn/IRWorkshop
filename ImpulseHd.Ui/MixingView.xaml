@@ -162,65 +162,70 @@
 							<RowDefinition Height="*" />
 						</Grid.RowDefinitions>
 
-						<Slider Grid.Column="2" Grid.Row="1" Grid.ColumnSpan="6" Orientation="Horizontal" HorizontalAlignment="Stretch" Margin="5" Minimum="0" Maximum="1" LargeChange="0.1" Value="{Binding EqDepthDb}" />
+						<Slider Grid.Column="2" Grid.Row="1" Grid.ColumnSpan="6" Orientation="Horizontal" HorizontalAlignment="Stretch" Margin="5" Minimum="0" Maximum="1" LargeChange="0.1" Value="{Binding EqDepthDb}" PreviewMouseDown="ResetMid" />
 						<Label Grid.Column="2" Grid.Row="2" Grid.ColumnSpan="3" HorizontalAlignment="Left" Padding="2">EQ Depth</Label>
 						<Label Grid.Column="5" Grid.Row="2" Grid.ColumnSpan="3" HorizontalAlignment="Left" Padding="2" Content="{Binding EqDepthDbReadout, FallbackValue=10.2 dB}" />
 
-						<Slider Grid.Column="2" Grid.Row="3" Grid.ColumnSpan="6" Orientation="Horizontal" HorizontalAlignment="Stretch" Margin="5" Minimum="0" Maximum="1" LargeChange="0.1" Value="{Binding EqSmoothingOctaves}" />
+						<Slider Grid.Column="2" Grid.Row="3" Grid.ColumnSpan="6" Orientation="Horizontal" HorizontalAlignment="Stretch" Margin="5" Minimum="0" Maximum="1" LargeChange="0.1" Value="{Binding EqSmoothingOctaves}" PreviewMouseDown="ResetMid" />
 						<Label Grid.Column="2" Grid.Row="4" Grid.ColumnSpan="3" HorizontalAlignment="Left" Padding="2">EQ Smoothing</Label>
 						<Label Grid.Column="5" Grid.Row="4" Grid.ColumnSpan="3" HorizontalAlignment="Left" Padding="2" Content="{Binding EqSmoothingOctavesReadout, FallbackValue=0.25 Octaves}" />
 
-						<Slider Grid.Column="10" Grid.Row="1" Grid.ColumnSpan="6" Orientation="Horizontal" HorizontalAlignment="Stretch" Margin="5" Minimum="0" Maximum="1" LargeChange="0.1" Value="{Binding DelayAmount}" />
+						<Slider Grid.Column="10" Grid.Row="1" Grid.ColumnSpan="6" Orientation="Horizontal" HorizontalAlignment="Stretch" Margin="5" Minimum="0" Maximum="1" LargeChange="0.1" Value="{Binding DelayAmount}" PreviewMouseDown="ResetMid" />
 						<Label Grid.Column="10" Grid.Row="2" Grid.ColumnSpan="3" HorizontalAlignment="Left" Padding="2">Delay Amount</Label>
 						<Label Grid.Column="13" Grid.Row="2" Grid.ColumnSpan="3" HorizontalAlignment="Left" Padding="2" Content="{Binding DelayAmountReadout, FallbackValue=230 Samples}" />
 
-						<Slider Grid.Column="10" Grid.Row="3" Grid.ColumnSpan="6" Orientation="Horizontal" HorizontalAlignment="Stretch" Margin="5" Minimum="0" Maximum="1" LargeChange="0.1" Value="{Binding FreqShift}" />
+						<Slider Grid.Column="10" Grid.Row="3" Grid.ColumnSpan="6" Orientation="Horizontal" HorizontalAlignment="Stretch" Margin="5" Minimum="0" Maximum="1" LargeChange="0.1" Value="{Binding FreqShift}" PreviewMouseDown="ResetMid" />
 						<Label Grid.Column="10" Grid.Row="4" Grid.ColumnSpan="3" HorizontalAlignment="Left" Padding="2">Freq Shift</Label>
 						<Label Grid.Column="13" Grid.Row="4" Grid.ColumnSpan="3" HorizontalAlignment="Left" Padding="2" Content="{Binding FreqShiftReadout, FallbackValue=1.00x}" />
 
+						
+						<Slider Grid.Column="2" Grid.Row="5" Grid.ColumnSpan="6" Orientation="Horizontal" HorizontalAlignment="Stretch" Margin="5" Minimum="0" Maximum="1" LargeChange="0.1" Value="{Binding BlendAmount}" PreviewMouseDown="ResetMid" />
+						<Label Grid.Column="2" Grid.Row="6" Grid.ColumnSpan="3" HorizontalAlignment="Left" Padding="2">Blend</Label>
+						<Label Grid.Column="5" Grid.Row="6" Grid.ColumnSpan="3" HorizontalAlignment="Left" Padding="2" Content="{Binding BlendAmountReadout, FallbackValue=0.0 dB}" />
+
 						<Label  Grid.Column="1" Grid.ColumnSpan="5" Grid.Row="7" VerticalAlignment="Top" FontWeight="Bold" Foreground="#333" Margin="0,5,0,0">Equalizer</Label>
-						<Slider Grid.Column="1" Grid.Row="8" Orientation="Vertical" Width="20" Height="100" Margin="5" Minimum="0" Maximum="1" LargeChange="0.1" Value="{Binding StereoEq[0]}" />
-						<Slider Grid.Column="2" Grid.Row="8" Orientation="Vertical" Width="20" Height="100" Margin="5" Minimum="0" Maximum="1" LargeChange="0.1" Value="{Binding StereoEq[1]}" />
-						<Slider Grid.Column="3" Grid.Row="8" Orientation="Vertical" Width="20" Height="100" Margin="5" Minimum="0" Maximum="1" LargeChange="0.1" Value="{Binding StereoEq[2]}" />
-						<Slider Grid.Column="4" Grid.Row="8" Orientation="Vertical" Width="20" Height="100" Margin="5" Minimum="0" Maximum="1" LargeChange="0.1" Value="{Binding StereoEq[3]}" />
+						<Slider Grid.Column="1" Grid.Row="8" Orientation="Vertical" Width="20" Height="100" Margin="5" Minimum="0" Maximum="1" LargeChange="0.1" Value="{Binding StereoEq[0]}" PreviewMouseDown="ResetMid" />
+						<Slider Grid.Column="2" Grid.Row="8" Orientation="Vertical" Width="20" Height="100" Margin="5" Minimum="0" Maximum="1" LargeChange="0.1" Value="{Binding StereoEq[1]}" PreviewMouseDown="ResetMid" />
+						<Slider Grid.Column="3" Grid.Row="8" Orientation="Vertical" Width="20" Height="100" Margin="5" Minimum="0" Maximum="1" LargeChange="0.1" Value="{Binding StereoEq[2]}" PreviewMouseDown="ResetMid" />
+						<Slider Grid.Column="4" Grid.Row="8" Orientation="Vertical" Width="20" Height="100" Margin="5" Minimum="0" Maximum="1" LargeChange="0.1" Value="{Binding StereoEq[3]}" PreviewMouseDown="ResetMid" />
 
-						<Slider Grid.Column="5" Grid.Row="8" Orientation="Vertical" Width="20" Height="100" Margin="5" Minimum="0" Maximum="1" LargeChange="0.1" Value="{Binding StereoEq[4]}" />
-						<Slider Grid.Column="6" Grid.Row="8" Orientation="Vertical" Width="20" Height="100" Margin="5" Minimum="0" Maximum="1" LargeChange="0.1" Value="{Binding StereoEq[5]}" />
-						<Slider Grid.Column="7" Grid.Row="8" Orientation="Vertical" Width="20" Height="100" Margin="5" Minimum="0" Maximum="1" LargeChange="0.1" Value="{Binding StereoEq[6]}" />
-						<Slider Grid.Column="8" Grid.Row="8" Orientation="Vertical" Width="20" Height="100" Margin="5" Minimum="0" Maximum="1" LargeChange="0.1" Value="{Binding StereoEq[7]}" />
+						<Slider Grid.Column="5" Grid.Row="8" Orientation="Vertical" Width="20" Height="100" Margin="5" Minimum="0" Maximum="1" LargeChange="0.1" Value="{Binding StereoEq[4]}" PreviewMouseDown="ResetMid" />
+						<Slider Grid.Column="6" Grid.Row="8" Orientation="Vertical" Width="20" Height="100" Margin="5" Minimum="0" Maximum="1" LargeChange="0.1" Value="{Binding StereoEq[5]}" PreviewMouseDown="ResetMid" />
+						<Slider Grid.Column="7" Grid.Row="8" Orientation="Vertical" Width="20" Height="100" Margin="5" Minimum="0" Maximum="1" LargeChange="0.1" Value="{Binding StereoEq[6]}" PreviewMouseDown="ResetMid" />
+						<Slider Grid.Column="8" Grid.Row="8" Orientation="Vertical" Width="20" Height="100" Margin="5" Minimum="0" Maximum="1" LargeChange="0.1" Value="{Binding StereoEq[7]}" PreviewMouseDown="ResetMid" />
 
-						<Slider Grid.Column="9" Grid.Row="8" Orientation="Vertical" Width="20" Height="100" Margin="5" Minimum="0" Maximum="1" LargeChange="0.1" Value="{Binding StereoEq[8]}" />
-						<Slider Grid.Column="10" Grid.Row="8" Orientation="Vertical" Width="20" Height="100" Margin="5" Minimum="0" Maximum="1" LargeChange="0.1" Value="{Binding StereoEq[9]}" />
-						<Slider Grid.Column="11" Grid.Row="8" Orientation="Vertical" Width="20" Height="100" Margin="5" Minimum="0" Maximum="1" LargeChange="0.1" Value="{Binding StereoEq[10]}" />
-						<Slider Grid.Column="12" Grid.Row="8" Orientation="Vertical" Width="20" Height="100" Margin="5" Minimum="0" Maximum="1" LargeChange="0.1" Value="{Binding StereoEq[11]}" />
+						<Slider Grid.Column="9" Grid.Row="8" Orientation="Vertical" Width="20" Height="100" Margin="5" Minimum="0" Maximum="1" LargeChange="0.1" Value="{Binding StereoEq[8]}" PreviewMouseDown="ResetMid" />
+						<Slider Grid.Column="10" Grid.Row="8" Orientation="Vertical" Width="20" Height="100" Margin="5" Minimum="0" Maximum="1" LargeChange="0.1" Value="{Binding StereoEq[9]}" PreviewMouseDown="ResetMid" />
+						<Slider Grid.Column="11" Grid.Row="8" Orientation="Vertical" Width="20" Height="100" Margin="5" Minimum="0" Maximum="1" LargeChange="0.1" Value="{Binding StereoEq[10]}" PreviewMouseDown="ResetMid" />
+						<Slider Grid.Column="12" Grid.Row="8" Orientation="Vertical" Width="20" Height="100" Margin="5" Minimum="0" Maximum="1" LargeChange="0.1" Value="{Binding StereoEq[11]}" PreviewMouseDown="ResetMid" />
 
-						<Slider Grid.Column="13" Grid.Row="8" Orientation="Vertical" Width="20" Height="100" Margin="5" Minimum="0" Maximum="1" LargeChange="0.1" Value="{Binding StereoEq[12]}" />
-						<Slider Grid.Column="14" Grid.Row="8" Orientation="Vertical" Width="20" Height="100" Margin="5" Minimum="0" Maximum="1" LargeChange="0.1" Value="{Binding StereoEq[13]}" />
-						<Slider Grid.Column="15" Grid.Row="8" Orientation="Vertical" Width="20" Height="100" Margin="5" Minimum="0" Maximum="1" LargeChange="0.1" Value="{Binding StereoEq[14]}" />
-						<Slider Grid.Column="16" Grid.Row="8" Orientation="Vertical" Width="20" Height="100" Margin="5" Minimum="0" Maximum="1" LargeChange="0.1" Value="{Binding StereoEq[15]}" />
+						<Slider Grid.Column="13" Grid.Row="8" Orientation="Vertical" Width="20" Height="100" Margin="5" Minimum="0" Maximum="1" LargeChange="0.1" Value="{Binding StereoEq[12]}" PreviewMouseDown="ResetMid" />
+						<Slider Grid.Column="14" Grid.Row="8" Orientation="Vertical" Width="20" Height="100" Margin="5" Minimum="0" Maximum="1" LargeChange="0.1" Value="{Binding StereoEq[13]}" PreviewMouseDown="ResetMid" />
+						<Slider Grid.Column="15" Grid.Row="8" Orientation="Vertical" Width="20" Height="100" Margin="5" Minimum="0" Maximum="1" LargeChange="0.1" Value="{Binding StereoEq[14]}" PreviewMouseDown="ResetMid" />
+						<Slider Grid.Column="16" Grid.Row="8" Orientation="Vertical" Width="20" Height="100" Margin="5" Minimum="0" Maximum="1" LargeChange="0.1" Value="{Binding StereoEq[15]}" PreviewMouseDown="ResetMid" />
 
 
 						<Label  Grid.Column="1" Grid.ColumnSpan="5" Grid.Row="9" VerticalAlignment="Top" FontWeight="Bold" Foreground="#333" Margin="0,5,0,0">Phase Shifter</Label>
 
-						<Slider Grid.Column="1" Grid.Row="10" Orientation="Vertical" Width="20" Height="100" Margin="5" Minimum="0" Maximum="1" LargeChange="0.1" Value="{Binding StereoPhase[0]}" />
-						<Slider Grid.Column="2" Grid.Row="10" Orientation="Vertical" Width="20" Height="100" Margin="5" Minimum="0" Maximum="1" LargeChange="0.1" Value="{Binding StereoPhase[1]}" />
-						<Slider Grid.Column="3" Grid.Row="10" Orientation="Vertical" Width="20" Height="100" Margin="5" Minimum="0" Maximum="1" LargeChange="0.1" Value="{Binding StereoPhase[2]}" />
-						<Slider Grid.Column="4" Grid.Row="10" Orientation="Vertical" Width="20" Height="100" Margin="5" Minimum="0" Maximum="1" LargeChange="0.1" Value="{Binding StereoPhase[3]}" />
+						<Slider Grid.Column="1" Grid.Row="10" Orientation="Vertical" Width="20" Height="100" Margin="5" Minimum="0" Maximum="1" LargeChange="0.1" Value="{Binding StereoPhase[0]}" PreviewMouseDown="ResetMid" />
+						<Slider Grid.Column="2" Grid.Row="10" Orientation="Vertical" Width="20" Height="100" Margin="5" Minimum="0" Maximum="1" LargeChange="0.1" Value="{Binding StereoPhase[1]}" PreviewMouseDown="ResetMid" />
+						<Slider Grid.Column="3" Grid.Row="10" Orientation="Vertical" Width="20" Height="100" Margin="5" Minimum="0" Maximum="1" LargeChange="0.1" Value="{Binding StereoPhase[2]}" PreviewMouseDown="ResetMid" />
+						<Slider Grid.Column="4" Grid.Row="10" Orientation="Vertical" Width="20" Height="100" Margin="5" Minimum="0" Maximum="1" LargeChange="0.1" Value="{Binding StereoPhase[3]}" PreviewMouseDown="ResetMid" />
 
-						<Slider Grid.Column="5" Grid.Row="10" Orientation="Vertical" Width="20" Height="100" Margin="5" Minimum="0" Maximum="1" LargeChange="0.1" Value="{Binding StereoPhase[4]}" />
-						<Slider Grid.Column="6" Grid.Row="10" Orientation="Vertical" Width="20" Height="100" Margin="5" Minimum="0" Maximum="1" LargeChange="0.1" Value="{Binding StereoPhase[5]}" />
-						<Slider Grid.Column="7" Grid.Row="10" Orientation="Vertical" Width="20" Height="100" Margin="5" Minimum="0" Maximum="1" LargeChange="0.1" Value="{Binding StereoPhase[6]}" />
-						<Slider Grid.Column="8" Grid.Row="10" Orientation="Vertical" Width="20" Height="100" Margin="5" Minimum="0" Maximum="1" LargeChange="0.1" Value="{Binding StereoPhase[7]}" />
+						<Slider Grid.Column="5" Grid.Row="10" Orientation="Vertical" Width="20" Height="100" Margin="5" Minimum="0" Maximum="1" LargeChange="0.1" Value="{Binding StereoPhase[4]}" PreviewMouseDown="ResetMid" />
+						<Slider Grid.Column="6" Grid.Row="10" Orientation="Vertical" Width="20" Height="100" Margin="5" Minimum="0" Maximum="1" LargeChange="0.1" Value="{Binding StereoPhase[5]}" PreviewMouseDown="ResetMid" />
+						<Slider Grid.Column="7" Grid.Row="10" Orientation="Vertical" Width="20" Height="100" Margin="5" Minimum="0" Maximum="1" LargeChange="0.1" Value="{Binding StereoPhase[6]}" PreviewMouseDown="ResetMid" />
+						<Slider Grid.Column="8" Grid.Row="10" Orientation="Vertical" Width="20" Height="100" Margin="5" Minimum="0" Maximum="1" LargeChange="0.1" Value="{Binding StereoPhase[7]}" PreviewMouseDown="ResetMid" />
 
-						<Slider Grid.Column="9" Grid.Row="10" Orientation="Vertical" Width="20" Height="100" Margin="5" Minimum="0" Maximum="1" LargeChange="0.1" Value="{Binding StereoPhase[8]}" />
-						<Slider Grid.Column="10" Grid.Row="10" Orientation="Vertical" Width="20" Height="100" Margin="5" Minimum="0" Maximum="1" LargeChange="0.1" Value="{Binding StereoPhase[9]}" />
-						<Slider Grid.Column="11" Grid.Row="10" Orientation="Vertical" Width="20" Height="100" Margin="5" Minimum="0" Maximum="1" LargeChange="0.1" Value="{Binding StereoPhase[10]}" />
-						<Slider Grid.Column="12" Grid.Row="10" Orientation="Vertical" Width="20" Height="100" Margin="5" Minimum="0" Maximum="1" LargeChange="0.1" Value="{Binding StereoPhase[11]}" />
+						<Slider Grid.Column="9" Grid.Row="10" Orientation="Vertical" Width="20" Height="100" Margin="5" Minimum="0" Maximum="1" LargeChange="0.1" Value="{Binding StereoPhase[8]}" PreviewMouseDown="ResetMid" />
+						<Slider Grid.Column="10" Grid.Row="10" Orientation="Vertical" Width="20" Height="100" Margin="5" Minimum="0" Maximum="1" LargeChange="0.1" Value="{Binding StereoPhase[9]}" PreviewMouseDown="ResetMid" />
+						<Slider Grid.Column="11" Grid.Row="10" Orientation="Vertical" Width="20" Height="100" Margin="5" Minimum="0" Maximum="1" LargeChange="0.1" Value="{Binding StereoPhase[10]}" PreviewMouseDown="ResetMid" />
+						<Slider Grid.Column="12" Grid.Row="10" Orientation="Vertical" Width="20" Height="100" Margin="5" Minimum="0" Maximum="1" LargeChange="0.1" Value="{Binding StereoPhase[11]}" PreviewMouseDown="ResetMid" />
 
-						<Slider Grid.Column="13" Grid.Row="10" Orientation="Vertical" Width="20" Height="100" Margin="5" Minimum="0" Maximum="1" LargeChange="0.1" Value="{Binding StereoPhase[12]}" />
-						<Slider Grid.Column="14" Grid.Row="10" Orientation="Vertical" Width="20" Height="100" Margin="5" Minimum="0" Maximum="1" LargeChange="0.1" Value="{Binding StereoPhase[13]}" />
-						<Slider Grid.Column="15" Grid.Row="10" Orientation="Vertical" Width="20" Height="100" Margin="5" Minimum="0" Maximum="1" LargeChange="0.1" Value="{Binding StereoPhase[14]}" />
-						<Slider Grid.Column="16" Grid.Row="10" Orientation="Vertical" Width="20" Height="100" Margin="5" Minimum="0" Maximum="1" LargeChange="0.1" Value="{Binding StereoPhase[15]}" />
+						<Slider Grid.Column="13" Grid.Row="10" Orientation="Vertical" Width="20" Height="100" Margin="5" Minimum="0" Maximum="1" LargeChange="0.1" Value="{Binding StereoPhase[12]}" PreviewMouseDown="ResetMid" />
+						<Slider Grid.Column="14" Grid.Row="10" Orientation="Vertical" Width="20" Height="100" Margin="5" Minimum="0" Maximum="1" LargeChange="0.1" Value="{Binding StereoPhase[13]}" PreviewMouseDown="ResetMid" />
+						<Slider Grid.Column="15" Grid.Row="10" Orientation="Vertical" Width="20" Height="100" Margin="5" Minimum="0" Maximum="1" LargeChange="0.1" Value="{Binding StereoPhase[14]}" PreviewMouseDown="ResetMid" />
+						<Slider Grid.Column="16" Grid.Row="10" Orientation="Vertical" Width="20" Height="100" Margin="5" Minimum="0" Maximum="1" LargeChange="0.1" Value="{Binding StereoPhase[15]}" PreviewMouseDown="ResetMid" />
 
 						<Label Grid.Column="1" Grid.Row="11" Style="{StaticResource AngledLabel}" Content="{Binding Frequencies[0], FallbackValue=100}" />
 						<Label Grid.Column="2" Grid.Row="11" Style="{StaticResource AngledLabel}" Content="{Binding Frequencies[1], FallbackValue=100}" />

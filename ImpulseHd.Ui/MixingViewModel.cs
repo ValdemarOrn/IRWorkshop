@@ -27,12 +27,14 @@ namespace ImpulseHd.Ui
 			StereoEq.CollectionChanged += (s, e) =>
 			{
 				mixingConfig.StereoEq[e.NewStartingIndex] = (double)e.NewItems[0];
+				Update();
 			};
 
 			StereoPhase = new ObservableCollection<double>(mixingConfig.StereoPhase);
 			StereoPhase.CollectionChanged += (s, e) =>
 			{
 				mixingConfig.StereoPhase[e.NewStartingIndex] = (double)e.NewItems[0];
+				Update();
 			};
 		}
 
@@ -213,10 +215,17 @@ namespace ImpulseHd.Ui
 			}
 		}
 
+		public double BlendAmount
+		{
+			get { return mixingConfig.BlendAmount; }
+			set { mixingConfig.BlendAmount = value; NotifyPropertyChanged(); NotifyPropertyChanged(nameof(BlendAmountReadout)); Update(); }
+		}
+		
 		public string EqDepthDbReadout => $"{mixingConfig.EqDepthDbTransformed:0.0} dB";
 		public string EqSmoothingOctavesReadout => $"{mixingConfig.EqSmoothingOctavesTransformed:0.00} Octaves";
 		public string DelayAmountReadout => $"{mixingConfig.DelayAmountTransformed:0} Samples";
 		public string FreqShiftReadout => $"{mixingConfig.FreqShiftTransformed:0.00}x";
+		public string BlendAmountReadout => $"{mixingConfig.BlendAmountTransformed:0.0} dB";
 
 		public ObservableCollection<double> StereoEq { get; set; }
 		public ObservableCollection<double> StereoPhase { get; set; }
