@@ -118,6 +118,7 @@
 		<Label Grid.Row="42" Grid.Column="0">Amount</Label>
 		<Label Grid.Row="43" Grid.Column="0">Freq Track</Label>
 		<Label Grid.Row="44" Grid.Column="0">Seed</Label>
+		<Label Grid.Row="45" Grid.Column="0">Freq Shift</Label>
 
 
 		<CheckBox Grid.Column="1" Grid.Row="0" IsChecked="{Binding IsEnabled}" />
@@ -147,6 +148,7 @@
 		<Slider Grid.Column="1" Grid.Row="42" Value="{Binding PhaseBandDelayAmount}" Minimum="0" Maximum="1" SmallChange="0.1" LargeChange="0.1" PreviewMouseDown="ResetZero" />
 		<Slider Grid.Column="1" Grid.Row="43" Value="{Binding PhaseBandFreqTrack}" Minimum="0" Maximum="1" SmallChange="0.1" LargeChange="0.1" PreviewMouseDown="ResetMid" />
 		<Slider Grid.Column="1" Grid.Row="44" Value="{Binding PhaseBandSeed}" Minimum="0" Maximum="1" SmallChange="0.0001" LargeChange="0.0001" PreviewMouseDown="ResetZero" />
+		<Slider Grid.Column="1" Grid.Row="45" Value="{Binding PhaseBandFreqShift}" Minimum="0" Maximum="1" SmallChange="0.1" LargeChange="0.1" PreviewMouseDown="ResetMid" />
 
 		<Label Grid.Row="3" Grid.Column="2" Content="{Binding MinFreqReadout, FallbackValue=0Hz}" />
 		<Label Grid.Row="4" Grid.Column="2" Content="{Binding MaxFreqReadout, FallbackValue=0Hz}" />
@@ -172,5 +174,6 @@
 		<Label Grid.Row="42" Grid.Column="2" Content="{Binding PhaseBandDelayAmountReadout, FallbackValue=0 Samples}" />
 		<Label Grid.Row="43" Grid.Column="2" Content="{Binding PhaseBandFreqTrackReadout, FallbackValue=0.00}" />
 		<Label Grid.Row="44" Grid.Column="2" Content="{Binding PhaseBandSeedReadout, FallbackValue=0}" />
+		<Label Grid.Row="45" Grid.Column="2" Content="{Binding PhaseBandFreqShiftReadout, FallbackValue=1.00x}" />
 	</Grid>
 </UserControl>

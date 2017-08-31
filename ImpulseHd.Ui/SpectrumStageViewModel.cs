@@ -167,7 +167,11 @@ namespace ImpulseHd.Ui
 			set { stage.PhaseBandSeed = value; NotifyPropertyChanged(); NotifyPropertyChanged(nameof(PhaseBandSeedReadout)); onUpdateCallback(); }
 		}
 
-		
+		public double PhaseBandFreqShift
+		{
+			get { return stage.PhaseBandFreqShift; }
+			set { stage.PhaseBandFreqShift = value; NotifyPropertyChanged(); NotifyPropertyChanged(nameof(PhaseBandFreqShiftReadout)); onUpdateCallback(); }
+		}
 
 
 		public string MinFreqReadout => $"{stage.MinFreqTransformed:0}Hz";
@@ -194,5 +198,6 @@ namespace ImpulseHd.Ui
 		public string PhaseBandDelayAmountReadout => $"{stage.PhaseBandDelayAmountTransformed:0} Samples";
 		public string PhaseBandFreqTrackReadout => $"{stage.PhaseBandFreqTrackTransformed:0.00}";
 		public string PhaseBandSeedReadout => $"{stage.PhaseBandSeedTransformed:0}";
+		public string PhaseBandFreqShiftReadout => $"{stage.PhaseBandFreqShiftTransformed:0.00}x";
 	}
 }

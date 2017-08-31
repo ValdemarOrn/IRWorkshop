@@ -85,14 +85,14 @@ namespace ImpulseHd.Ui
 			mSec.AddAccessRule(new AccessRule<MemoryMappedFileRights>(new SecurityIdentifier(WellKnownSidType.WorldSid, null), MemoryMappedFileRights.FullControl, AccessControlType.Allow));
 			try
 			{
-				memoryMap = MemoryMappedFile.CreateNew("Global\\CabIRMap", 65536, MemoryMappedFileAccess.ReadWrite, MemoryMappedFileOptions.None, mSec, HandleInheritability.Inheritable);
+				memoryMap = MemoryMappedFile.CreateNew("Global\\IRWorkshopMap", 65536, MemoryMappedFileAccess.ReadWrite, MemoryMappedFileOptions.None, mSec, HandleInheritability.Inheritable);
 				mmAccessor = memoryMap.CreateViewAccessor();
 			}
 			catch (IOException ex)
 			{
 				if (ex.Message.Contains("already exists"))
 				{
-					Logging.ShowMessage("CabIR Studio is already running", LogType.Information, true);
+					Logging.ShowMessage("IR Workshop Studio is already running", LogType.Information, true);
 					Environment.Exit(0);
 				}
 
@@ -103,7 +103,7 @@ namespace ImpulseHd.Ui
 			ImpulseConfig = new ObservableCollection<ImpulseConfigViewModel>();
 			MixingConfig = new MixingViewModel(preset.MixingConfig, preset.SamplerateTransformed) { OnUpdateCallback = () => updateRateLimiter.Pulse() };
 
-			Title = "CabIR Studio - v" + Assembly.GetExecutingAssembly().GetName().Version;
+			Title = "IR Workshop - v" + Assembly.GetExecutingAssembly().GetName().Version;
 			settingsFile = Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), "settings.json");
 			
 			NewPresetCommand = new DelegateCommand(_ => NewPreset());
@@ -114,7 +114,7 @@ namespace ImpulseHd.Ui
 			RestartAudioEngineCommand = new DelegateCommand(_ => RestartAudioEngine());
 			ExportWavCommand = new DelegateCommand(_ => ExportWav());
 			ShowAboutCommand = new DelegateCommand(_ => ShowAbout());
-			CheckForUpdatesCommand = new DelegateCommand(_ => Process.Start("https://github.com/ValdemarOrn/ImpulseEngine"));
+			CheckForUpdatesCommand = new DelegateCommand(_ => Process.Start("https://github.com/ValdemarOrn/IRWorkshop"));
 
 			AddImpulseCommand = new DelegateCommand(_ => AddImpulse());
 			RemoveImpulseCommand = new DelegateCommand(_ => RemoveImpulse());
@@ -377,7 +377,7 @@ namespace ImpulseHd.Ui
 		private void NewPreset()
 	    {
 		    var dir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-		    var defaultPreset = Path.Combine(dir, "Default.cabir");
+		    var defaultPreset = Path.Combine(dir, "Default.irw");
 			var json = File.ReadAllText(defaultPreset);
 		    var newPreset = PresetSerializer.DeserializePreset(json);
 		    ApplyPreset(newPreset);
@@ -386,7 +386,7 @@ namespace ImpulseHd.Ui
 	    private void OpenPreset()
 	    {
 		    var openFileDialog = new OpenFileDialog();
-		    openFileDialog.Filter = "CabIR file (*.cabir)|*.cabir";
+		    openFileDialog.Filter = "Impulse Workshop file (*.irw)|*.irw";
 		    openFileDialog.RestoreDirectory = true;
 		    openFileDialog.InitialDirectory = savePresetDirectory;
 
@@ -423,7 +423,7 @@ namespace ImpulseHd.Ui
 		    var json = PresetSerializer.SerializePreset(preset);
 
 		    var saveFileDialog = new SaveFileDialog();
-		    saveFileDialog.Filter = "CabIR file (*.cabir)|*.cabir";
+		    saveFileDialog.Filter = "Impulse Workshop file (*.irw)|*.irw";
 		    saveFileDialog.RestoreDirectory = true;
 		    saveFileDialog.InitialDirectory = savePresetDirectory;
 

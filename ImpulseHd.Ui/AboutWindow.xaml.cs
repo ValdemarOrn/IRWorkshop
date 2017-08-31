@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -24,7 +25,7 @@ namespace ImpulseHd.Ui
 			InitializeComponent();
 		}
 
-		public string VersionString => "Version 0.1.0";
+		public string VersionString => Title = "Version " + Assembly.GetExecutingAssembly().GetName().Version;
 
 		private void Button_Click(object sender, RoutedEventArgs e)
 		{

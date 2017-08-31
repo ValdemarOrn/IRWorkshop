@@ -11,11 +11,11 @@
 		WindowStartupLocation="CenterOwner"
         Title="About ImpulseEngine" Height="150" Width="500">
 	<Grid>
-		<Label FontSize="20">CabIR Studio - Impulse Response Editor</Label>
+		<Label FontSize="20">IR Workshop - Cabinet Impulse Response Editor</Label>
 		<Label Margin="0,30,0,0" Content="{Binding ElementName=main, Path=VersionString, FallbackValue=v1.2.3}"></Label>
 		<TextBlock Margin="5,56,0,0" >
-		<Hyperlink NavigateUri="https://github.com/ValdemarOrn/ImpulseEngine">
-			<Label Foreground="CornflowerBlue" Padding="0">Official Website</Label>
+		<Hyperlink NavigateUri="https://github.com/ValdemarOrn/IRWorkshop">
+			<Label Foreground="CornflowerBlue" Padding="0">Go to Website</Label>
 		</Hyperlink>
 		</TextBlock>
 		

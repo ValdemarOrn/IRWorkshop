@@ -72,7 +72,8 @@ namespace ImpulseHd
 		private void ProcessPhaseBands(SpectrumStage stage, Strengths strengths)
 		{
 			var bands = stage.PhaseBandsTransformed;
-			var sections = GetBands(bands, samplerate, FftSignal.Length);
+			var shift = stage.PhaseBandFreqShiftTransformed;
+			var sections = GetBands(bands, shift, samplerate, FftSignal.Length);
 			var rand = new Random(stage.PhaseBandSeedTransformed);
 			int pb = 0;
 			foreach (var section in sections)
@@ -105,13 +106,13 @@ namespace ImpulseHd
 			}
 		}
 
-		private IList<int[]> GetBands(int bands, double samplerate, int fftSize)
+		private IList<int[]> GetBands(int bands, double shift, double samplerate, int fftSize)
 		{
 			var nyquist = samplerate / 2.0;
 			var hzPerBand =  nyquist / (fftSize / 2.0);
 
 			// generates nicely distributed intervals between 80hz and 10240 hz
-			var bandRangesHz = Utils.Linspace(0, 7, bands + 1).Select(x => Math.Pow(2, x) * 80).Skip(1).ToArray();
+			var bandRangesHz = Utils.Linspace(0, 7, bands + 1).Select(x => Math.Pow(2, x) * 80 * shift).Skip(1).ToArray();
 			// replace last band with max frequency to affect the remaining treble range
 			bandRangesHz[bandRangesHz.Length - 1] = nyquist;
 

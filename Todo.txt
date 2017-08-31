@@ -1,8 +1,2 @@
-More features that can be added:
-
-Name: IR Workshop
-
-Adjust Phase band frequency bands by a multiplier
 Ability to apply another IR in a spectrum stage.
-Ability to draw a response in spectrum stage
 setup email for error reporting, forward to personal email.

@@ -21,7 +21,7 @@
 				<MenuItem Header="Exit" Click="MenuItem_Click"></MenuItem>
 			</MenuItem>
 			<MenuItem Header="_About">
-				<MenuItem Header="About CabIR Studio" Command="{Binding ShowAboutCommand}"></MenuItem>
+				<MenuItem Header="About IR Workshop" Command="{Binding ShowAboutCommand}"></MenuItem>
 				<MenuItem Header="Check for Updates" Command="{Binding CheckForUpdatesCommand}"></MenuItem>
 			</MenuItem>
 			
