@@ -16,6 +16,7 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using AudioLib;
+using AudioLib.PortAudio;
 using AudioLib.PortAudioInterop;
 using ImpulseHd.Serializer;
 using LowProfile.Core.Ui;
@@ -32,6 +33,7 @@ namespace ImpulseHd.Ui
     {
 	    private readonly string settingsFile;
 		private readonly LastRetainRateLimiter updateRateLimiter;
+	    private readonly object globalLock = new object();
 
 		// These must be kept or the memory map gets disposed!
 	    // ReSharper disable once PrivateFieldCanBeConvertedToLocalVariable
@@ -553,21 +555,37 @@ namespace ImpulseHd.Ui
 	    {
 			StopAudioEngine();
 
-			try
+		    lock (globalLock)
 		    {
-				// Use the graphical editor to create a new config
-			    var config = RealtimeHostConfig.CreateConfig(realtimeConfig);
-				if (config != null)
-					realtimeConfig = config;
-		    }
-		    catch (Exception)
-		    {
-				realtimeConfig = RealtimeHostConfig.CreateConfig();
+			    try
+			    {
+				    // this is done because the devices and Ids go a bit tits when you re-initialize...
+				    var serialized = realtimeConfig.Serialize();
+
+				    PortAudio.Pa_Terminate();
+				    PortAudio.Pa_Initialize();
+
+				    var deserialized = RealtimeHostConfig.Deserialize(serialized);
+
+				    // Use the graphical editor to create a new config
+				    var config = RealtimeHostConfig.CreateConfig(deserialized);
+				    if (config != null)
+					    realtimeConfig = config;
+			    }
+			    catch (InvalidFormatException ex)
+			    {
+				    Logging.ShowMessage(ex.Message, LogType.Warning);
+			    }
+			    catch (Exception)
+			    {
+				    realtimeConfig = RealtimeHostConfig.CreateConfig();
+			    }
+
+			    GetChannelNames(realtimeConfig);
+			    NotifyPropertyChanged(nameof(SamplerateWarning));
+			    SaveSettings();
 		    }
 
-			GetChannelNames(realtimeConfig);
-			NotifyPropertyChanged(nameof(SamplerateWarning));
-		    SaveSettings();
 		    UpdateMemoryMap();
 			StartAudioEngine();
 	    }
@@ -820,25 +838,31 @@ namespace ImpulseHd.Ui
 
 	    private void SaveSettings()
 	    {
-			var dict = new Dictionary<string, string>();
-			dict["AudioSettings"] = realtimeConfig != null ? realtimeConfig.Serialize() : "";
-			dict[nameof(SelectedInputL)] = SelectedInputL.ToString();
-			dict[nameof(SelectedInputR)] = SelectedInputR.ToString();
-			dict[nameof(SelectedOutputL)] = SelectedOutputL.ToString();
-			dict[nameof(SelectedOutputR)] = SelectedOutputR.ToString();
-			dict[nameof(loadSampleDirectory)] = loadSampleDirectory;
-			dict[nameof(saveSampleDirectory)] = saveSampleDirectory;
-			dict[nameof(savePresetDirectory)] = savePresetDirectory;
-			dict[nameof(VolumeSlider)] = VolumeSlider.ToString("0.000", CultureInfo.InvariantCulture);
-			var jsonString = JsonConvert.SerializeObject(dict, Formatting.Indented);
-			if (jsonString != currentJsonSettings)
-			{
-				if (currentJsonSettings != null) // don't save on the first round, only compute the value you indend to save. This is so we don't touch the config every time the app opens
-					File.WriteAllText(settingsFile, jsonString);
+		    string jsonString;
 
-				currentJsonSettings = jsonString;
-			}
-		}
+		    lock (globalLock)
+		    {
+			    var dict = new Dictionary<string, string>();
+			    dict["AudioSettings"] = realtimeConfig != null ? realtimeConfig.Serialize() : "";
+			    dict[nameof(SelectedInputL)] = SelectedInputL.ToString();
+			    dict[nameof(SelectedInputR)] = SelectedInputR.ToString();
+			    dict[nameof(SelectedOutputL)] = SelectedOutputL.ToString();
+			    dict[nameof(SelectedOutputR)] = SelectedOutputR.ToString();
+			    dict[nameof(loadSampleDirectory)] = loadSampleDirectory;
+			    dict[nameof(saveSampleDirectory)] = saveSampleDirectory;
+			    dict[nameof(savePresetDirectory)] = savePresetDirectory;
+			    dict[nameof(VolumeSlider)] = VolumeSlider.ToString("0.000", CultureInfo.InvariantCulture);
+			    jsonString = JsonConvert.SerializeObject(dict, Formatting.Indented);
+				
+			    if (jsonString != currentJsonSettings)
+			    {
+				    if (currentJsonSettings != null) // don't save on the first round, only compute the value you indend to save. This is so we don't touch the config every time the app opens
+					    File.WriteAllText(settingsFile, jsonString);
+
+				    currentJsonSettings = jsonString;
+			    }
+		    }
+	    }
 
 		private void SaveSettingsLoop()
 	    {

@@ -54,58 +54,58 @@
 						<RowDefinition Height="*" />
 					</Grid.RowDefinitions>
 
-					<Slider Grid.Column="0" Grid.Row="0" Orientation="Vertical" Width="20" Height="100" Margin="5" Minimum="0" Maximum="1" LargeChange="0.0002" Value="{Binding Eq1Freq}" PreviewMouseDown="ResetMid" />
-					<Slider Grid.Column="1" Grid.Row="0" Orientation="Vertical" Width="20" Height="100" Margin="5" Minimum="0" Maximum="1" LargeChange="0.1" Value="{Binding Eq1Q}" PreviewMouseDown="ResetMid" />
-					<Slider Grid.Column="2" Grid.Row="0" Orientation="Vertical" Width="20" Height="100" Margin="5" Minimum="0" Maximum="1" LargeChange="0.1" Value="{Binding Eq1GainDb}" PreviewMouseDown="ResetMid" />
+					<Slider Grid.Column="0" Grid.Row="0" Orientation="Vertical" Width="20" Height="100" Margin="5" Minimum="0" Maximum="1" LargeChange="0.1" Value="{Binding Eq1GainDb}" PreviewMouseDown="ResetMid" />
+					<Slider Grid.Column="1" Grid.Row="0" Orientation="Vertical" Width="20" Height="100" Margin="5" Minimum="0" Maximum="1" LargeChange="0.0002" Value="{Binding Eq1Freq}" PreviewMouseDown="ResetMid" />
+					<Slider Grid.Column="2" Grid.Row="0" Orientation="Vertical" Width="20" Height="100" Margin="5" Minimum="0" Maximum="1" LargeChange="0.1" Value="{Binding Eq1Q}" PreviewMouseDown="ResetMid" />
 					<StackPanel Grid.Column="3" Grid.Row="0">
+						<Label Content="{Binding Eq1GainDbReadout, FallbackValue=10.5dB}" />
 						<Label Content="{Binding Eq1FreqReadout, FallbackValue=100Hz}" />
 						<Label Content="{Binding Eq1QReadout, FallbackValue=1.4}" />
-						<Label Content="{Binding Eq1GainDbReadout, FallbackValue=10.5dB}" />
 					</StackPanel>
 
-					<Slider Grid.Column="4" Grid.Row="0" Orientation="Vertical" Width="20" Height="100" Margin="5" Minimum="0" Maximum="1" LargeChange="0.0002" Value="{Binding Eq2Freq}" PreviewMouseDown="ResetMid" />
-					<Slider Grid.Column="5" Grid.Row="0" Orientation="Vertical" Width="20" Height="100" Margin="5" Minimum="0" Maximum="1" LargeChange="0.1" Value="{Binding Eq2Q}" PreviewMouseDown="ResetMid" />
-					<Slider Grid.Column="6" Grid.Row="0" Orientation="Vertical" Width="20" Height="100" Margin="5" Minimum="0" Maximum="1" LargeChange="0.1" Value="{Binding Eq2GainDb}" PreviewMouseDown="ResetMid" />
+					<Slider Grid.Column="4" Grid.Row="0" Orientation="Vertical" Width="20" Height="100" Margin="5" Minimum="0" Maximum="1" LargeChange="0.1" Value="{Binding Eq2GainDb}" PreviewMouseDown="ResetMid" />
+					<Slider Grid.Column="5" Grid.Row="0" Orientation="Vertical" Width="20" Height="100" Margin="5" Minimum="0" Maximum="1" LargeChange="0.0002" Value="{Binding Eq2Freq}" PreviewMouseDown="ResetMid" />
+					<Slider Grid.Column="6" Grid.Row="0" Orientation="Vertical" Width="20" Height="100" Margin="5" Minimum="0" Maximum="1" LargeChange="0.1" Value="{Binding Eq2Q}" PreviewMouseDown="ResetMid" />
 					<StackPanel Grid.Column="7" Grid.Row="0">
+						<Label Content="{Binding Eq2GainDbReadout, FallbackValue=10.5dB}" />
 						<Label Content="{Binding Eq2FreqReadout, FallbackValue=100Hz}" />
 						<Label Content="{Binding Eq2QReadout, FallbackValue=1.4}" />
-						<Label Content="{Binding Eq2GainDbReadout, FallbackValue=10.5dB}" />
 					</StackPanel>
 
-					<Slider Grid.Column="8" Grid.Row="0" Orientation="Vertical" Width="20" Height="100" Margin="5" Minimum="0" Maximum="1" LargeChange="0.0002" Value="{Binding Eq3Freq}" PreviewMouseDown="ResetMid" />
-					<Slider Grid.Column="9" Grid.Row="0" Orientation="Vertical" Width="20" Height="100" Margin="5" Minimum="0" Maximum="1" LargeChange="0.1" Value="{Binding Eq3Q}" PreviewMouseDown="ResetMid" />
-					<Slider Grid.Column="10" Grid.Row="0" Orientation="Vertical" Width="20" Height="100" Margin="5" Minimum="0" Maximum="1" LargeChange="0.1" Value="{Binding Eq3GainDb}" PreviewMouseDown="ResetMid" />
+					<Slider Grid.Column="8" Grid.Row="0" Orientation="Vertical" Width="20" Height="100" Margin="5" Minimum="0" Maximum="1" LargeChange="0.1" Value="{Binding Eq3GainDb}" PreviewMouseDown="ResetMid" />
+					<Slider Grid.Column="9" Grid.Row="0" Orientation="Vertical" Width="20" Height="100" Margin="5" Minimum="0" Maximum="1" LargeChange="0.0002" Value="{Binding Eq3Freq}" PreviewMouseDown="ResetMid" />
+					<Slider Grid.Column="10" Grid.Row="0" Orientation="Vertical" Width="20" Height="100" Margin="5" Minimum="0" Maximum="1" LargeChange="0.1" Value="{Binding Eq3Q}" PreviewMouseDown="ResetMid" />
 					<StackPanel Grid.Column="11" Grid.Row="0">
+						<Label Content="{Binding Eq3GainDbReadout, FallbackValue=10.5dB}" />
 						<Label Content="{Binding Eq3FreqReadout, FallbackValue=100Hz}" />
 						<Label Content="{Binding Eq3QReadout, FallbackValue=1.4}" />
-						<Label Content="{Binding Eq3GainDbReadout, FallbackValue=10.5dB}" />
 					</StackPanel>
 
-					<Slider Grid.Column="0" Grid.Row="2" Orientation="Vertical" Width="20" Height="100" Margin="5" Minimum="0" Maximum="1" LargeChange="0.0002" Value="{Binding Eq4Freq}" PreviewMouseDown="ResetMid" />
-					<Slider Grid.Column="1" Grid.Row="2" Orientation="Vertical" Width="20" Height="100" Margin="5" Minimum="0" Maximum="1" LargeChange="0.1" Value="{Binding Eq4Q}" PreviewMouseDown="ResetMid" />
-					<Slider Grid.Column="2" Grid.Row="2" Orientation="Vertical" Width="20" Height="100" Margin="5" Minimum="0" Maximum="1" LargeChange="0.1" Value="{Binding Eq4GainDb}" PreviewMouseDown="ResetMid" />
+					<Slider Grid.Column="0" Grid.Row="2" Orientation="Vertical" Width="20" Height="100" Margin="5" Minimum="0" Maximum="1" LargeChange="0.1" Value="{Binding Eq4GainDb}" PreviewMouseDown="ResetMid" />
+					<Slider Grid.Column="1" Grid.Row="2" Orientation="Vertical" Width="20" Height="100" Margin="5" Minimum="0" Maximum="1" LargeChange="0.0002" Value="{Binding Eq4Freq}" PreviewMouseDown="ResetMid" />
+					<Slider Grid.Column="2" Grid.Row="2" Orientation="Vertical" Width="20" Height="100" Margin="5" Minimum="0" Maximum="1" LargeChange="0.1" Value="{Binding Eq4Q}" PreviewMouseDown="ResetMid" />
 					<StackPanel Grid.Column="3" Grid.Row="2">
+						<Label Content="{Binding Eq4GainDbReadout, FallbackValue=10.5dB}" />
 						<Label Content="{Binding Eq4FreqReadout, FallbackValue=100Hz}" />
 						<Label Content="{Binding Eq4QReadout, FallbackValue=1.4}" />
-						<Label Content="{Binding Eq4GainDbReadout, FallbackValue=10.5dB}" />
 					</StackPanel>
 
-					<Slider Grid.Column="4" Grid.Row="2" Orientation="Vertical" Width="20" Height="100" Margin="5" Minimum="0" Maximum="1" LargeChange="0.0002" Value="{Binding Eq5Freq}" PreviewMouseDown="ResetMid" />
-					<Slider Grid.Column="5" Grid.Row="2" Orientation="Vertical" Width="20" Height="100" Margin="5" Minimum="0" Maximum="1" LargeChange="0.1" Value="{Binding Eq5Q}" PreviewMouseDown="ResetMid" />
-					<Slider Grid.Column="6" Grid.Row="2" Orientation="Vertical" Width="20" Height="100" Margin="5" Minimum="0" Maximum="1" LargeChange="0.1" Value="{Binding Eq5GainDb}" PreviewMouseDown="ResetMid" />
+					<Slider Grid.Column="4" Grid.Row="2" Orientation="Vertical" Width="20" Height="100" Margin="5" Minimum="0" Maximum="1" LargeChange="0.1" Value="{Binding Eq5GainDb}" PreviewMouseDown="ResetMid" />
+					<Slider Grid.Column="5" Grid.Row="2" Orientation="Vertical" Width="20" Height="100" Margin="5" Minimum="0" Maximum="1" LargeChange="0.0002" Value="{Binding Eq5Freq}" PreviewMouseDown="ResetMid" />
+					<Slider Grid.Column="6" Grid.Row="2" Orientation="Vertical" Width="20" Height="100" Margin="5" Minimum="0" Maximum="1" LargeChange="0.1" Value="{Binding Eq5Q}" PreviewMouseDown="ResetMid" />
 					<StackPanel Grid.Column="7" Grid.Row="2">
+						<Label Content="{Binding Eq5GainDbReadout, FallbackValue=10.5dB}" />
 						<Label Content="{Binding Eq5FreqReadout, FallbackValue=100Hz}" />
 						<Label Content="{Binding Eq5QReadout, FallbackValue=1.4}" />
-						<Label Content="{Binding Eq5GainDbReadout, FallbackValue=10.5dB}" />
 					</StackPanel>
 
-					<Slider Grid.Column="8" Grid.Row="2" Orientation="Vertical" Width="20" Height="100" Margin="5" Minimum="0" Maximum="1" LargeChange="0.0002" Value="{Binding Eq6Freq}" PreviewMouseDown="ResetMid" />
-					<Slider Grid.Column="9" Grid.Row="2" Orientation="Vertical" Width="20" Height="100" Margin="5" Minimum="0" Maximum="1" LargeChange="0.1" Value="{Binding Eq6Q}" PreviewMouseDown="ResetMid" />
-					<Slider Grid.Column="10" Grid.Row="2" Orientation="Vertical" Width="20" Height="100" Margin="5" Minimum="0" Maximum="1" LargeChange="0.1" Value="{Binding Eq6GainDb}" PreviewMouseDown="ResetMid" />
+					<Slider Grid.Column="8" Grid.Row="2" Orientation="Vertical" Width="20" Height="100" Margin="5" Minimum="0" Maximum="1" LargeChange="0.1" Value="{Binding Eq6GainDb}" PreviewMouseDown="ResetMid" />
+					<Slider Grid.Column="9" Grid.Row="2" Orientation="Vertical" Width="20" Height="100" Margin="5" Minimum="0" Maximum="1" LargeChange="0.0002" Value="{Binding Eq6Freq}" PreviewMouseDown="ResetMid" />
+					<Slider Grid.Column="10" Grid.Row="2" Orientation="Vertical" Width="20" Height="100" Margin="5" Minimum="0" Maximum="1" LargeChange="0.1" Value="{Binding Eq6Q}" PreviewMouseDown="ResetMid" />
 					<StackPanel Grid.Column="11" Grid.Row="2">
+						<Label Content="{Binding Eq6GainDbReadout, FallbackValue=10.5dB}" />
 						<Label Content="{Binding Eq6FreqReadout, FallbackValue=100Hz}" />
 						<Label Content="{Binding Eq6QReadout, FallbackValue=1.4}" />
-						<Label Content="{Binding Eq6GainDbReadout, FallbackValue=10.5dB}" />
 					</StackPanel>
 
 				</Grid>

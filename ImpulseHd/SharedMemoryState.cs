@@ -116,6 +116,12 @@ namespace ImpulseHd
 			var clipTimeLeftMillis = accessor.ReadDouble(4);
 			var clipTimeRightMillis = accessor.ReadDouble(12);
 
+			if (double.IsNaN(clipTimeLeftMillis) || double.IsInfinity(clipTimeLeftMillis))
+				clipTimeLeftMillis = 0;
+
+			if (double.IsNaN(clipTimeRightMillis) || double.IsInfinity(clipTimeRightMillis))
+				clipTimeRightMillis = 0;
+
 			var clipTimeLeft = new DateTime(1970, 1, 1).AddMilliseconds(clipTimeLeftMillis);
 			var clipTimeRight = new DateTime(1970, 1, 1).AddMilliseconds(clipTimeRightMillis);
 			return new[] { clipTimeLeft, clipTimeRight };

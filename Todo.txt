@@ -3,9 +3,6 @@ More features that can be added:
 Name: IR Workshop
 
 Adjust Phase band frequency bands by a multiplier
-terminate and reinitialize portaudio to update list of devices
-error check - what happens when selecting bad samplerate, starting audio process with an offline audio interface, etc? good errors.
 Ability to apply another IR in a spectrum stage.
+Ability to draw a response in spectrum stage
 setup email for error reporting, forward to personal email.
-
-top right chart - Stereo spce - show the left/right frequency plots (overlayed), and add a third, filled-line series to show the phase offset
