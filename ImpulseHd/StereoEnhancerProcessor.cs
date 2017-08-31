@@ -8,7 +8,7 @@ using LowProfile.Fourier.Double;
 
 namespace ImpulseHd
 {
-	class StereoEnhancerProcessor
+	public class StereoEnhancerProcessor
 	{
 		private readonly MixingConfig config;
 		private readonly double samplerate;
@@ -45,12 +45,12 @@ namespace ImpulseHd
 			fftTransform.IFFT(fftSignalRight, outputFinal);
 			var rightOutput = outputFinal.Select(x => x.Real).ToArray();
 
-			ProcessMidSide(leftOutput, rightOutput);
+			ProcessBlend(leftOutput, rightOutput);
 
 			return new[] { leftOutput, rightOutput };
 		}
 
-		private void ProcessMidSide(double[] left, double[] right)
+		private void ProcessBlend(double[] left, double[] right)
 		{
 			var blendGain = Utils.DB2gain(config.BlendAmountTransformed);
 			if (config.BlendAmount == 0)
@@ -58,9 +58,6 @@ namespace ImpulseHd
 
 			for (int i = 0; i < left.Length; i++)
 			{
-				var mid = left[i] + right[i];
-				var side = left[i] - right[i];
-
 				var l = left[i] + right[i] * blendGain;
 				var r = right[i] + left[i] * blendGain;
 				left[i] = l;
@@ -70,6 +67,13 @@ namespace ImpulseHd
 
 		private void ProcessEqBands(int[] bandMap)
 		{
+			var nyquist = samplerate / 2.0;
+			var hzPerBand = nyquist / (SignalLen / 2.0);
+			var octSmooth = config.EqSmoothingOctavesTransformed;
+
+			var gainsLeft = new double[fftSignalLeft.Length / 2 + 1];
+			var gainsRight = new double[fftSignalLeft.Length / 2 + 1];
+
 			for (int i = 1; i <= SignalLen / 2; i++)
 			{
 				var band = bandMap[i];
@@ -77,7 +81,7 @@ namespace ImpulseHd
 				double gainLeft;
 				double gainRight;
 
-				if (gain < 0)
+				if (gain > 0)
 				{
 					var dbLeft = config.EqDepthDbTransformed * Math.Abs(gain);
 					var dbRight = -dbLeft;
@@ -91,6 +95,35 @@ namespace ImpulseHd
 					gainLeft = Utils.DB2gain(dbLeft);
 					gainRight = Utils.DB2gain(dbRight);
 				}
+
+				gainsLeft[i] = gainLeft;
+				gainsRight[i] = gainRight;
+			}
+
+			// smoothing
+			for (int i = 1; i <= SignalLen / 2; i++)
+			{
+				var hz = i * hzPerBand;
+				var hztoSmooth = octSmooth * hz;
+				var bandsToSmooth = (int)Math.Round(hztoSmooth / hzPerBand / 2.0);
+
+				var gainLeft = 0.0;
+				var gainRight = 0.0;
+				int count = 0;
+
+				for (int j = -bandsToSmooth; j <= bandsToSmooth; j++)
+				{
+					var idx = i + j;
+					if (idx <= 0 || idx >= gainsLeft.Length)
+						continue;
+
+					gainLeft += gainsLeft[idx];
+					gainRight += gainsRight[idx];
+					count++;
+				}
+
+				gainLeft /= count;
+				gainRight /= count;
 
 				fftSignalLeft[i] *= (Complex)gainLeft;
 				fftSignalLeft[fftSignalLeft.Length - i] *= (Complex)gainLeft;

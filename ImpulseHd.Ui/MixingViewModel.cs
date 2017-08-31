@@ -8,6 +8,7 @@ using LowProfile.Core.Ui;
 using LowProfile.Visuals;
 using OxyPlot;
 using OxyPlot.Axes;
+using OxyPlot.Series;
 
 namespace ImpulseHd.Ui
 {
@@ -16,6 +17,7 @@ namespace ImpulseHd.Ui
 		private readonly MixingConfig mixingConfig;
 		private LastRetainRateLimiter updateRateLimiter;
 		private PlotModel plot1;
+		private int selectedTabIndex;
 
 		public MixingViewModel(MixingConfig mixingConfig, double samplerate)
 		{
@@ -49,6 +51,16 @@ namespace ImpulseHd.Ui
 		{
 			get { return plot1; }
 			set { plot1 = value; base.NotifyPropertyChanged(); }
+		}
+
+		public int SelectedTabIndex
+		{
+			get { return selectedTabIndex; }
+			set
+			{
+				selectedTabIndex = value;
+				Update();
+			}
 		}
 
 		// ---------------------------------- Parametric EQ Section ----------------------------------------
@@ -243,6 +255,84 @@ namespace ImpulseHd.Ui
 		}
 
 		private void UpdatePlots()
+		{
+			if (selectedTabIndex == 0)
+			{
+				UpdateEqPlot();
+			}
+			else
+			{
+				UpdateStereoEnhancerPlot();
+			}
+		}
+
+		private void UpdateStereoEnhancerPlot()
+		{
+			var pm = new PlotModel();
+
+			pm.Axes.Add(new LinearAxis { Position = AxisPosition.Left, Key = "LeftAxis", Minimum = -26, Maximum = 12 });
+			pm.Axes.Add(new LinearAxis { Position = AxisPosition.Right, Key = "RightAxis", Minimum = 0, Maximum = 3.0 });
+
+			pm.Axes.Add(new CategoryAxis
+			{
+				Position = AxisPosition.Bottom,
+				Key = "HzAxis",
+				ItemsSource = mixingConfig.Frequencies,
+				Minimum = -0.6,
+				Maximum = mixingConfig.StereoEq.Length - 0.4,
+				GapWidth = 0
+			});
+
+			pm.Axes.Add(new CategoryAxis
+			{
+				Position = AxisPosition.Bottom,
+				Key = "BlankAxis",
+				ItemsSource = mixingConfig.Frequencies.Select(_ => ""),
+				Minimum = -0.6,
+				Maximum = mixingConfig.StereoEq.Length - 0.4,
+				GapWidth = 0
+			});
+
+			var line = pm.AddLine(new[] { -1.0, 16.0 }, new[] { 0.0, 0.0 });
+			line.Color = OxyColor.FromAColor(128, OxyColors.Black);
+			line.StrokeThickness = 1.0;
+			line.YAxisKey = "LeftAxis";
+
+			var eqSeries = new ColumnSeries();
+			eqSeries.Items.AddRange(mixingConfig.StereoEq.Select((x, i) => new ColumnItem
+				{
+					Value = (2 * x - 1) * mixingConfig.EqDepthDbTransformed,
+					CategoryIndex = i
+				})
+				.ToArray());
+			eqSeries.ColumnWidth = 1.0;
+			eqSeries.LabelMargin = 0;
+			eqSeries.NegativeFillColor = OxyColor.FromAColor(127, OxyColors.Red);
+			eqSeries.FillColor = OxyColor.FromAColor(127, OxyColors.Blue);
+			eqSeries.YAxisKey = "LeftAxis";
+			eqSeries.XAxisKey = "HzAxis";
+			pm.Series.Add(eqSeries);
+
+
+			var phaseSeries = new ColumnSeries();
+			phaseSeries.Items.AddRange(mixingConfig.StereoPhase.Select((x, i) => new ColumnItem
+				{
+					Value = Math.Abs(2 * x - 1),
+					Color = x < 0.5 ? OxyColor.FromAColor(127, OxyColors.Blue) : OxyColor.FromAColor(127, OxyColors.Red),
+					CategoryIndex = i
+				}).ToArray());
+			phaseSeries.ColumnWidth = 1.0;
+			phaseSeries.LabelMargin = 0;
+			phaseSeries.YAxisKey = "RightAxis";
+			eqSeries.XAxisKey = "BlankAxis";
+			pm.Series.Add(phaseSeries);
+
+			
+
+			plot1 = pm;
+		}
+
+		private void UpdateEqPlot()
 		{
 			var pm = new PlotModel();
 

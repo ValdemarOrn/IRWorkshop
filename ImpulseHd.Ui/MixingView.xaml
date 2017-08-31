@@ -30,7 +30,7 @@
 			<RowDefinition Height="*" />
 		</Grid.RowDefinitions>
 
-		<TabControl Grid.Column="1" Grid.ColumnSpan="2" Grid.Row="4" SelectedIndex="{Binding SelectedTagIndex}" Margin="0,5,2,0" >
+		<TabControl Grid.Column="1" Grid.ColumnSpan="2" Grid.Row="4" SelectedIndex="{Binding SelectedTabIndex, Mode=OneWayToSource}" Margin="0,5,2,0" >
 			<TabItem Header="Equalizer">
 				<Grid Margin="20,20,0,0">
 					<Grid.ColumnDefinitions>

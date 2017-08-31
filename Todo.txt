@@ -1,9 +1,11 @@
 More features that can be added:
 
-Adjust Phase band frequency bands by a multiplier
+Name: IR Workshop
 
-Connect Stereo EQ smoothing control
-On FFT diagram for final signal, don't include Stereo FX, but DO include it on the time diagram
-Add charts to show Stereo space manipulation
+Adjust Phase band frequency bands by a multiplier
+terminate and reinitialize portaudio to update list of devices
+error check - what happens when selecting bad samplerate, starting audio process with an offline audio interface, etc? good errors.
+Ability to apply another IR in a spectrum stage.
+setup email for error reporting, forward to personal email.
 
 top right chart - Stereo spce - show the left/right frequency plots (overlayed), and add a third, filled-line series to show the phase offset
