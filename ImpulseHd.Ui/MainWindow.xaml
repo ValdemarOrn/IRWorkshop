@@ -108,7 +108,7 @@
 
 			<oxy:PlotView Grid.Column="1" Grid.Row="1" Margin="4" Model="{Binding PlotTop}"></oxy:PlotView>
 			<oxy:PlotView Grid.Column="1" Grid.Row="2" Margin="4" Model="{Binding PlotBottom}"></oxy:PlotView>
-			<Button Grid.Column="1" Grid.Row="2" VerticalAlignment="Bottom" HorizontalAlignment="Left" Margin="5" Command="{Binding SwitchGraphsCommand}">
+			<Button Grid.Column="1" Grid.Row="2" VerticalAlignment="Bottom" HorizontalAlignment="Left" Margin="5" Command="{Binding SwitchGraphsCommand}" Visibility="{Binding SwitchGraphsVisibility}">
 				<Button.Template>
 					<ControlTemplate>
 						<Label Padding="0" Margin="0" FontWeight="SemiBold">

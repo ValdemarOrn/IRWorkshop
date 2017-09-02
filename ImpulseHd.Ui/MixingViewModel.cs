@@ -58,6 +58,8 @@ namespace ImpulseHd.Ui
 			get { return selectedTabIndex; }
 			set
 			{
+				if (value == -1)
+					value = 0;
 				selectedTabIndex = value;
 				Update();
 			}

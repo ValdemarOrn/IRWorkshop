@@ -334,6 +334,7 @@ namespace ImpulseHd.Ui
 				NotifyPropertyChanged();
 				NotifyPropertyChanged(nameof(PlotTop));
 			    NotifyPropertyChanged(nameof(PlotBottom));
+			    NotifyPropertyChanged(nameof(SwitchGraphsVisibility));
 			}
 	    }
 
@@ -366,8 +367,20 @@ namespace ImpulseHd.Ui
 				return null;
 			}
 	    }
-		
-	    private void SwitchGraphs()
+
+	    public Visibility SwitchGraphsVisibility
+	    {
+		    get
+		    {
+			    if (SelectedTabHeader == "Impulses")
+				    return Visibility.Hidden;
+
+			    return Visibility.Visible;
+		    }
+	    }
+
+
+		private void SwitchGraphs()
 	    {
 		    switchGraphs = !switchGraphs;
 		    UpdateFftPlot();
@@ -409,8 +422,11 @@ namespace ImpulseHd.Ui
 			    Task.Delay(100).ContinueWith(_ => vm.Update());
 		    }
 
-		    SelectedImpulseConfigIndex = 0;
-		    NotifyPropertyChanged(nameof(Samplerate));
+		    MixingConfig = new MixingViewModel(preset.MixingConfig, preset.SamplerateTransformed) { OnUpdateCallback = () => updateRateLimiter.Pulse() };
+
+			SelectedImpulseConfigIndex = 0;
+		    NotifyPropertyChanged(nameof(MixingConfig));
+			NotifyPropertyChanged(nameof(Samplerate));
 		    NotifyPropertyChanged(nameof(ImpulseLength));
 		    NotifyPropertyChanged(nameof(WindowMethod));
 		    NotifyPropertyChanged(nameof(SamplerateReadout));

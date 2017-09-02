@@ -17,7 +17,7 @@ namespace ImpulseHd
 		{
 			PresetVersion = 1000;
 			Samplerate = 0.3333333;
-			ImpulseLength = 0.5;
+			ImpulseLength = 0.75;
 			ImpulseConfig = new ImpulseConfig[0];
 			MixingConfig = new MixingConfig();
 		}
