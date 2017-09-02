@@ -13,11 +13,11 @@ This is a Windows application for mixing, editing, enhancing and creating guitar
 * Convert between samplerates
 * Truncate files with minimum loss of quality
 * Multiple options for frequency and phase response, including:
- * Minimum Phase Transform
- * Frequency response smoothing and exciting
- * Apply randomization to frequency response
- * "Skew" the frequency response to simulate smaller/larger resonance frequency
- * High and Low-pass filtering
+  * Minimum Phase Transform
+  * Frequency response smoothing and exciting
+  * Apply randomization to frequency response
+  * "Skew" the frequency response to simulate smaller/larger resonance frequency
+  * High and Low-pass filtering
 * 6 Band parametric equalizer
 * Stereo enhancement effects
 * ...and many more
