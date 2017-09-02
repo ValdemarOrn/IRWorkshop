@@ -7,48 +7,57 @@ Presets can be saved and loaded using he File->Open and File->Save commands in t
 
 A default program named Default.irw is found in the main program directory. This is the program that gets loaded when you select File->New. You can overwrite this file to change the default settings.
 
+### Exporting to .WAV
+
+Select File->Export Wav to save the impulse response to a .wav file.
+Once saved, 3 files will be written to disk:
+
+* A stereo file containing both the left and right channel impulse responses.
+* A mono file with a "-L" added to the name, containing the left channel impulse response only.
+* A mono file with a "-R" added to the name, containing the right channel impulse response only.
+
 ### Live Preview
 The program includes a real-time audio engine that can be used to preview the effects of the impulse response. It supports most Windows audio driver types, including ASIO, WASAPI and WDM. The real-time processing is performed in a separate Windows process, to minimize glitches and clicks caused by updates from the Graphical user interface. 
 
 ![](TaskManager.png)
 
-If the real-time process encounters an error, a dialog with error information will be raised in the GUI. If you encounter errors repeatedly, try adjusting you Device Settings (see Master Tab). If problems persist, please send send the error information to the support email.
+If the real-time process encounters an error, a dialog with error information will be raised in the GUI. If you encounter errors repeatedly, try adjusting your Device Settings (see Master Tab). If problems persist, please send send the error information to the support email.
 
 ## 2. Master Tab
 ![](Screenshot1.png)
 
-This tab controls real-time audio processing (live preview) shows the final output impulse response, for the left and right channels, in both time and frequency domain
+This tab controls real-time audio processing (live preview) and shows the final output impulse response, for the left and right channels, in both time and frequency domain.
 
 ### Audio IO
 
-**Edit** - Opens the Device settings dialog, which allows you to choose your desired audio device, driver type, samplerate and buffer size
+**Edit** - Opens the Device settings dialog, which allows you to choose your desired audio device, driver type, samplerate and buffer size.
 
 ![](DeviceSettings.png)
 
-* Please be sure to selected only supported samplerates for your audio device
-* If your audio device has its own dedicated control panel, make sure that the buffer setting there matches the Latency (samples) selected on this panel. Not doing so can result in glitchy audio
+* Please be sure to select only supported samplerates for your audio device.
+* If your audio device has its own dedicated control panel, make sure that the buffer setting there matches the Latency (samples) selected on this panel. Not doing so can result in glitchy audio.
 
-**Restart Audio Engine** - Click this to complete restart the real-time process with the current settings. This can sometimes resolve audio dropouts and bad behaviour.
+**Restart Audio Engine** - Click this to completely restart the real-time process with the current settings. This can sometimes resolve audio dropouts and bad behaviour.
 
-**Inputs and Outputs** - Select your desired stereo input and output. You can select the same port as both input Left and Right if you are working with a mono input signal
+**Inputs and Outputs** - Select your desired stereo input and output. You can select the same port as both input Left and Right if you are working with a mono input signal.
 
 ![](InOut.png)
 
-**Volume** - Controls the output gain of the real-time preview
+**Volume** - Controls the output gain of the real-time preview.
 
 **Clipping** - These indicators light up if the output signal goes above 0dB. At that point the signal gets clipped and this will caused unwanted distortion. Use the volume slider to reduce the gain until clipping goes away.   
 
 ### Impulse Generation
 
-**Samplerate** - this is the samplerathe of the impulse response file generated. You can select 44.1Khz, 48Khz, 88.2Khz and 96Khz. When using real-time preview, make sure the samplerate of your audio device matches the selected samplerate here. If they don't match, the resulting sound will not be correct, and a warning is displayed on the panel.
+**Samplerate** - this is the samplerate of the impulse response file that is generated. You can select 44.1Khz, 48Khz, 88.2Khz and 96Khz. When using real-time preview, make sure the samplerate of your audio device matches the selected samplerate here. If they don't match, the resulting sound will not be correct, and a warning is displayed on the panel.
 
-**Impulse Length** - Specifies how long the resulting impulse will be. Options range from 256 samples to 4096 samples. Choose the option that is compatible with your impulse response loader or device
+**Impulse Length** - Specifies how long the resulting impulse will be. Options range from 256 samples to 4096 samples. Choose the option that is compatible with your impulse response loader or device.
 
-* Digitech GSP1101 can only load short 256 sample files
-* Atomic Amplifire can load 1024 sample files
-* Line 6 Helix can load 2048 sample files
-* Axe FXII can load 4096 sample files in Ultra-res mode
-* Various VSTs can load arbitrarily long impulse responses
+* Digitech GSP1101 can only load short 256 sample files.
+* Atomic Amplifire can load 1024 sample files.
+* Line 6 Helix can load 2048 sample files.
+* Axe FXII can load 4096 sample files in Ultra-res mode.
+* Various VSTs can load arbitrarily long impulse responses.
 * The built-in real-time preview in IR Workshop supports responses up to 4096 samples long, but older/slower CPUs may have difficulty with higher settings.
 
 ## 3. Impulses
@@ -57,9 +66,9 @@ This tab controls real-time audio processing (live preview) shows the final outp
 
 This tab lists all the individual impulse responses in your preset. You can combine as many as you want.
 
-On the left side you will see a tab for each impulse response. The tabs shows a checkbox to enable or disable the IR, and the specified name. The name is only used to remind you which IR is which and serves no other purpose.
+On the left side you will see a tab for each impulse response. The tabs show a checkbox to enable or disable the IR, and the specified name. The name is only used to remind you which IR is which and serves no other purpose.
 
-In the bottom left corner there are buttons for Adding, Removing and reordering the IRs. The order is only important when using the Apply feature (see below)
+In the bottom left corner there are buttons for adding, removing and reordering the IRs. The order is only important when using the Apply feature (see below).
 
 In the middle of the screen you see the main controls for the IR.
 
@@ -68,17 +77,19 @@ The arrow buttons at the top can be used to scroll back and forth between IR .wa
 
 **Name** - Choose a name for this impulse response, it will show up on the left side and in the "Apply" dropdown box (see below).
 
-**Base / L / R** - These buttons decide what gets displayed on the bottom right graph
+**Base / L / R** - These buttons decide what gets displayed on the bottom right graph:
 
-* Base - Shows the impulse response generated after the currently selected Spectrum Stage
-* L - Shows the left channel impulse response generated after the Output Stage
-* R - Shows the right channel impulse response generated after the Output Stage
+* Base - Shows the impulse response generated after the currently selected Spectrum Stage.
+* L - Shows the left channel impulse response generated after the Output Stage.
+* R - Shows the right channel impulse response generated after the Output Stage.
 
-**Start** - Allows shopping off part of the data from the start of the .wav file
+The top graph always shows the frequency response after the selected Spectrum Stage.
 
-**Clear Sample** - Removes the selected .wav file and resets the impulse back to unity gain with zero phase
+**Start** - Allows shopping off part of the data from the start of the .wav file.
 
-**Solo** - Only the selected impulse response will be audible in the final mix
+**Clear Sample** - Removes the selected .wav file and resets the impulse back to unity gain with zero phase.
+
+**Solo** - Only the selected impulse response will be audible in the final mix.
 
 **Left / Right** - If a stereo .wav file is selected, lets you choose which channel is used as input. For mono files, this is always "Left".
 
@@ -90,20 +101,20 @@ The arrow buttons at the top can be used to scroll back and forth between IR .wa
 
 This section is used to apply transformations to the frequency response. It contains multiple powerful tools that can completely re-shape the gain and phase response of an IR, and can be combined to create brand new sounds. An unlimited number of spectrum stages can be added, and they are applied serially one after the other.
 
-**Enabled** - enables or bypasses the stage
+**Enabled** - enables or bypasses the stage.
 
 **Minimum Phase** - Applies a special (Hilbert) transform that re-calculates the phase response, so that the overall delay is minimized. Minimum phase IRs also mix together much better as you have less phase cancellation between signals. 
 *Warning*: Enabling this option will undo any phase transformations applied by earlier Spectrum stages, so be sure to apply any stages that affect the phase last.
 
 **Apply** - Here you can select another impulse response to be applied on top of the current response. This can be very useful for adding a microphone response on top of a "neutral" cabinet response, to simulate the effect of a mic'ed cabined. Any impulse response **that appears before the currently selected impulse response** can be selected (use the arrows in the bottom left corner to adjust the order). You can even apply a disabled impulse response (one that doesn't otherwise get mixed into the final output).
 
-**Min / Max Freq.** - Each spectrum stage can be limited to a certain band of frequencies, use these sliders to set the range
+**Min / Max Freq.** - Each spectrum stage can be limited to a certain band of frequencies, use these sliders to set the range.
 
-**Low / High Blend** - Allows you to gradually blend the effect of this spectrum stage in and out 
+**Low / High Blend** - Allows you to gradually blend the effect of this spectrum stage in and out.
 
 ![](Blend.png)
 
-**Gain** - Change the gain by -60/+40 dB
+**Gain** - Change the gain by -60/+40 dB.
 
 **Delay** - Apply a phase transformation that delays the signal in the frequency band by the specified number of samples. - Note that applying too much delay can cause the signal to get truncated away when using a short Impulse Length.
 
@@ -111,23 +122,23 @@ This section is used to apply transformations to the frequency response. It cont
 
 The controls allow smoothing out or exaggerating the peaks and troughs of the frequency response.
 
-**Smoothing** - This applies a moving average filter to the frequency response which is used as a baseline for adding or removing gain
+**Smoothing** - This applies a moving average filter to the frequency response which is used as a baseline for adding or removing gain.
 
 **Amount** - Amplifies or reduces the difference between the smoothed frequency response and the current response, resulting in larger or smaller peaks and troughs.
 
 **Mode**
  
-* Reduce - Applies gain reduction only, resulting in deeper troughs in the response
-* Bipolar - Applies both gain reduction and amplification
-* Amplify - Applies gain increase only, amplifying the peaks of the response
+* Reduce - Applies gain reduction only, resulting in deeper troughs in the response.
+* Bipolar - Applies both gain reduction and amplification.
+* Amplify - Applies gain increase only, amplifying the peaks of the response.
 
-Original Response
+Original Response.
 ![](Smooth1.png)
 
-Smoothed at 0.16 Octaves, Amount = 0.0
+Smoothed at 0.16 Octaves, Amount = 0.0.
 ![](Smooth2.png)
 
-Smoothed at 0.16 Octaves, Amount = 5.4, Mode = Reduce
+Smoothed at 0.16 Octaves, Amount = 5.4, Mode = Reduce.
 ![](Smooth3.png)
 
 #### Gain Randomization
@@ -138,20 +149,20 @@ This transform applies a random gain change to the frequency response. It can be
 
 **Random seed / Random shift** - Controls the random number generator used to produce the effect. A different seed will result in a completely new random sequence, but shift allows you to move the resulting sequence up or down in the frequency domain.
 
-**Amount** - the random gain added to the frequency response
+**Amount** - the random gain added to the frequency response.
 
 **Skew** - Adjusts how narrow or wide the resulting peaks are.
 
 **Mode**
  
-* Reduce - Applies gain reduction only, resulting in added troughs in the response
-* Bipolar - Applies both gain reduction and amplification
+* Reduce - Applies gain reduction only, resulting in added troughs in the response.
+* Bipolar - Applies both gain reduction and amplification.
 * Amplify - Applies gain increase only, resulting in added peaks in the response.
 
-Original Response
+Original Response.
 ![](GainRand1.png)
 
-Randomization added between 480 - 3.6Khz, Smoothing = 9 Samples, Amount = 20dB, Mode = Reduce
+Randomization added between 480 - 3.6Khz, Smoothing = 9 Samples, Amount = 20dB, Mode = Reduce.
 ![](GainRand2.png)
 
 #### Frequency Skew
@@ -160,16 +171,16 @@ Randomization added between 480 - 3.6Khz, Smoothing = 9 Samples, Amount = 20dB, 
 
 #### Phase Bands
 
-This effect applies changes the phase response of the signal. It splits the signal into a number of bands, and then applies a random delay to each band. In a mono signal, the effect is subtle, but when applying different amounts of shift to two impulses, pannel left and right, it will create a stereo enhancing effect which can be very pleasant. The same principle is used in the Stereo Space effect (see Mixing Panel)
+This effect applies changes the phase response of the signal. It splits the signal into a number of bands, and then applies a random delay to each band. In a mono signal, the effect is subtle, but when applying different amounts of shift to two impulses, pannel left and right, it will create a stereo enhancing effect which can be very pleasant. The same principle is used in the Stereo Space effect (see Mixing Panel).
 
-**No. Bands** - Sets how many bands the signal gets split into
+**No. Bands** - Sets how many bands the signal gets split into.
 
 **Amount** - The maximum amount of delay (in samples) that gets applied to each band. This is scaled by a random variable for each band.
 
-**Freq Track** - Controls how much effect is applied at the upper and lower bands
+**Freq Track** - Controls how much effect is applied at the upper and lower bands.
 
-* When positive - The lower bands receive less effect than the higher bands
-* When negative - The higher bands receive less effect than the lower bands
+* When positive - The lower bands receive less effect than the higher bands.
+* When negative - The higher bands receive less effect than the lower bands.
 * At zero - All bands receive the full amount of effect. 
 
 
@@ -179,7 +190,7 @@ This effect applies changes the phase response of the signal. It splits the sign
 
 This section contains various controls for how the impulse response gets mixed with into the final mix.
 
-**Gain** - Controls the overall gain
+**Gain** - Controls the overall gain.
 
 **Delay Left / Right** - Delays the left and right channels by the specified number of samples. Note that too much delay can move the signal "outside" the impulse response window, so that part or all of it is truncated away. Refer to the chart on the right side to visually inspect what is happening. 
 
@@ -188,11 +199,11 @@ The plot below shows a signal where the right channel has been delayed by 412 sa
 
 **Pan** - Controls left to right panning. At "0 Center" both left and right channels receive the full strength signal.
 
-**Invert Phase** - Inverts the phase of the left and/or right channel
+**Invert Phase** - Inverts the phase of the left and/or right channel.
 
 **12dB rolloff** - Controls the steepness of the Low and High Cut filters. When selected, applies a 12dB/Octave rolloff rather than a 6dB rolloff.
 
-Red curve shows 6dB High Cut rolloff, while Green curce shows 12dB High Cut
+Red curve shows 6dB High Cut rolloff, while Green curce shows 12dB High Cut.
 ![](Rolloff.png)
 
 **Low/High Cut Left/Right** These controls adjust the high and low cut filters applied to the output signal.
@@ -204,7 +215,7 @@ Red curve shows 6dB High Cut rolloff, while Green curce shows 12dB High Cut
 * Logarithmic - A logarithmic (dB) slope from full gain to zero. Results in a smooth transition but can loose some detail.
 * Cosine - Uses the shape of a Cos(0...pi/2) function to cut the signal. Provide a good compromise between a fast fast transition and limited high-frequency artefacts.
 
-**Window Length** The duration of the "fade-out", as a percentage of the full duration of the impulse response (from 0% to 50%) 
+**Window Length** The duration of the "fade-out", as a percentage of the full duration of the impulse response (from 0% to 50%).
 
 ## 4. Post Processing
 
@@ -212,19 +223,19 @@ Red curve shows 6dB High Cut rolloff, while Green curce shows 12dB High Cut
 
 The Post Processing tab contains 3 main sections:
 
-* 6 Band Parametric Equalizer
-* Stereo Enhancer
-* Output Stage
+* 6 Band Parametric Equalizer.
+* Stereo Enhancer.
+* Output Stage.
 
 The Output Stage is identical to the one found on the Impulse panel.
 
 ### Parametric Equalizer
 
-The equalizer has 6 individual peaks or notches that can be adjusted from 20-22Khz, and +- 20dB, with a variable "Q" factor
+The equalizer has 6 individual peaks or notches that can be adjusted from 20-22Khz, and +- 20dB, with a variable "Q" factor.
 
 ![](Eq.png)
 
-**Slider 1** - Controls the Gain, from -20dB to +20dB
+**Slider 1** - Controls the Gain, from -20dB to +20dB.
 
 **Slider 2** - Controls the Frequency, from 20Hz to 22Khz.
 
@@ -236,12 +247,12 @@ The equalizer has 6 individual peaks or notches that can be adjusted from 20-22K
 
 The Stereo Space section can be used to:
 
-* Enhance the stereo width of a stereo signal
-* Convert an entirely mono signal into a rich stereo signal
+* Enhance the stereo width of a stereo signal.
+* Convert an entirely mono signal into a rich stereo signal.
 
 The effect consists of two stages, an equalizer and a phase shifter. A plot is shown on the top right side to assist in understanding the effect. Both effects are applied to a range of 16 frequency bands, which can be adjusted using the "Freq Shift" slider. The center of each band can be seen below the sliders on the left side, and on the plot on the right side.
 
-**Freq Shift** - This slider controls center frequency of each of the 16 bands. They can be adjust from a range of 40Hz-6.8Khz, to 120Hz-20.3Khz 
+**Freq Shift** - This slider controls center frequency of each of the 16 bands. They can be adjust from a range of 40Hz-6.8Khz, to 120Hz-20.3Khz.
 
 
 #### Stereo Equalizer
@@ -250,7 +261,7 @@ This effect works by boosting a frequency band on one side, and simultaneously c
 
 **EQ depth** - Controls the overall effect that each band can have, from 0dB to 12dB.
 
-**EQ Smoothing** - Controls the "slope" or "blend" between each band. At its lowest setting, each bands cuts in and out sharply in the frequency range, while a higher setting produces a more gradual curve
+**EQ Smoothing** - Controls the "slope" or "blend" between each band. At its lowest setting, each bands cuts in and out sharply in the frequency range, while a higher setting produces a more gradual curve.
 
 **16 Equalizer sliders** - Dragging up will boost the left channel and cut the right channel, dragging down will do the opposite. At center, no boost or cut is added to that band.
 
