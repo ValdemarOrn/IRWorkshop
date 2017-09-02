@@ -6,8 +6,8 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{12D0DAC1-49E5-400A-A38C-F5F8B8D78AD6}</ProjectGuid>
     <OutputType>WinExe</OutputType>
-    <RootNamespace>ImpulseHd.Ui</RootNamespace>
-    <AssemblyName>ImpulseHd.Ui</AssemblyName>
+    <RootNamespace>IrWorkshop.Ui</RootNamespace>
+    <AssemblyName>IrWorkshop.Ui</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{60dc8134-eba5-43b8-bcc9-bb4bc16c2548};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
@@ -43,14 +43,28 @@
     <ApplicationIcon>Icon.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="LowProfile.Core, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\Binaries\LowProfile.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="LowProfile.Fourier, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\Binaries\LowProfile.Fourier.dll</HintPath>
+    </Reference>
+    <Reference Include="LowProfile.Visuals, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\Binaries\LowProfile.Visuals.dll</HintPath>
+    </Reference>
     <Reference Include="Newtonsoft.Json, Version=10.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\packages\Newtonsoft.Json.10.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="OxyPlot, Version=1.0.0.0, Culture=neutral, PublicKeyToken=638079a8f0bd61e9, processorArchitecture=MSIL">
-      <HintPath>..\packages\OxyPlot.Core.1.0.0\lib\net45\OxyPlot.dll</HintPath>
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\Binaries\OxyPlot\OxyPlot.Core.1.0.0\lib\net45\OxyPlot.dll</HintPath>
     </Reference>
     <Reference Include="OxyPlot.Wpf, Version=1.0.0.0, Culture=neutral, PublicKeyToken=75e952ba404cdbb0, processorArchitecture=MSIL">
-      <HintPath>..\packages\OxyPlot.Wpf.1.0.0\lib\net45\OxyPlot.Wpf.dll</HintPath>
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\Binaries\OxyPlot\OxyPlot.Wpf.1.0.0\lib\net45\OxyPlot.Wpf.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
@@ -173,29 +187,17 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\Libraries\LowProfile.Common\LowProfile.Core\LowProfile.Core.csproj">
-      <Project>{6f6a3fb4-5e5f-4076-b91a-f8c7fe84e37c}</Project>
-      <Name>LowProfile.Core</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\..\Libraries\LowProfile.Common\LowProfile.Visuals\LowProfile.Visuals.csproj">
-      <Project>{4cd32a63-494f-4769-a07d-802f1e9945a7}</Project>
-      <Name>LowProfile.Visuals</Name>
-    </ProjectReference>
     <ProjectReference Include="..\..\AudioLib\AudioLib\AudioLib.csproj">
       <Project>{4905489d-6f81-4129-8780-744ced5b3269}</Project>
       <Name>AudioLib</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\FFT\LowProfile.Fourier\LowProfile.Fourier.csproj">
-      <Project>{937ccecf-3bf1-4ed2-b3a9-89157d8b0664}</Project>
-      <Name>LowProfile.Fourier</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\ImpulseHd.RealtimeProcessing\ImpulseHd.RealtimeProcessing.csproj">
+    <ProjectReference Include="..\IrWorkshop.RealtimeProcessing\IrWorkshop.RealtimeProcessing.csproj">
       <Project>{68bf11cb-545d-4d08-9b33-e51dcebd7a9d}</Project>
-      <Name>ImpulseHd.RealtimeProcessing</Name>
+      <Name>IrWorkshop.RealtimeProcessing</Name>
     </ProjectReference>
-    <ProjectReference Include="..\ImpulseHd\ImpulseHd.csproj">
+    <ProjectReference Include="..\IrWorkshop\IrWorkshop.csproj">
       <Project>{ebc0d0f9-20cb-495e-a85d-d973a6111089}</Project>
-      <Name>ImpulseHd</Name>
+      <Name>IrWorkshop</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
@@ -208,6 +210,7 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PreBuildEvent>copy $(SolutionDir)ImpulseHd.Convolution\bin\Release\x64\ImpulseHd.Convolution.dll $(TargetDir)ImpulseHd.Convolution.dll</PreBuildEvent>
+    <PreBuildEvent>copy $(SolutionDir)IrWorkshop.Convolution\bin\Release\x64\IrWorkshop.Convolution.dll $(TargetDir)IrWorkshop.Convolution.dll
+copy $(SolutionDir)\Binaries\portaudio.dll $(TargetDir)portaudio.dll</PreBuildEvent>
   </PropertyGroup>
 </Project>

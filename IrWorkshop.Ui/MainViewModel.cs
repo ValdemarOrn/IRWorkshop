@@ -73,7 +73,7 @@ namespace ImpulseHd.Ui
 			Logging.SetupLogging();
 			PortAudio.Pa_Initialize();
 
-			var realtimeProcesingExePath = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "ImpulseHd.RealtimeProcessing.exe");
+			var realtimeProcesingExePath = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "IrWorkshop.RealtimeProcessing.exe");
 			realtimeProcess = new RealtimeProcessManager(realtimeProcesingExePath);
 			realtimeProcess.PrematureTerminationCallback = logOutput => ExceptionDialog.ShowDialog("Audio engine has died", string.Join("\r\n", logOutput));
 
@@ -140,6 +140,7 @@ namespace ImpulseHd.Ui
 			t3.Start();
 
 			AddImpulse();
+			Update();
 			UpdateMemoryMap();
 			StartAudioEngine();
 		}

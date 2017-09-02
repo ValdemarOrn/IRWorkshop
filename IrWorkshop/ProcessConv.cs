@@ -14,7 +14,7 @@ namespace ImpulseHd
 			
 		}
 
-		[DllImport("ImpulseHd.Convolution.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl, EntryPoint = "ProcessConv")]
+		[DllImport("IrWorkshop.Convolution.dll", SetLastError = true, CallingConvention = CallingConvention.Cdecl, EntryPoint = "ProcessConv")]
 		public static extern void Process(float* input, float* output, int len, float gain, int* bufferindex, float* ir, int irLen, float* buffer131k, int* clipped);
 
 		public static void Process(float[] input, float[] output, float gain, ref int bufferIndex, float[] ir, float[] buffer, ref bool clipped)

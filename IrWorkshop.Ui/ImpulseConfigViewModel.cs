@@ -445,8 +445,8 @@ namespace ImpulseHd.Ui
 		    }
 
 			var axis = new LinearAxis {Position = AxisPosition.Left};
-		    axis.Minimum = -1;
-		    axis.Maximum = 1;
+		    axis.Minimum = -1.05;
+		    axis.Maximum = 1.05;
 			pm.Axes.Add(axis);
 
 		    axis = new LinearAxis { Position = AxisPosition.Bottom };
@@ -468,7 +468,7 @@ namespace ImpulseHd.Ui
 		    var pm = new PlotModel();
 
 		    pm.Axes.Add(new LogarithmicAxis { Position = AxisPosition.Bottom, Minimum = 20});
-		    var leftAxis = new LinearAxis {Position = AxisPosition.Left, Key = "LeftAxis", Minimum = -80 };
+		    var leftAxis = new LinearAxis {Position = AxisPosition.Left, Key = "LeftAxis", Minimum = -80, Maximum = magData.Max() + 6 };
 		    var rightAxis = new LinearAxis {Position = AxisPosition.Right, Key = "RightAxis", Minimum = -Math.PI - 0.1, Maximum = Math.PI + 0.1};
 			pm.Axes.Add(leftAxis);
 		    pm.Axes.Add(rightAxis);
