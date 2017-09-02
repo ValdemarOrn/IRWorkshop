@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using LowProfile.Fourier.Double;
 
 namespace ImpulseHd
 {
@@ -13,7 +14,10 @@ namespace ImpulseHd
 		public ImpulsePresetProcessor(ImpulsePreset preset)
 		{
 			this.preset = preset;
+			StageOutputs = new Dictionary<ImpulseConfig, Complex[]>();
 		}
+
+		public Dictionary<ImpulseConfig, Complex[]> StageOutputs { get; set; }
 		
 		public double[][] Process()
 		{
@@ -21,18 +25,17 @@ namespace ImpulseHd
 			var bufferRight = new double[ImpulseConfig.MaxSampleLength];
 			var hasSolo = preset.ImpulseConfig.Any(x => x.Solo);
 
+			StageOutputs = new Dictionary<ImpulseConfig, Complex[]>();
+
 			foreach (var impulseConfig in preset.ImpulseConfig)
 			{
-				if (hasSolo && !impulseConfig.Solo)
-					continue;
-				if (!impulseConfig.Enable)
-					continue;
-
 				var processor = new ImpulseConfigProcessor(impulseConfig);
 				foreach(var stage in processor.Stages)
 				{
-					processor.ProcessStage(stage);
+					processor.ProcessStage(stage, StageOutputs);
 				}
+
+				StageOutputs[impulseConfig] = processor.FftSignal.ToArray();
 
 				var outputProcessor = new OutputConfigProcessor(
 					new[] { processor.TimeSignal, processor.TimeSignal }, 
@@ -41,6 +44,14 @@ namespace ImpulseHd
 					impulseConfig.Samplerate);
 
 				var stageOutput = outputProcessor.ProcessOutputStage();
+
+				// only add to final output if this impusle is soloed and/or enabled
+				// we still compute disabled and non-soloed impulses as they can be cross-applied to other impulses
+				if (hasSolo && !impulseConfig.Solo)
+					continue;
+				if (!impulseConfig.Enable)
+					continue;
+
 				Sum(bufferLeft, stageOutput[0]);
 				Sum(bufferRight, stageOutput[1]);
 			}

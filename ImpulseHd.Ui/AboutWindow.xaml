@@ -9,17 +9,22 @@
 		ResizeMode="NoResize"
 		WindowStyle="SingleBorderWindow"
 		WindowStartupLocation="CenterOwner"
-        Title="About ImpulseEngine" Height="150" Width="500">
+        Title="About IR Workshop" Height="170" Width="500">
 	<Grid>
 		<Label FontSize="20">IR Workshop - Cabinet Impulse Response Editor</Label>
 		<Label Margin="0,30,0,0" Content="{Binding ElementName=main, Path=VersionString, FallbackValue=v1.2.3}"></Label>
 		<TextBlock Margin="5,56,0,0" >
-		<Hyperlink NavigateUri="https://github.com/ValdemarOrn/IRWorkshop">
-			<Label Foreground="CornflowerBlue" Padding="0">Go to Website</Label>
-		</Hyperlink>
+			<Hyperlink NavigateUri="https://github.com/ValdemarOrn/IRWorkshop">
+				<Label Foreground="CornflowerBlue" Padding="0">Go to Website</Label>
+			</Hyperlink>
 		</TextBlock>
-		
-		<Label VerticalAlignment="Bottom" Margin="0,4">Developed by Valdemar Erlingsson</Label>
+
+		<Label VerticalAlignment="Bottom" Margin="5,25" Padding="0">Developed by Valdemar Erlingsson</Label>
+		<TextBlock VerticalAlignment="Bottom" Margin="5,5" Padding="0">
+			<Hyperlink NavigateUri="mailto:irworkshopsoftware@gmail.com">
+				<Label Foreground="CornflowerBlue" Padding="0">irworkshopsoftware@gmail.com</Label>
+			</Hyperlink>
+		</TextBlock>
 		<Button Width="100" Height="24" VerticalAlignment="Bottom" HorizontalAlignment="Right" Margin="10" Click="Button_Click">Close</Button>
     </Grid>
 </Window>

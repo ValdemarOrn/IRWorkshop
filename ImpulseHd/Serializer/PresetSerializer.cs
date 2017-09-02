@@ -35,6 +35,14 @@ namespace ImpulseHd.Serializer
 		public static ImpulsePreset DeserializePreset(string json)
 		{
 			var preset = JsonConvert.DeserializeObject<ImpulsePreset>(json);
+			foreach (var imp in preset.ImpulseConfig)
+			{
+				foreach (var spec in imp.SpectrumStages)
+				{
+					if (spec.SerializedSelectedApplySourceIndex != -1)
+						spec.SelectedApplySource = preset.ImpulseConfig[spec.SerializedSelectedApplySourceIndex];
+				}
+			}
 			return preset;
 		}
 

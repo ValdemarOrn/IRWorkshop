@@ -9,11 +9,16 @@ namespace ImpulseHd.Ui
 {
 	public class SpectrumStageViewModel : ViewModelBase
 	{
+		private readonly ImpulseConfig[] applySources;
+		private readonly ImpulseConfig config;
 		private readonly SpectrumStage stage;
 		private readonly Action onUpdateCallback;
 
-		public SpectrumStageViewModel(SpectrumStage stage, int index, Action onUpdateCallback)
+		public SpectrumStageViewModel(ImpulsePreset preset, ImpulseConfig config, SpectrumStage stage, int index, Action onUpdateCallback)
 		{
+			this.applySources = preset.ImpulseConfig.TakeWhile(x => x != config).OrderBy(x => x.Index).ToArray();
+			applySources = new[] { new ImpulseConfig() { Name = "None", Index = -1 } }.Concat(applySources).ToArray();
+			this.config = config;
 			this.stage = stage;
 			this.onUpdateCallback = onUpdateCallback;
 			Index = index;
@@ -32,8 +37,15 @@ namespace ImpulseHd.Ui
 			get { return stage.MinimumPhase; }
 			set { stage.MinimumPhase = value; NotifyPropertyChanged(); onUpdateCallback(); }
 		}
-		
 
+		public ImpulseConfig[] ApplySources => applySources;
+
+		public ImpulseConfig SelectedApplySource
+		{
+			get { return stage.SelectedApplySource; }
+			set { stage.SelectedApplySource = value; NotifyPropertyChanged(); onUpdateCallback(); }
+		}
+		
 		public double MinFreq
 		{
 			get { return stage.MinFreq; }

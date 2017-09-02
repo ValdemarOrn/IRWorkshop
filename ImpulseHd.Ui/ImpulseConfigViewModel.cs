@@ -23,6 +23,7 @@ namespace ImpulseHd.Ui
     class ImpulseConfigViewModel : ViewModelBase
     {
 	    private readonly ImpulseConfig impulseConfig;
+	    private readonly ImpulsePreset preset;
 	    private readonly LastRetainRateLimiter updateRateLimiter;
 
 		private string loadSampleDirectory;
@@ -33,9 +34,10 @@ namespace ImpulseHd.Ui
 	    private bool plotImpulseLeft;
 	    private bool plotImpulseRight;
 
-	    public ImpulseConfigViewModel(ImpulseConfig config, string loadSampleDirectory)
+	    public ImpulseConfigViewModel(ImpulseConfig config, ImpulsePreset preset, string loadSampleDirectory)
 	    {
 		    this.impulseConfig = config;
+		    this.preset = preset;
 		    this.loadSampleDirectory = loadSampleDirectory;
 			this.updateRateLimiter = new LastRetainRateLimiter(100, UpdateInner);
 			LoadSampleCommand = new DelegateCommand(_ => LoadSampleDialog());
@@ -51,6 +53,8 @@ namespace ImpulseHd.Ui
 		
 	    public ImpulseConfig ImpulseConfig => impulseConfig;
 		
+		public Dictionary<ImpulseConfig, Complex[]> ImpulseConfigOutputs { get; set; }
+
 		public Complex[] PlottedFftSignal { get; private set; }
 	    public double[] PlottedImpulseSignal { get; private set; }
 
@@ -109,7 +113,9 @@ namespace ImpulseHd.Ui
 			}
 		}
 
-	    public SpectrumStageViewModel[] SpectrumStages => impulseConfig.SpectrumStages.Select((x, idx) => new SpectrumStageViewModel(x, idx + 1, Update)).ToArray();
+	    public SpectrumStageViewModel[] SpectrumStages => impulseConfig.SpectrumStages
+			.Select((spectrumStage, idx) => new SpectrumStageViewModel(preset, impulseConfig, spectrumStage, idx + 1, Update))
+			.ToArray();
 
 	    public OutputStageViewModel OutputStage => new OutputStageViewModel(impulseConfig.OutputStage, Update);
 
@@ -193,7 +199,7 @@ namespace ImpulseHd.Ui
 		public Action OnUpdateCallback { get; set; }
 	    public Action<string> OnLoadSampleCallback { get; set; }
 
-		public void LoadSampleData()
+	    public void LoadSampleData()
 	    {
 		    if (string.IsNullOrWhiteSpace(FilePath) || !File.Exists(FilePath))
 			    return;
@@ -354,7 +360,7 @@ namespace ImpulseHd.Ui
 		    for (int i = 0; i < impulseConfig.SpectrumStages.Length; i++)
 		    {
 			    var stage = impulseConfig.SpectrumStages[i];
-			    processor.ProcessStage(stage);
+			    processor.ProcessStage(stage, ImpulseConfigOutputs);
 			    if (i == SelectedSpectrumStageIndex)
 			    {
 				    PlottedFftSignal = processor.FftSignal.ToArray();

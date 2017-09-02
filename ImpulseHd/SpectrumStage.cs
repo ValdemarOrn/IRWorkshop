@@ -4,15 +4,21 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using AudioLib;
+using Newtonsoft.Json;
 
 namespace ImpulseHd
 {
 	public class SpectrumStage
 	{
+		[JsonIgnore]
+		public int SerializedSelectedApplySourceIndex;
+
 		public SpectrumStage()
 		{
 			IsEnabled = true;
 			MinimumPhase = true;
+			SelectedApplySource = null;
+
 			MinFreq = 0;
 			MaxFreq = 1;
 			LowBlendOcts = 0;
@@ -44,6 +50,16 @@ namespace ImpulseHd
 		// Basic settings
 		public bool IsEnabled { get; set; }
 		public bool MinimumPhase { get; set; }
+
+		[JsonIgnore]
+		public ImpulseConfig SelectedApplySource { get; set; }
+
+		public int SelectedApplySourceIndex
+		{
+			get => SelectedApplySource?.Index ?? -1;
+			set => SerializedSelectedApplySourceIndex = value;
+		}
+
 		public double MinFreq { get; set; }
 		public double MaxFreq { get; set; }
 		public double LowBlendOcts { get; set; }

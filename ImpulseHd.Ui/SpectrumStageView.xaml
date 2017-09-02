@@ -84,7 +84,8 @@
 			<RowDefinition Height="*" />
 		</Grid.RowDefinitions>
 		<Label Grid.Row="0" Grid.Column="0">Enabled</Label>
-		<Label Grid.Row="2" Grid.Column="0">Minimum Phase</Label>
+		<Label Grid.Row="1" Grid.Column="0">Minimum Phase</Label>
+		<Label Grid.Row="2" Grid.Column="0">Apply</Label>
 		<Label Grid.Row="3" Grid.Column="0">Min Freq.</Label>
 		<Label Grid.Row="4" Grid.Column="0">Max Freq.</Label>
 		<Label Grid.Row="5" Grid.Column="0">Low Blend</Label>
@@ -122,7 +123,8 @@
 
 
 		<CheckBox Grid.Column="1" Grid.Row="0" IsChecked="{Binding IsEnabled}" />
-		<CheckBox Grid.Column="1" Grid.Row="2" IsChecked="{Binding MinimumPhase}" />
+		<CheckBox Grid.Column="1" Grid.Row="1" IsChecked="{Binding MinimumPhase}" />
+		<ComboBox Grid.Column="1" Grid.Row="2" IsEditable="False" Margin="2" ItemsSource="{Binding ApplySources}" SelectedValue="{Binding SelectedApplySource}" DisplayMemberPath="Name" />
 		<Slider Grid.Column="1" Grid.Row="3" Value="{Binding MinFreq}" Minimum="0" Maximum="1" SmallChange="0.05" LargeChange="0.05" PreviewMouseDown="ResetZero" />
 		<Slider Grid.Column="1" Grid.Row="4" Value="{Binding MaxFreq}" Minimum="0" Maximum="1" SmallChange="0.05" LargeChange="0.05" PreviewMouseDown="ResetMax" />
 		<Slider Grid.Column="1" Grid.Row="5" Value="{Binding LowBlendOcts}" Minimum="0" Maximum="1" SmallChange="0.1" LargeChange="0.1" PreviewMouseDown="ResetZero" />

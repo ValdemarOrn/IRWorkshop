@@ -1,2 +1,1 @@
-Ability to apply another IR in a spectrum stage.
-setup email for error reporting, forward to personal email.
+Nothing for now!

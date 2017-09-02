@@ -21,12 +21,15 @@ namespace ImpulseHd
 			Enable = true;
 		}
 
+		public int Index { get; set; }
 		public string Name { get; set; }
 		public string FilePath { get; set; }
 		public bool Enable { get; set; }
 		public bool Solo { get; set; }
 		public int Samplerate { get; set; }
 		public int ImpulseLength { get; set; }
+
+		public string NameWithIndex => $"{Index} - {Name}";
 
 		[JsonIgnore]
 		public double[][] SampleDataFromFile { get; set; }

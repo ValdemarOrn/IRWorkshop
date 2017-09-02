@@ -173,8 +173,8 @@ namespace ImpulseHd.Ui
 		    set
 			{
 				selectedImpulseConfigIndex = value;
+				SelectedImpulse?.Update();
 				NotifyPropertyChanged();
-
 				NotifyPropertyChanged(nameof(PlotTop));
 				NotifyPropertyChanged(nameof(PlotBottom));
 			}
@@ -465,10 +465,11 @@ namespace ImpulseHd.Ui
 
 			preset.ImpulseConfig[idx] = bIc;
 			preset.ImpulseConfig[idx + 1] = aIc;
-			ImpulseConfig[idx] = bVm;
+		    ImpulseConfig[idx] = bVm;
 			ImpulseConfig[idx + 1] = aVm;
 
 		    SelectedImpulseConfigIndex = idx + 1;
+		    UpdateApplySources();
 		}
 
 	    private void MoveImpulseLeft()
@@ -491,7 +492,8 @@ namespace ImpulseHd.Ui
 		    ImpulseConfig[idx - 1] = aVm;
 
 		    SelectedImpulseConfigIndex = idx - 1;
-	    }
+		    UpdateApplySources();
+		}
 
 	    private void RemoveImpulse()
 	    {
@@ -507,6 +509,7 @@ namespace ImpulseHd.Ui
 
 			preset.ImpulseConfig = impulses.ToArray();
 		    ImpulseConfig.RemoveAt(selectedImpulseConfigIndex);
+		    UpdateApplySources();
 		    updateRateLimiter.Pulse();
 		}
 
@@ -517,8 +520,17 @@ namespace ImpulseHd.Ui
 			var vm = AddImpulseConfigVm(ic);
 			Task.Delay(100).ContinueWith(_ => vm.Update());
 			SelectedImpulseConfigIndex = ImpulseConfig.Count - 1;
+		    UpdateApplySources();
 		    updateRateLimiter.Pulse();
 		}
+
+	    private void UpdateApplySources()
+	    {
+		    for (int i = 0; i < preset.ImpulseConfig.Length; i++)
+		    {
+				preset.ImpulseConfig[i].Index = i;
+			}
+	    }
 
 		private void ShowAbout()
 	    {
@@ -592,7 +604,7 @@ namespace ImpulseHd.Ui
 		
 	    private ImpulseConfigViewModel AddImpulseConfigVm(ImpulseConfig ic)
 	    {
-		    var vm = new ImpulseConfigViewModel(ic, loadSampleDirectory)
+		    var vm = new ImpulseConfigViewModel(ic, preset, loadSampleDirectory)
 		    {
 			    OnUpdateCallback = () => updateRateLimiter.Pulse(),
 			    OnLoadSampleCallback = dir => loadSampleDirectory = Path.GetDirectoryName(dir),
@@ -707,7 +719,11 @@ namespace ImpulseHd.Ui
 		    fftTransform.FFT(timeDomainRight, fftRight);
 			
 			UpdateMemoryMap();
-		    UpdateFftPlot();
+
+		    foreach (var vm in ImpulseConfig)
+			    vm.ImpulseConfigOutputs = processor.StageOutputs;
+
+			UpdateFftPlot();
 			UpdateTimePlot();
 	    }
 

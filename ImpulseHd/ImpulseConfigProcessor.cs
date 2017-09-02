@@ -52,12 +52,13 @@ namespace ImpulseHd
 
 		public SpectrumStage[] Stages => config.SpectrumStages.ToArray();
 
-		public void ProcessStage(SpectrumStage stage)
+		public void ProcessStage(SpectrumStage stage, Dictionary<ImpulseConfig, Complex[]> impulseConfigOutputs)
 		{
 			if (!stage.IsEnabled)
 				return;
 
 			var strengths = GetStrengths(stage);
+			ProcessApply(stage, strengths, impulseConfigOutputs);
 			ProcessGain(stage, strengths);
 			ProcessGainVariation(stage, strengths);
 			ProcessRandomGain(stage, strengths);
@@ -67,6 +68,29 @@ namespace ImpulseHd
 
 			ProcessDelay(stage, strengths);
 			ProcessPhaseBands(stage, strengths);
+		}
+
+		private void ProcessApply(SpectrumStage stage, Strengths strengths, Dictionary<ImpulseConfig, Complex[]> stageOutputs)
+		{
+			if (stage.SelectedApplySource == null)
+				return;
+			if (stageOutputs == null)
+				return;
+
+			var idx = stage.SelectedApplySource.Index;
+			if (idx < 0 || idx >= config.Index) // can only apply things with lower index, because otherwise they haven't been computed yet!
+				return;
+
+			var applyFftSignal = stageOutputs.SingleOrDefault(x => x.Key.Index == idx);
+			if (applyFftSignal.Value == null)
+				return; // Probably should never happen!
+
+			for (int i = 1; i < fftSignal.Length / 2; i++)
+			{
+				var stren = strengths.Strength[i];
+				fftSignal[i] *= (1 - (Complex)stren) + ((Complex)stren * applyFftSignal.Value[i]);
+				fftSignal[fftSignal.Length - i] *= (1 - (Complex)stren) + ((Complex)stren * applyFftSignal.Value[fftSignal.Length - i]);
+			}
 		}
 
 		private void ProcessPhaseBands(SpectrumStage stage, Strengths strengths)
