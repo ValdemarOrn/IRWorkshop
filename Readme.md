@@ -22,7 +22,7 @@ This is a Windows application for mixing, editing, enhancing and creating guitar
 * Stereo enhancement effects
 * ...and many more
 
-A more detailed **[User Guide is available](https://github.com/ValdemarOrn/IRWorkshop/Guide/Readme.md)**
+A more detailed **[User Guide is available](https://github.com/ValdemarOrn/IRWorkshop/blob/master/Guide/Readme.md)**
 
 ## Download
 
