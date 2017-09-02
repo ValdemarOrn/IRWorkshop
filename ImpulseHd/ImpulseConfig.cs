@@ -23,6 +23,7 @@ namespace ImpulseHd
 
 		public int Index { get; set; }
 		public string Name { get; set; }
+		public double SampleStart { get; set; }
 		public string FilePath { get; set; }
 		public bool Enable { get; set; }
 		public bool Solo { get; set; }
@@ -76,6 +77,7 @@ namespace ImpulseHd
 		public void ConvertSampleData()
 		{
 			double[] waveData;
+			int skipLen = 0;
 
 			if (SampleDataFromFile == null)
 			{
@@ -85,9 +87,14 @@ namespace ImpulseHd
 			else
 			{
 				waveData = GetInterpolatedData(SampleDataFromFile[(FileIsStereo && UseRightChanel) ? 1 : 0], SamplerateFromFile, Samplerate);
-			}
 
-			ConvertedSampleData = waveData.Take(MaxSampleLength).ToArray();
+				var len = waveData.Length;
+				skipLen = (int)(SampleStart * len);
+				if (skipLen >= len)
+					skipLen = len - 1;
+			}
+			
+			ConvertedSampleData = waveData.Skip(skipLen).Take(MaxSampleLength).ToArray();
 			ConvertedSampleData = ConvertedSampleData.Concat(new double[MaxSampleLength - ConvertedSampleData.Length]).ToArray();
 		}
 

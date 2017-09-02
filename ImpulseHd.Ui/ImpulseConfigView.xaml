@@ -27,10 +27,15 @@
 			<RowDefinition Height="Auto" />
 			<RowDefinition Height="Auto" />
 			<RowDefinition Height="Auto" />
+			<RowDefinition Height="Auto" />
 			<RowDefinition Height="1.4*" />
 			<RowDefinition Height="*" />
 		</Grid.RowDefinitions>
 		<Label Grid.Column="1" Grid.Row="1">Sample:</Label>
+		<Label Grid.Column="1" Grid.Row="2">Name:</Label>
+		<Label Grid.Column="1" Grid.Row="3">Start:</Label>
+		<Label Grid.Column="1" Grid.Row="4">Solo:</Label>
+		
 		<TextBox Grid.Column="2" Grid.Row="1" Margin="2,2,140,2" Text="{Binding FilePath}" IsReadOnly="True" TextAlignment="Right" TextChanged="TextBox_TextChanged" />
 		<StackPanel Grid.Column="2" Grid.Row="1" HorizontalAlignment="Right" Orientation="Horizontal">
 			<Button Width="86" Padding="0" Margin="2" Height="22" Command="{Binding LoadSampleCommand}">Load Sample</Button>
@@ -38,19 +43,25 @@
 			<Button Width="20" Padding="0" Margin="2" Height="22" Command="{Binding NextSampleCommand}" CommandParameter="1">&gt;</Button>
 		</StackPanel>
 
-		<Label Grid.Column="1" Grid.Row="2">Name:</Label>
-		<Label Grid.Column="1" Grid.Row="3">Solo:</Label>
+		<Slider Grid.Column="2" Grid.Row="3" Margin="2,2,140,2" Minimum="0" Maximum="1" Value="{Binding SampleStart}" />
+		<Button Grid.Column="2" Grid.Row="3" HorizontalAlignment="Right" Width="86" Padding="0" Margin="2,2,50,2" Height="22" Command="{Binding ClearSampleCommand}">Clear Sample</Button>
 		<TextBox Grid.Column="2" Grid.Row="2" Margin="2,2,140,2" Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}" />
-		<CheckBox Grid.Column="2" Grid.Row="3" IsChecked="{Binding Solo}" />
+		<CheckBox Grid.Column="2" Grid.Row="4" IsChecked="{Binding Solo}" />
 
-		<StackPanel Grid.Column="2" Grid.Row="3" Margin="0,0,140,0" Orientation="Horizontal" HorizontalAlignment="Right">
+		<StackPanel Grid.Column="2" Grid.Row="2" HorizontalAlignment="Right" Orientation="Horizontal">
+			<ToggleButton Width="86" Margin="2,2" IsChecked="{Binding PlotImpulseBase}">Base</ToggleButton>
+			<ToggleButton Width="20" Margin="2,2" IsChecked="{Binding PlotImpulseLeft}">L</ToggleButton>
+			<ToggleButton Width="20" Margin="2,2" IsChecked="{Binding PlotImpulseRight}">R</ToggleButton>
+		</StackPanel>
+		
+		<StackPanel Grid.Column="2" Grid.Row="4" Margin="0,0,140,0" Orientation="Horizontal" HorizontalAlignment="Right">
 			<Label>Left</Label>
 			<CheckBox IsChecked="{Binding UseLeftChannel}" IsEnabled="{Binding LeftChannelAvailable}" />
 			<Label>Right</Label>
 			<CheckBox IsChecked="{Binding UseRightChannel}" IsEnabled="{Binding RightChannelAvailable}" />
 		</StackPanel>
 		
-		<StackPanel Grid.Column="2" Grid.Row="3" HorizontalAlignment="Right" Orientation="Horizontal">
+		<StackPanel Grid.Column="2" Grid.Row="4" HorizontalAlignment="Right" Orientation="Horizontal">
 			<Button Command="{Binding AddStageCommand}">
 				<Button.Template>
 					<ControlTemplate>
@@ -80,12 +91,8 @@
 				</Button.Template>
 			</Button>
 		</StackPanel>
-		<StackPanel Grid.Column="2" Grid.Row="2" HorizontalAlignment="Right" Orientation="Horizontal">
-			<ToggleButton Width="86" Margin="2,2" IsChecked="{Binding PlotImpulseBase}">Base</ToggleButton>
-			<ToggleButton Width="20" Margin="2,2" IsChecked="{Binding PlotImpulseLeft}">L</ToggleButton>
-			<ToggleButton Width="20" Margin="2,2" IsChecked="{Binding PlotImpulseRight}">R</ToggleButton>
-		</StackPanel>
-		<TabControl Grid.Column="1" Grid.ColumnSpan="2" Grid.Row="4" ItemsSource="{Binding SpectrumStages}" SelectedIndex="{Binding SelectedSpectrumStageIndex}" >
+		
+		<TabControl Grid.Column="1" Grid.ColumnSpan="2" Grid.Row="5" ItemsSource="{Binding SpectrumStages}" SelectedIndex="{Binding SelectedSpectrumStageIndex}" >
 			<TabControl.Resources>
 				<Style TargetType="TabItem">
 					<Setter Property="Width" Value="30" />
@@ -108,7 +115,7 @@
 			</TabControl.ContentTemplate>
 		</TabControl>
 		
-		<!--<TabControl Grid.Column="1" Grid.ColumnSpan="2" Grid.Row="4">
+		<!--<TabControl Grid.Column="1" Grid.ColumnSpan="2" Grid.Row="5">
 
 			<TabItem IsSelected="True" Header="1" Width="40">
 				<Border BorderBrush="#555" BorderThickness="1">
@@ -119,8 +126,8 @@
 			</TabItem>
 		</TabControl>-->
 
-		<Label  Grid.Column="1" Grid.ColumnSpan="2" Grid.Row="5" VerticalAlignment="Top" FontWeight="Bold" Foreground="#333">Output Stage</Label>
-		<Border BorderBrush="#acacac" Background="White" VerticalAlignment="Stretch" BorderThickness="1" Grid.Column="1" Grid.ColumnSpan="2" Grid.Row="5" Margin="2,24,2,2">
+		<Label  Grid.Column="1" Grid.ColumnSpan="2" Grid.Row="6" VerticalAlignment="Top" FontWeight="Bold" Foreground="#333">Output Stage</Label>
+		<Border BorderBrush="#acacac" Background="White" VerticalAlignment="Stretch" BorderThickness="1" Grid.Column="1" Grid.ColumnSpan="2" Grid.Row="6" Margin="2,24,2,2">
 			<ScrollViewer Padding="10">
 				<local:OutputStageView Margin="0" DataContext="{Binding OutputStage}" />
 			</ScrollViewer>

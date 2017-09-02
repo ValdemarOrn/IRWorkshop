@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -30,6 +31,11 @@ namespace ImpulseHd.Ui
 		private void Button_Click(object sender, RoutedEventArgs e)
 		{
 			Close();
+		}
+
+		private void Hyperlink_RequestNavigate(object sender, System.Windows.Navigation.RequestNavigateEventArgs e)
+		{
+			Process.Start(e.Uri.ToString());
 		}
 	}
 }

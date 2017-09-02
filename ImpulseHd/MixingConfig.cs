@@ -71,12 +71,12 @@ namespace ImpulseHd
 		public double Eq5GainDb { get; set; }
 		public double Eq6GainDb { get; set; }
 
-		public double Eq1FreqTransformed => 20 + ValueTables.Get(Eq1Freq, ValueTables.Response3Dec) * (20000 - 20);
-		public double Eq2FreqTransformed => 20 + ValueTables.Get(Eq2Freq, ValueTables.Response3Dec) * (20000 - 20);
-		public double Eq3FreqTransformed => 20 + ValueTables.Get(Eq3Freq, ValueTables.Response3Dec) * (20000 - 20);
-		public double Eq4FreqTransformed => 20 + ValueTables.Get(Eq4Freq, ValueTables.Response3Dec) * (20000 - 20);
-		public double Eq5FreqTransformed => 20 + ValueTables.Get(Eq5Freq, ValueTables.Response3Dec) * (20000 - 20);
-		public double Eq6FreqTransformed => 20 + ValueTables.Get(Eq6Freq, ValueTables.Response3Dec) * (20000 - 20);
+		public double Eq1FreqTransformed => 20 + ValueTables.Get(Eq1Freq, ValueTables.Response3Dec) * (22000 - 20);
+		public double Eq2FreqTransformed => 20 + ValueTables.Get(Eq2Freq, ValueTables.Response3Dec) * (22000 - 20);
+		public double Eq3FreqTransformed => 20 + ValueTables.Get(Eq3Freq, ValueTables.Response3Dec) * (22000 - 20);
+		public double Eq4FreqTransformed => 20 + ValueTables.Get(Eq4Freq, ValueTables.Response3Dec) * (22000 - 20);
+		public double Eq5FreqTransformed => 20 + ValueTables.Get(Eq5Freq, ValueTables.Response3Dec) * (22000 - 20);
+		public double Eq6FreqTransformed => 20 + ValueTables.Get(Eq6Freq, ValueTables.Response3Dec) * (22000 - 20);
 
 		public double Eq1QTransformed => Math.Pow(10, 2 * Eq1Q - 1);
 		public double Eq2QTransformed => Math.Pow(10, 2 * Eq2Q - 1);

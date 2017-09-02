@@ -13,6 +13,8 @@ namespace ImpulseHd
 {
 	public class ImpulseConfigProcessor
 	{
+		private object locker = new object();
+
 		private readonly ImpulseConfig config;
 		private readonly Complex[] fftSignal;
 		private readonly Transform fftTransform;
@@ -38,15 +40,27 @@ namespace ImpulseHd
 			fftTransform.FFT(input, fftSignal);
 		}
 
-		public Complex[] FftSignal => fftSignal;
+		public Complex[] FftSignal
+		{
+			get
+			{
+				lock (locker)
+				{
+					return fftSignal.ToArray();
+				}
+			}
+		}
 
 		public double[] TimeSignal
 		{
 			get
 			{
-				var outputFinal = new Complex[sampleCount];
-				fftTransform.IFFT(fftSignal, outputFinal);
-				return outputFinal.Select(x => x.Real).ToArray();
+				lock (locker)
+				{
+					var outputFinal = new Complex[sampleCount];
+					fftTransform.IFFT(fftSignal, outputFinal);
+					return outputFinal.Select(x => x.Real).ToArray();
+				}
 			}
 		}
 
@@ -54,20 +68,23 @@ namespace ImpulseHd
 
 		public void ProcessStage(SpectrumStage stage, Dictionary<ImpulseConfig, Complex[]> impulseConfigOutputs)
 		{
-			if (!stage.IsEnabled)
-				return;
+			lock (locker)
+			{
+				if (!stage.IsEnabled)
+					return;
 
-			var strengths = GetStrengths(stage);
-			ProcessApply(stage, strengths, impulseConfigOutputs);
-			ProcessGain(stage, strengths);
-			ProcessGainVariation(stage, strengths);
-			ProcessRandomGain(stage, strengths);
-			ProcessorFrequencySkew(stage, strengths);
+				var strengths = GetStrengths(stage);
+				ProcessApply(stage, strengths, impulseConfigOutputs);
+				ProcessGain(stage, strengths);
+				ProcessGainVariation(stage, strengths);
+				ProcessRandomGain(stage, strengths);
+				ProcessorFrequencySkew(stage, strengths);
 
-			ProcessMinimumPhase(stage, strengths);
+				ProcessMinimumPhase(stage, strengths);
 
-			ProcessDelay(stage, strengths);
-			ProcessPhaseBands(stage, strengths);
+				ProcessDelay(stage, strengths);
+				ProcessPhaseBands(stage, strengths);
+			}
 		}
 
 		private void ProcessApply(SpectrumStage stage, Strengths strengths, Dictionary<ImpulseConfig, Complex[]> stageOutputs)
@@ -97,7 +114,7 @@ namespace ImpulseHd
 		{
 			var bands = stage.PhaseBandsTransformed;
 			var shift = stage.PhaseBandFreqShiftTransformed;
-			var sections = GetBands(bands, shift, samplerate, FftSignal.Length);
+			var sections = GetBands(bands, shift, samplerate, fftSignal.Length);
 			var rand = new Random(stage.PhaseBandSeedTransformed);
 			int pb = 0;
 			foreach (var section in sections)

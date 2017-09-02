@@ -348,7 +348,7 @@ namespace ImpulseHd.Ui
 					return plotImpulseOutputTop;
 				if (SelectedTabHeader == "Impulses")
 					return SelectedImpulse?.Plot1;
-			    if (SelectedTabHeader == "Mixing")
+			    if (SelectedTabHeader == "Post Processing")
 				    return MixingConfig.Plot1;
 				return null;
 		    }
@@ -362,7 +362,7 @@ namespace ImpulseHd.Ui
 					return plotImpulseOutputBottom;
 				if (SelectedTabHeader == "Impulses")
 					return SelectedImpulse?.Plot2;
-				if (SelectedTabHeader == "Mixing")
+				if (SelectedTabHeader == "Post Processing")
 					return plotImpulseOutputBottom;
 				return null;
 			}

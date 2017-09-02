@@ -101,7 +101,7 @@
 					</Grid>
 				</TabItem>
 
-				<TabItem Header="Mixing">
+				<TabItem Header="Post Processing">
 					<local:MixingView DataContext="{Binding MixingConfig}"></local:MixingView>
 				</TabItem>
 			</TabControl>

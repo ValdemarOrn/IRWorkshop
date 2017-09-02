@@ -41,6 +41,7 @@ namespace ImpulseHd.Ui
 		    this.loadSampleDirectory = loadSampleDirectory;
 			this.updateRateLimiter = new LastRetainRateLimiter(100, UpdateInner);
 			LoadSampleCommand = new DelegateCommand(_ => LoadSampleDialog());
+		    ClearSampleCommand = new DelegateCommand(_ => ClearSample());
 			PreviousSampleCommand = new DelegateCommand(_ => LoadPreviousSample());
 		    NextSampleCommand = new DelegateCommand(_ => LoadNextSample());
 			AddStageCommand = new DelegateCommand(_ => AddStage());
@@ -71,7 +72,17 @@ namespace ImpulseHd.Ui
 		    }
 	    }
 
-	    public string FilePath
+	    public double SampleStart
+	    {
+		    get { return impulseConfig.SampleStart; }
+		    set
+		    {
+			    impulseConfig.SampleStart = value;
+			    NotifyPropertyChanged();
+		    }
+	    }
+
+		public string FilePath
 	    {
 		    get { return impulseConfig.FilePath; }
 		    set
@@ -189,6 +200,7 @@ namespace ImpulseHd.Ui
 		}
 		
 		public ICommand LoadSampleCommand { get; private set; }
+	    public ICommand ClearSampleCommand { get; private set; }
 		public ICommand PreviousSampleCommand { get; private set; }
 	    public ICommand NextSampleCommand { get; private set; }
 		public ICommand AddStageCommand { get; private set; }
@@ -201,9 +213,6 @@ namespace ImpulseHd.Ui
 
 	    public void LoadSampleData()
 	    {
-		    if (string.IsNullOrWhiteSpace(FilePath) || !File.Exists(FilePath))
-			    return;
-
 			try
 		    {
 			    impulseConfig.LoadDataFromFile();
@@ -295,7 +304,14 @@ namespace ImpulseHd.Ui
 		    LoadSampleData();
 	    }
 
-	    private void LoadNextSample()
+	    private void ClearSample()
+	    {
+			FilePath = null;
+		    LoadSampleData();
+	    }
+
+
+		private void LoadNextSample()
 	    {
 		    var selSample = impulseConfig.FilePath;
 			if (selSample == null)
@@ -434,7 +450,7 @@ namespace ImpulseHd.Ui
 			pm.Axes.Add(axis);
 
 		    axis = new LinearAxis { Position = AxisPosition.Bottom };
-		    axis.Minimum = 0;
+		    axis.Minimum = -0.5;
 		    axis.Maximum = millisLine * 1.1;
 		    pm.Axes.Add(axis);
 
