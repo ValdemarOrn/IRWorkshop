@@ -28,7 +28,7 @@ A more detailed **[User Guide is available](https://github.com/ValdemarOrn/IRWor
 
 Grab the latest version from the **[Releases Page](https://github.com/ValdemarOrn/IRWorkshop/releases)**.
 
-**A free pack of impulse responses created with IR Studio can also be downloaded from the [Releases Page](https://github.com/ValdemarOrn/IRWorkshop/releases)**.
+**A free pack of impulse responses created with IR Studio can also be downloaded from the [Releases Page](https://github.com/ValdemarOrn/IRWorkshop/releases/tag/v0.1.0)**.
 
 This software requires .NET Framework 4.5 to operate. Most users on Windows 7 or newer will already have this installed, but it can be installed via the Windows Update panel, or [downloaded directly from Microsoft](https://www.microsoft.com/en-gb/download/details.aspx?id=30653)
 
