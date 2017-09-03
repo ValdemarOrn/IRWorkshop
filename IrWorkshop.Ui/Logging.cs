@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using LowProfile.Core.Extensions;
 
-namespace ImpulseHd.Ui
+namespace IrWorkshop.Ui
 {
 	public enum LogType
 	{

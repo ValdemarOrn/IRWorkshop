@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using AudioLib;
 
-namespace ImpulseHd
+namespace IrWorkshop
 {
 	public class OutputStage
 	{
@@ -52,13 +52,13 @@ namespace ImpulseHd
 			get
 			{
 				if (WindowMethod < 0.25)
-					return ImpulseHd.WindowMethod.Truncate;
+					return IrWorkshop.WindowMethod.Truncate;
 				if (WindowMethod < 0.5)
-					return ImpulseHd.WindowMethod.Linear;
+					return IrWorkshop.WindowMethod.Linear;
 				if (WindowMethod < 0.75)
-					return ImpulseHd.WindowMethod.Logarithmic;
+					return IrWorkshop.WindowMethod.Logarithmic;
 				else
-					return ImpulseHd.WindowMethod.Cosine;
+					return IrWorkshop.WindowMethod.Cosine;
 			}
 		}
 		public double WindowLengthTransformed => ValueTables.Get(WindowLength, ValueTables.Response2Oct) * 0.5;

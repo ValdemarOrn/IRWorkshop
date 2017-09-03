@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using AudioLib;
 using LowProfile.Fourier.Double;
 
-namespace ImpulseHd
+namespace IrWorkshop
 {
 	public class StereoEnhancerProcessor
 	{

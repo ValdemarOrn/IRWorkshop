@@ -8,7 +8,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using LowProfile.Core;
 
-namespace ImpulseHd
+namespace IrWorkshop
 {
 	public class RealtimeProcessManager
 	{

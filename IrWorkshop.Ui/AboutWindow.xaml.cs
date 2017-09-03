@@ -14,7 +14,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 
-namespace ImpulseHd.Ui
+namespace IrWorkshop.Ui
 {
 	/// <summary>
 	/// Interaction logic for AboutWindow.xaml

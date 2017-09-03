@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using AudioLib;
 using AudioLib.Modules;
 
-namespace ImpulseHd
+namespace IrWorkshop
 {
 	public class OutputConfigProcessor
 	{

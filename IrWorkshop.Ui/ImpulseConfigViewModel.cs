@@ -18,7 +18,7 @@ using OxyPlot;
 using OxyPlot.Axes;
 using OxyPlot.Series;
 
-namespace ImpulseHd.Ui
+namespace IrWorkshop.Ui
 {
     class ImpulseConfigViewModel : ViewModelBase
     {

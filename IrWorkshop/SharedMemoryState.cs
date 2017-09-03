@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ImpulseHd
+namespace IrWorkshop
 {
 	public class SharedMemoryState
 	{

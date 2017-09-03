@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using AudioLib;
 
-namespace ImpulseHd
+namespace IrWorkshop
 {
 	public class MixingConfig
 	{

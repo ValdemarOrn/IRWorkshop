@@ -18,7 +18,7 @@ using System.Windows.Media;
 using AudioLib;
 using AudioLib.PortAudio;
 using AudioLib.PortAudioInterop;
-using ImpulseHd.Serializer;
+using IrWorkshop.Serializer;
 using LowProfile.Core.Ui;
 using LowProfile.Fourier.Double;
 using LowProfile.Visuals;
@@ -27,7 +27,7 @@ using Newtonsoft.Json;
 using OxyPlot;
 using OxyPlot.Axes;
 
-namespace ImpulseHd.Ui
+namespace IrWorkshop.Ui
 {
     class MainViewModel : ViewModelBase
     {
@@ -99,6 +99,7 @@ namespace ImpulseHd.Ui
 				throw;
 			}
 
+			volumeSlider = 0.7;
 			preset = new ImpulsePreset();
 			ImpulseConfig = new ObservableCollection<ImpulseConfigViewModel>();
 			MixingConfig = new MixingViewModel(preset.MixingConfig, preset.SamplerateTransformed) { OnUpdateCallback = () => updateRateLimiter.Pulse() };
@@ -588,13 +589,17 @@ namespace ImpulseHd.Ui
 		    {
 			    try
 			    {
-				    // this is done because the devices and Ids go a bit tits when you re-initialize...
-				    var serialized = realtimeConfig.Serialize();
+					// this is done because the devices and Ids go a bit tits when you re-initialize...
+					string serialized = null;
+					if (realtimeConfig != null)
+						serialized = realtimeConfig.Serialize();
 
 				    PortAudio.Pa_Terminate();
 				    PortAudio.Pa_Initialize();
 
-				    var deserialized = RealtimeHostConfig.Deserialize(serialized);
+					RealtimeHostConfig deserialized = null;
+					if (serialized != null)
+						deserialized = RealtimeHostConfig.Deserialize(serialized);
 
 				    // Use the graphical editor to create a new config
 				    var config = RealtimeHostConfig.CreateConfig(deserialized);

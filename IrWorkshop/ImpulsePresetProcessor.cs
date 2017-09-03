@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using LowProfile.Fourier.Double;
 
-namespace ImpulseHd
+namespace IrWorkshop
 {
 	public class ImpulsePresetProcessor
 	{

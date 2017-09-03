@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using LowProfile.Core.Ui;
 
-namespace ImpulseHd.Ui
+namespace IrWorkshop.Ui
 {
 	class OutputStageViewModel : ViewModelBase
 	{

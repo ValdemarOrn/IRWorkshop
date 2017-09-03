@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 
-namespace ImpulseHd.Serializer
+namespace IrWorkshop.Serializer
 {
 	public class PresetSerializer
 	{

@@ -7,7 +7,7 @@ using System.Threading;
 using AudioLib.PortAudioInterop;
 using Newtonsoft.Json;
 
-namespace ImpulseHd.RealtimeProcessing
+namespace IrWorkshop.RealtimeProcessing
 {
 	public class Program
 	{

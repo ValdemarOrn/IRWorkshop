@@ -9,7 +9,7 @@ using AudioLib;
 using AudioLib.Modules;
 using AudioLib.TF;
 
-namespace ImpulseHd
+namespace IrWorkshop
 {
 	public class ImpulseConfigProcessor
 	{

@@ -7,11 +7,11 @@ using System.Windows;
 // General Information about an assembly is controlled through the following
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("ImpulseHd.Ui")]
+[assembly: AssemblyTitle("IrWorkshop.Ui")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("ImpulseHd.Ui")]
+[assembly: AssemblyProduct("IrWorkshop.Ui")]
 [assembly: AssemblyCopyright("Copyright - Valdemar Erlingsson")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]

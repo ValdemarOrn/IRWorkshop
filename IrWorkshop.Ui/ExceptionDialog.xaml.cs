@@ -16,7 +16,7 @@ using System.Windows.Resources;
 using System.Windows.Shapes;
 using Image = System.Windows.Controls.Image;
 
-namespace ImpulseHd.Ui
+namespace IrWorkshop.Ui
 {
 	/// <summary>
 	/// Interaction logic for ExceptionDialog.xaml

@@ -6,7 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using LowProfile.Core.Extensions;
 
-namespace ImpulseHd.Ui
+namespace IrWorkshop.Ui
 {
 	public class LastRetainRateLimiter
 	{
