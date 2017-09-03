@@ -1,0 +1,1 @@
+-export -length 1024 -samplerate 48000 -source "C:\Users\Valdemar\Desktop\Impulse Presets\scratch" -dest "C:\Users\Valdemar\Desktop\Impulse Presets\scratch\dest" -overwrite -mono

@@ -20,7 +20,7 @@ using OxyPlot.Series;
 
 namespace IrWorkshop.Ui
 {
-    class ImpulseConfigViewModel : ViewModelBase
+    public class ImpulseConfigViewModel : ViewModelBase
     {
 	    private readonly ImpulseConfig impulseConfig;
 	    private readonly ImpulsePreset preset;

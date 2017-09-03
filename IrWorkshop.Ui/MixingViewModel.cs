@@ -12,7 +12,7 @@ using OxyPlot.Series;
 
 namespace IrWorkshop.Ui
 {
-	class MixingViewModel : ViewModelBase
+	public class MixingViewModel : ViewModelBase
 	{
 		private readonly MixingConfig mixingConfig;
 		private LastRetainRateLimiter updateRateLimiter;

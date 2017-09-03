@@ -83,10 +83,6 @@
     <Reference Include="PresentationFramework" />
   </ItemGroup>
   <ItemGroup>
-    <ApplicationDefinition Include="App.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </ApplicationDefinition>
     <Compile Include="ExceptionDialog.xaml.cs">
       <DependentUpon>ExceptionDialog.xaml</DependentUpon>
     </Compile>
@@ -102,6 +98,7 @@
     </Compile>
     <Compile Include="MixingViewModel.cs" />
     <Compile Include="OutputStageViewModel.cs" />
+    <Compile Include="Program.cs" />
     <Compile Include="SpectrumStageView.xaml.cs">
       <DependentUpon>SpectrumStageView.xaml</DependentUpon>
     </Compile>
@@ -121,10 +118,6 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Compile Include="App.xaml.cs">
-      <DependentUpon>App.xaml</DependentUpon>
-      <SubType>Code</SubType>
-    </Compile>
     <Compile Include="ImpulseConfigView.xaml.cs">
       <DependentUpon>ImpulseConfigView.xaml</DependentUpon>
     </Compile>

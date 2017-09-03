@@ -29,7 +29,7 @@ using OxyPlot.Axes;
 
 namespace IrWorkshop.Ui
 {
-    class MainViewModel : ViewModelBase
+    public class MainViewModel : ViewModelBase
     {
 	    private readonly string settingsFile;
 		private readonly LastRetainRateLimiter updateRateLimiter;
@@ -382,6 +382,24 @@ namespace IrWorkshop.Ui
 		    }
 	    }
 
+	    public void LoadPreset(string file)
+	    {
+			if (!File.Exists(file))
+				return;
+
+		    try
+		    {
+			    savePresetDirectory = Path.GetDirectoryName(file);
+			    var json = File.ReadAllText(file);
+			    var newPreset = PresetSerializer.DeserializePreset(json);
+			    loadedFile = file;
+			    ApplyPreset(newPreset);
+		    }
+		    catch (Exception ex)
+		    {
+			    Logging.ShowMessage($"Cannot load preset from file {file}.\r\n" + ex.Message, LogType.Error, true);
+		    }
+	    }
 
 		private void SwitchGraphs()
 	    {

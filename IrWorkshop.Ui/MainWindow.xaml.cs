@@ -20,10 +20,13 @@ namespace IrWorkshop.Ui
 	/// </summary>
 	public partial class MainWindow : Window
 	{
+		public MainViewModel ViewModel { get; private set; }
+
 		public MainWindow()
 		{
 			InitializeComponent();
-			DataContext = new MainViewModel();
+			ViewModel = new MainViewModel();
+			DataContext = ViewModel;
 		}
 
 		private void MenuItem_Click(object sender, RoutedEventArgs e)

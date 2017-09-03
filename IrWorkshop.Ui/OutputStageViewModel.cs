@@ -7,7 +7,7 @@ using LowProfile.Core.Ui;
 
 namespace IrWorkshop.Ui
 {
-	class OutputStageViewModel : ViewModelBase
+	public class OutputStageViewModel : ViewModelBase
 	{
 		private readonly OutputStage stage;
 		private readonly Action onUpdateCallback;

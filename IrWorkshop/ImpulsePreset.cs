@@ -58,6 +58,19 @@ namespace IrWorkshop
 				else
 					return 96000;
 			}
+			set
+			{
+				if (value == 44100)
+					Samplerate = 0.0;
+				else if (value == 48000)
+					Samplerate = 0.3;
+				else if (value == 88200)
+					Samplerate = 0.6;
+				else if (value == 96000)
+					Samplerate = 0.99;
+				else
+					throw new ArgumentException($"Unsupported Samplerate of {value}");
+			}
 		}
 
 		public int ImpulseLengthTransformed
@@ -75,6 +88,21 @@ namespace IrWorkshop
 					return 2048;
 				else
 					return 4096;
+			}
+			set
+			{
+				if (value == 256)
+					ImpulseLength = 0.0;
+				else if (value == 512)
+					ImpulseLength = 0.21;
+				else if (value == 1024)
+					ImpulseLength = 0.41;
+				else if (value == 2048)
+					ImpulseLength = 0.65;
+				else if (value == 4096)
+					ImpulseLength = 0.81;
+				else
+					throw new ArgumentException($"Unsupported Impulse length of {value}");
 			}
 		}
 	}
