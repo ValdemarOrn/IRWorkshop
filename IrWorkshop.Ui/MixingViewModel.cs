@@ -210,10 +210,10 @@ namespace ImpulseHd.Ui
 			set { mixingConfig.EqSmoothingOctaves = value; NotifyPropertyChanged(); NotifyPropertyChanged(nameof(EqSmoothingOctavesReadout)); Update(); }
 		}
 
-		public double DelayAmount
+		public double DelayMillis
 		{
-			get { return mixingConfig.DelayAmount; }
-			set { mixingConfig.DelayAmount = value; NotifyPropertyChanged(); NotifyPropertyChanged(nameof(DelayAmountReadout)); Update(); }
+			get { return mixingConfig.DelayMillis; }
+			set { mixingConfig.DelayMillis = value; NotifyPropertyChanged(); NotifyPropertyChanged(nameof(DelayMillisReadout)); Update(); }
 		}
 
 		public double FreqShift
@@ -237,7 +237,7 @@ namespace ImpulseHd.Ui
 		
 		public string EqDepthDbReadout => $"{mixingConfig.EqDepthDbTransformed:0.0} dB";
 		public string EqSmoothingOctavesReadout => $"{mixingConfig.EqSmoothingOctavesTransformed:0.00} Octaves";
-		public string DelayAmountReadout => $"{mixingConfig.DelayAmountTransformed:0} Samples";
+		public string DelayMillisReadout => $"{mixingConfig.DelayMillisTransformed:0.00} ms";
 		public string FreqShiftReadout => $"{mixingConfig.FreqShiftTransformed:0.00}x";
 		public string BlendAmountReadout => $"{mixingConfig.BlendAmountTransformed:0.0} dB";
 

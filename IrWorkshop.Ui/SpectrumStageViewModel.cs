@@ -76,10 +76,10 @@ namespace ImpulseHd.Ui
 			set { stage.Gain = value; NotifyPropertyChanged(); NotifyPropertyChanged(nameof(GainReadout)); onUpdateCallback(); }
 		}
 
-		public double DelaySamples
+		public double DelayMillis
 		{
-			get { return stage.DelaySamples; }
-			set { stage.DelaySamples = value; NotifyPropertyChanged(); NotifyPropertyChanged(nameof(DelaySamplesReadout)); onUpdateCallback(); }
+			get { return stage.DelayMillis; }
+			set { stage.DelayMillis = value; NotifyPropertyChanged(); NotifyPropertyChanged(nameof(DelayMillisReadout)); onUpdateCallback(); }
 		}
 
 
@@ -161,10 +161,10 @@ namespace ImpulseHd.Ui
 			set { stage.PhaseBands = value; NotifyPropertyChanged(); NotifyPropertyChanged(nameof(PhaseBandsReadout)); onUpdateCallback(); }
 		}
 
-		public double PhaseBandDelayAmount
+		public double PhaseBandDelayMillis
 		{
-			get { return stage.PhaseBandDelayAmount; }
-			set { stage.PhaseBandDelayAmount = value; NotifyPropertyChanged(); NotifyPropertyChanged(nameof(PhaseBandDelayAmountReadout)); onUpdateCallback(); }
+			get { return stage.PhaseBandDelayMillis; }
+			set { stage.PhaseBandDelayMillis = value; NotifyPropertyChanged(); NotifyPropertyChanged(nameof(PhaseBandDelayMillisReadout)); onUpdateCallback(); }
 		}
 
 		public double PhaseBandFreqTrack
@@ -191,7 +191,7 @@ namespace ImpulseHd.Ui
 		public string LowBlendOctsReadout => $"{stage.LowBlendOctsTransformed:0.0} Octaves";
 		public string HighBlendOctsReadout => $"{stage.HighBlendOctsTransformed:0.0} Octaves";
 		public string GainReadout => $"{stage.GainTransformed:0.0}dB";
-		public string DelaySamplesReadout => $"{stage.DelaySamplesTransformed:0} Samples";
+		public string DelayMillisReadout => $"{stage.DelayMillisTransformed:0.00} ms";
 
 		public string GainSmoothingOctavesReadout => $"{stage.GainSmoothingOctavesTransformed:0.00} Octaves";
 		public string GainSmoothingAmountReadout => $"{stage.GainSmoothingAmountTransformed:0.00}";
@@ -207,7 +207,7 @@ namespace ImpulseHd.Ui
 		public string FrequencySkewReadout => $"{stage.FrequencySkewTransformed:0.00}";
 
 		public string PhaseBandsReadout => $"{stage.PhaseBandsTransformed:0} Bands";
-		public string PhaseBandDelayAmountReadout => $"{stage.PhaseBandDelayAmountTransformed:0} Samples";
+		public string PhaseBandDelayMillisReadout => $"{stage.PhaseBandDelayMillisTransformed:0.00} ms";
 		public string PhaseBandFreqTrackReadout => $"{stage.PhaseBandFreqTrackTransformed:0.00}";
 		public string PhaseBandSeedReadout => $"{stage.PhaseBandSeedTransformed:0}";
 		public string PhaseBandFreqShiftReadout => $"{stage.PhaseBandFreqShiftTransformed:0.00}x";

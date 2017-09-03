@@ -24,16 +24,16 @@ namespace ImpulseHd.Ui
 			set { stage.Gain = value; NotifyPropertyChanged(); NotifyPropertyChanged(nameof(GainReadout)); onUpdateCallback(); }
 		}
 
-		public double SampleDelayL
+		public double DelayMillisL
 		{
-			get { return stage.SampleDelayL; }
-			set { stage.SampleDelayL = value; NotifyPropertyChanged(); NotifyPropertyChanged(nameof(SampleDelayLReadout)); onUpdateCallback(); }
+			get { return stage.DelayMillisL; }
+			set { stage.DelayMillisL = value; NotifyPropertyChanged(); NotifyPropertyChanged(nameof(DelayMillisLReadout)); onUpdateCallback(); }
 		}
 
-		public double SampleDelayR
+		public double DelayMillisR
 		{
-			get { return stage.SampleDelayR; }
-			set { stage.SampleDelayR = value; NotifyPropertyChanged(); NotifyPropertyChanged(nameof(SampleDelayRReadout)); onUpdateCallback(); }
+			get { return stage.DelayMillisR; }
+			set { stage.DelayMillisR = value; NotifyPropertyChanged(); NotifyPropertyChanged(nameof(DelayMillisRReadout)); onUpdateCallback(); }
 		}
 
 		public double Pan
@@ -104,8 +104,8 @@ namespace ImpulseHd.Ui
 
 
 		public string GainReadout => $"{stage.GainTransformed:0.00}dB";
-		public string SampleDelayLReadout => $"{stage.SampleDelayLTransformed:0} Samples";
-		public string SampleDelayRReadout => $"{stage.SampleDelayRTransformed:0} Samples";
+		public string DelayMillisLReadout => $"{stage.DelayMillisLTransformed:0.00} ms";
+		public string DelayMillisRReadout => $"{stage.DelayMillisRTransformed:0.00} ms";
 		public string PanReadout => $"{stage.PanTransformed*100:0} " + (stage.PanTransformed < 0 ? "Left" : stage.PanTransformed > 0 ? "Right" : "Center");
 		public string LowCutLeftReadout => $"{stage.LowCutLeftTransformed:0} Hz";
 		public string LowCutRightReadout => $"{stage.LowCutRightTransformed:0} Hz";

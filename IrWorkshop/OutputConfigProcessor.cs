@@ -34,8 +34,8 @@ namespace ImpulseHd
 			var rightPan = pan >= 0 ? 1.0 : 1 - Math.Abs(pan);
 			var leftInvert = outputStage.InvertPhaseLeft ? -1 : 1;
 			var rightInvert = outputStage.InvertPhaseRight ? -1 : 1;
-			var leftDelay = outputStage.SampleDelayLTransformed;
-			var rightDelay = outputStage.SampleDelayRTransformed;
+			var leftDelay = (int)(outputStage.DelayMillisLTransformed / 1000.0 * samplerate);
+			var rightDelay = (int)(outputStage.DelayMillisRTransformed / 1000.0 * samplerate);
 			var windowLen = outputStage.WindowLengthTransformed;
 			var windowType = outputStage.WindowMethodTransformed;
 			var low12db = outputStage.LowCut12dB;

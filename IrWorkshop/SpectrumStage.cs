@@ -24,7 +24,7 @@ namespace ImpulseHd
 			LowBlendOcts = 0;
 			HighBlendOcts = 0;
 			Gain = 0.6;
-			DelaySamples = 0;
+			DelayMillis = 0;
 
 			GainSmoothingOctaves = 0.2;
 			GainSmoothingAmount = 0.5;
@@ -41,7 +41,7 @@ namespace ImpulseHd
 			PinToHighFrequency = false;
 
 			PhaseBands = 0.5;
-			PhaseBandDelayAmount = 0;
+			PhaseBandDelayMillis = 0;
 			PhaseBandFreqTrack = 0.5;
 			PhaseBandSeed = 0;
 			PhaseBandFreqShift = 0.5;
@@ -65,7 +65,7 @@ namespace ImpulseHd
 		public double LowBlendOcts { get; set; }
 		public double HighBlendOcts { get; set; }
 		public double Gain { get; set; }
-		public double DelaySamples { get; set; }
+		public double DelayMillis { get; set; }
 
 		// Gain variation
 		public double GainSmoothingOctaves { get; set; }
@@ -86,7 +86,7 @@ namespace ImpulseHd
 
 		// Splits the signal up into N bands and applies random delay (stereo widening)
 		public double PhaseBands { get; set; }
-		public double PhaseBandDelayAmount { get; set; }
+		public double PhaseBandDelayMillis { get; set; }
 		public double PhaseBandFreqTrack { get; set; }
 		public double PhaseBandSeed { get; set; }
 		public double PhaseBandFreqShift { get; set; }
@@ -97,7 +97,7 @@ namespace ImpulseHd
 		public double LowBlendOctsTransformed => LowBlendOcts * 5;
 		public double HighBlendOctsTransformed => HighBlendOcts * 5;
 		public double GainTransformed => -60 + Gain * 100;
-		public double DelaySamplesTransformed => (int)(ValueTables.Get(DelaySamples, ValueTables.Response2Dec) * 4096);
+		public double DelayMillisTransformed => ValueTables.Get(DelayMillis, ValueTables.Response2Oct) * 80;
 
 		// Gain variation
 		public double GainSmoothingOctavesTransformed => ValueTables.Get(GainSmoothingOctaves, ValueTables.Response2Dec) * 2;
@@ -133,7 +133,7 @@ namespace ImpulseHd
 
 		// Splits the signal up into N bands and applies random delay (stereo widening)
 		public int PhaseBandsTransformed => (int)((PhaseBands - 0.001) * 9) + 2;
-		public double PhaseBandDelayAmountTransformed => (int)(ValueTables.Get(PhaseBandDelayAmount, ValueTables.Response2Dec) * 4096);
+		public double PhaseBandDelayMillisTransformed => ValueTables.Get(PhaseBandDelayMillis, ValueTables.Response2Oct) * 80;
 		public double PhaseBandFreqTrackTransformed => 2 * PhaseBandFreqTrack - 1;
 		public int PhaseBandSeedTransformed => (int)(PhaseBandSeed * 10000);
 		public double PhaseBandFreqShiftTransformed => 0.5 + PhaseBandFreqShift;

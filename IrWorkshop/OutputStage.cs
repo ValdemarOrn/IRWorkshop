@@ -22,8 +22,8 @@ namespace ImpulseHd
 		}
 
 		public double Gain { get; set; }
-		public double SampleDelayL { get; set; }
-		public double SampleDelayR { get; set; } // additional delay, <0 := left channel delayed more, >0 right channel delayed more
+		public double DelayMillisL { get; set; }
+		public double DelayMillisR { get; set; } // additional delay, <0 := left channel delayed more, >0 right channel delayed more
 		public double Pan { get; set; }
 		public bool InvertPhaseLeft { get; set; }
 		public bool InvertPhaseRight { get; set; }
@@ -39,8 +39,8 @@ namespace ImpulseHd
 
 
 		public double GainTransformed => -60 + Gain * 80;
-		public int SampleDelayLTransformed => (int)(ValueTables.Get(SampleDelayL, ValueTables.Response2Dec) * 4096);
-		public int SampleDelayRTransformed => (int)(ValueTables.Get(SampleDelayR, ValueTables.Response2Dec) * 4096);
+		public double DelayMillisLTransformed => ValueTables.Get(DelayMillisL, ValueTables.Response2Oct) * 80;
+		public double DelayMillisRTransformed => ValueTables.Get(DelayMillisR, ValueTables.Response2Oct) * 80;
 		public double PanTransformed => Pan * 2 - 1;
 		public double LowCutLeftTransformed => 20 + ValueTables.Get(LowCutLeft, ValueTables.Response3Oct) * 1480;
 		public double LowCutRightTransformed => 20 + ValueTables.Get(LowCutRight, ValueTables.Response3Oct) * 1480;

@@ -38,7 +38,7 @@ namespace ImpulseHd
 
 			EqDepthDb = 0.5;
 			EqSmoothingOctaves = 0.5;
-			DelayAmount = 0.5;
+			DelayMillis = 0.5;
 			FreqShift = 0.5;
 			BlendAmount = 0.0;
 
@@ -96,13 +96,13 @@ namespace ImpulseHd
 
 		public double EqDepthDb { get; set; }
 		public double EqSmoothingOctaves { get; set; }
-		public double DelayAmount { get; set; }
+		public double DelayMillis { get; set; }
 		public double FreqShift { get; set; }
 		public double BlendAmount { get; set; }
 
 		public double EqDepthDbTransformed => 12 * EqDepthDb;
 		public double EqSmoothingOctavesTransformed => ValueTables.Get(EqSmoothingOctaves, ValueTables.Response2Dec) * 2;
-		public int DelayAmountTransformed => (int)(ValueTables.Get(DelayAmount, ValueTables.Response2Dec) * 4096);
+		public double DelayMillisTransformed => ValueTables.Get(DelayMillis, ValueTables.Response2Oct) * 80;
 		public double FreqShiftTransformed => 0.5 + FreqShift;
 		public double BlendAmountTransformed => -40 + 40 * BlendAmount;
 		

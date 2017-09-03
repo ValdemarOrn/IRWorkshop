@@ -24,20 +24,23 @@ namespace ImpulseHd
 
 		public ImpulseConfigProcessor(ImpulseConfig config)
 		{
-			this.config = config;
-			sampleCount = ImpulseConfig.MaxSampleLength;
-			samplerate = config.Samplerate;
+			lock (locker)
+			{
+				this.config = config;
+				sampleCount = ImpulseConfig.MaxSampleLength;
+				samplerate = config.Samplerate;
 
-			if (!config.SampleDataFromFileLoaded)
-				config.LoadDataFromFile();
+				if (!config.SampleDataFromFileLoaded)
+					config.LoadDataFromFile();
 
-			config.ConvertSampleData();
+				config.ConvertSampleData();
 
-			this.fftTransform = new Transform(sampleCount);
-			var input = config.ConvertedSampleData.Select(x => (Complex)x).ToArray();
+				this.fftTransform = new Transform(sampleCount);
+				var input = config.ConvertedSampleData.Select(x => (Complex)x).ToArray();
 
-			fftSignal = new Complex[input.Length];
-			fftTransform.FFT(input, fftSignal);
+				fftSignal = new Complex[input.Length];
+				fftTransform.FFT(input, fftSignal);
+			}
 		}
 
 		public Complex[] FftSignal
@@ -58,7 +61,13 @@ namespace ImpulseHd
 				lock (locker)
 				{
 					var outputFinal = new Complex[sampleCount];
-					fftTransform.IFFT(fftSignal, outputFinal);
+					var fftSig = FftSignal;
+					
+					// weird bug that I haven't managed to find...
+					if (fftSig.Length != outputFinal.Length)
+						return new double[ImpulseConfig.MaxSampleLength];
+
+					fftTransform.IFFT(fftSig, outputFinal);
 					return outputFinal.Select(x => x.Real).ToArray();
 				}
 			}
@@ -117,9 +126,11 @@ namespace ImpulseHd
 			var sections = GetBands(bands, shift, samplerate, fftSignal.Length);
 			var rand = new Random(stage.PhaseBandSeedTransformed);
 			int pb = 0;
+			var delaySamplesMain = stage.PhaseBandDelayMillisTransformed / 1000 * samplerate;
+
 			foreach (var section in sections)
 			{
-				var delaySamples = rand.NextDouble() * stage.PhaseBandDelayAmountTransformed;
+				var delaySamples = rand.NextDouble() * delaySamplesMain;
 				var k = pb / (double)(sections.Count - 1);
 				var amountOfTracking = Math.Abs(stage.PhaseBandFreqTrackTransformed);
 				if (stage.PhaseBandFreqTrackTransformed < 0)
@@ -420,9 +431,10 @@ namespace ImpulseHd
 
 		private void ProcessDelay(SpectrumStage stage, Strengths strengths)
 		{
+			var delaySamples = stage.DelayMillisTransformed / 1000.0 * samplerate;
 			for (int i = strengths.FMin; i <= strengths.FMax; i++)
 			{
-				var amount = stage.DelaySamplesTransformed / (double)ImpulseConfig.MaxSampleLength;
+				var amount = delaySamples / (double)ImpulseConfig.MaxSampleLength;
 				amount = amount * strengths.Strength[i];
 				var newVal = fftSignal[i] * Complex.CExp(-2 * Math.PI * i * amount);
 				fftSignal[i] = newVal;

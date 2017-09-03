@@ -170,9 +170,9 @@
 						<Label Grid.Column="2" Grid.Row="4" Grid.ColumnSpan="3" HorizontalAlignment="Left" Padding="2">EQ Smoothing</Label>
 						<Label Grid.Column="5" Grid.Row="4" Grid.ColumnSpan="3" HorizontalAlignment="Left" Padding="2" Content="{Binding EqSmoothingOctavesReadout, FallbackValue=0.25 Octaves}" />
 
-						<Slider Grid.Column="10" Grid.Row="1" Grid.ColumnSpan="6" Orientation="Horizontal" HorizontalAlignment="Stretch" Margin="5" Minimum="0" Maximum="1" LargeChange="0.1" Value="{Binding DelayAmount}" PreviewMouseDown="ResetMid" />
+						<Slider Grid.Column="10" Grid.Row="1" Grid.ColumnSpan="6" Orientation="Horizontal" HorizontalAlignment="Stretch" Margin="5" Minimum="0" Maximum="1" LargeChange="0.1" Value="{Binding DelayMillis}" PreviewMouseDown="ResetMid" />
 						<Label Grid.Column="10" Grid.Row="2" Grid.ColumnSpan="3" HorizontalAlignment="Left" Padding="2">Delay Amount</Label>
-						<Label Grid.Column="13" Grid.Row="2" Grid.ColumnSpan="3" HorizontalAlignment="Left" Padding="2" Content="{Binding DelayAmountReadout, FallbackValue=230 Samples}" />
+						<Label Grid.Column="13" Grid.Row="2" Grid.ColumnSpan="3" HorizontalAlignment="Left" Padding="2" Content="{Binding DelayMillisReadout, FallbackValue=0.00 ms}" />
 
 						<Slider Grid.Column="10" Grid.Row="3" Grid.ColumnSpan="6" Orientation="Horizontal" HorizontalAlignment="Stretch" Margin="5" Minimum="0" Maximum="1" LargeChange="0.1" Value="{Binding FreqShift}" PreviewMouseDown="ResetMid" />
 						<Label Grid.Column="10" Grid.Row="4" Grid.ColumnSpan="3" HorizontalAlignment="Left" Padding="2">Freq Shift</Label>

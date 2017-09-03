@@ -136,6 +136,8 @@ namespace ImpulseHd
 
 		private void ProcessPhaseBands(int[] bandMap)
 		{
+			var delaySamples = config.DelayMillisTransformed / 1000 * samplerate;
+
 			for (int i = 1; i <= SignalLen / 2; i++)
 			{
 				var band = bandMap[i];
@@ -144,9 +146,9 @@ namespace ImpulseHd
 				double delaySamplesRight = 0;
 
 				if (delay < 0)
-					delaySamplesLeft = config.DelayAmountTransformed * Math.Abs(delay);
+					delaySamplesLeft = delaySamples * Math.Abs(delay);
 				else
-					delaySamplesRight = config.DelayAmountTransformed * Math.Abs(delay);
+					delaySamplesRight = delaySamples * Math.Abs(delay);
 
 				var amountLeft = delaySamplesLeft / (double)ImpulseConfig.MaxSampleLength;
 				var newValLeft = fftSignalLeft[i] * Complex.CExp(-2 * Math.PI * i * amountLeft);
