@@ -67,8 +67,9 @@ namespace IrWorkshop.Ui
 	    private int stateIndex;
 
 	    private RealtimeHostConfig realtimeConfig;
+	    private string loadedFile;
 
-		public MainViewModel()
+	    public MainViewModel()
 		{
 			Logging.SetupLogging();
 			PortAudio.Pa_Initialize();
@@ -395,7 +396,8 @@ namespace IrWorkshop.Ui
 		    var defaultPreset = Path.Combine(dir, "Default.irw");
 			var json = File.ReadAllText(defaultPreset);
 		    var newPreset = PresetSerializer.DeserializePreset(json);
-		    ApplyPreset(newPreset);
+			loadedFile = null;
+			ApplyPreset(newPreset);
 		}
 
 	    private void OpenPreset()
@@ -410,7 +412,8 @@ namespace IrWorkshop.Ui
 			    savePresetDirectory = Path.GetDirectoryName(openFileDialog.FileName);
 			    var json = File.ReadAllText(openFileDialog.FileName);
 			    var newPreset = PresetSerializer.DeserializePreset(json);
-			    ApplyPreset(newPreset);
+			    loadedFile = openFileDialog.FileName;
+				ApplyPreset(newPreset);
 		    }
 		}
 
@@ -443,13 +446,23 @@ namespace IrWorkshop.Ui
 		    var saveFileDialog = new SaveFileDialog();
 		    saveFileDialog.Filter = "Impulse Workshop file (*.irw)|*.irw";
 		    saveFileDialog.RestoreDirectory = true;
-		    saveFileDialog.InitialDirectory = savePresetDirectory;
+		    if (loadedFile != null)
+		    {
+			    saveFileDialog.InitialDirectory = Path.GetDirectoryName(loadedFile);
+			    saveFileDialog.FileName = Path.GetFileName(loadedFile);
+		    }
+		    else
+		    {
+			    saveFileDialog.InitialDirectory = savePresetDirectory;
+			    saveFileDialog.FileName = (preset.ImpulseConfig != null && preset.ImpulseConfig.Length > 0) ? preset.ImpulseConfig[0].Name : "New Impulse";
+			}
 
 		    if (saveFileDialog.ShowDialog() == true)
 		    {
 			    savePresetDirectory = Path.GetDirectoryName(saveFileDialog.FileName);
 			    File.WriteAllText(saveFileDialog.FileName, json);
-		    }
+			    loadedFile = saveFileDialog.FileName;
+			}
 		}
 
 		private void CloneImpulse()

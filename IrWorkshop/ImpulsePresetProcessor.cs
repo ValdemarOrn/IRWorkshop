@@ -49,7 +49,7 @@ namespace IrWorkshop
 				// we still compute disabled and non-soloed impulses as they can be cross-applied to other impulses
 				if (hasSolo && !impulseConfig.Solo)
 					continue;
-				if (!impulseConfig.Enable)
+				if (!impulseConfig.Enable && !impulseConfig.Solo)
 					continue;
 
 				Sum(bufferLeft, stageOutput[0]);

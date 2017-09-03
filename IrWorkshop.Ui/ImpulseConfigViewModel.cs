@@ -29,7 +29,7 @@ namespace IrWorkshop.Ui
 		private string loadSampleDirectory;
 		private PlotModel plotModel;
 	    private PlotModel plot2;
-	    private int selectedSpectrumStage;
+	    private int selectedSpectrumStageIndex;
 	    private bool plotImpulseBase;
 	    private bool plotImpulseLeft;
 	    private bool plotImpulseRight;
@@ -50,6 +50,8 @@ namespace IrWorkshop.Ui
 		    MoveStageRightCommand = new DelegateCommand(_ => MoveStageRight());
 			PlotImpulseBase = true;
 			LoadSampleData();
+
+		    selectedSpectrumStageIndex = config.SpectrumStages.Length - 1;
 	    }
 		
 	    public ImpulseConfig ImpulseConfig => impulseConfig;
@@ -132,8 +134,8 @@ namespace IrWorkshop.Ui
 
 		public int SelectedSpectrumStageIndex
 		{
-		    get { return selectedSpectrumStage; }
-		    set { selectedSpectrumStage = value; NotifyPropertyChanged(); }
+		    get { return selectedSpectrumStageIndex; }
+		    set { selectedSpectrumStageIndex = value; NotifyPropertyChanged(); }
 	    }
 
 	    public PlotModel Plot1
