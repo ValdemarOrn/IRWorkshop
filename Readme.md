@@ -28,9 +28,11 @@ A more detailed **[User Guide is available](https://github.com/ValdemarOrn/IRWor
 
 Grab the latest version from the **[Releases Page](https://github.com/ValdemarOrn/IRWorkshop/releases)**.
 
-## Synthetic Impulses Pack
+## Synthetic Cabinets Pack
 
-**A free pack of impulse responses created with IR Studio can also be downloaded from the [Releases Page](https://github.com/ValdemarOrn/IRWorkshop/releases/tag/v0.1.0)**.
+A free pack of impulse responses created with IR Workshop can also be downloaded from the **[Releases Page](https://github.com/ValdemarOrn/IRWorkshop/releases/tag/v0.1.0)**.
+
+The pack contains royalty free impulse responses, created from scratch using IR Workshop. It's meant to show off the capabilities of the software and it's ability to re-shape and sculpt the response of speaker cabinets. 
 
 ## Installing and running
 
