@@ -43,3 +43,5 @@ Build/*
 Wavetables/*.wav
 Wavetables/*/*.wav
 Wavetables.zip
+Wav*/
+Wav.zip
