@@ -99,6 +99,11 @@ namespace IrWorkshop.Ui
 
 				throw;
 			}
+			catch (Exception)
+			{
+				Logging.ShowMessage("This software needs to run in Administrator mode", LogType.Error, true);
+				throw;
+			}
 
 			volumeSlider = 0.7;
 			preset = new ImpulsePreset();
@@ -145,7 +150,23 @@ namespace IrWorkshop.Ui
 			Update();
 			UpdateMemoryMap();
 			StartAudioEngine();
+
+			CheckPreviousRunException();
 		}
+
+	    private void CheckPreviousRunException()
+	    {
+		    Task.Delay(100).ContinueWith(_ =>
+		    {
+			    var exFile = Logging.AppDomainErrorLog;
+			    if (File.Exists(exFile))
+			    {
+				    var msg = File.ReadAllText(exFile);
+				    ExceptionDialog.ShowDialog("This program reported a crash earlier.", msg);
+				    File.Delete(exFile);
+			    }
+		    });
+	    }
 
 	    private void UpdateMemoryMap()
 	    {

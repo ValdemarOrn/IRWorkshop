@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -32,9 +34,12 @@ namespace IrWorkshop.Ui
 			AppDomain.CurrentDomain.UnhandledException += (s, e) =>
 			{
 				var ex = e.ExceptionObject as Exception;
+				File.WriteAllText(AppDomainErrorLog, ex.GetTrace());
 				Exception("An unhandled exception killed the process.\r\n" + ex.Message, ex.GetTrace());
 			};
 		}
+
+		public static readonly string AppDomainErrorLog = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "Exception.txt");
 
 		public static void Exception(string message, string traceMessage)
 		{
