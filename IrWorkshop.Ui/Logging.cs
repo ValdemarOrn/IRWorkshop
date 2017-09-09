@@ -29,8 +29,7 @@ namespace IrWorkshop.Ui
 					e.Handled = true;
 				};
 			}
-
-			// this may not work...
+			
 			AppDomain.CurrentDomain.UnhandledException += (s, e) =>
 			{
 				var ex = e.ExceptionObject as Exception;

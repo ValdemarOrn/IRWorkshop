@@ -69,6 +69,7 @@
 
 					<Label Grid.Row="11" Grid.Column="0">Samplerate</Label>
 					<Label Grid.Row="12" Grid.Column="0">Impulse Length</Label>
+					<Label Grid.Row="13" Grid.Column="0">Normalize</Label>
 					
 
 					<Button Grid.Row="1" Grid.Column="1" Margin="2" Width="100" HorizontalAlignment="Left" Command="{Binding AudioSetupCommand}">Edit</Button>
@@ -88,6 +89,7 @@
 
 					<Slider Grid.Row="11"  Grid.Column="1" Value="{Binding Samplerate}" Maximum="1" TickFrequency="0.33333" SmallChange="0.33333" LargeChange="0.33333" IsSnapToTickEnabled="True" />
 					<Slider Grid.Row="12"  Grid.Column="1" Value="{Binding ImpulseLength}" Maximum="1" TickFrequency="0.25" SmallChange="0.2" LargeChange="0.2" IsSnapToTickEnabled="True" />
+					<CheckBox Grid.Row="13"  Grid.Column="1" IsChecked="{Binding Normalize}" Margin="0" />
 					
 					<Label Grid.Row="6" Grid.Column="2" Content="{Binding VolumeReadout, FallbackValue=0.0dB, Mode=OneWay}" />
 					<Label Grid.Row="11" Grid.Column="2" Content="{Binding SamplerateReadout, FallbackValue=x, Mode=OneWay}" />

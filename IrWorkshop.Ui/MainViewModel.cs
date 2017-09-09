@@ -291,6 +291,16 @@ namespace IrWorkshop.Ui
 			    updateRateLimiter.Pulse();
 			}
 	    }
+
+	    public bool Normalize
+	    {
+		    get { return preset.Normalize; }
+		    set
+		    {
+				preset.Normalize = value;
+			    updateRateLimiter.Pulse();
+			}
+	    }
 	
 		public double VolumeSlider
 	    {
@@ -472,7 +482,8 @@ namespace IrWorkshop.Ui
 		    NotifyPropertyChanged(nameof(MixingConfig));
 			NotifyPropertyChanged(nameof(Samplerate));
 		    NotifyPropertyChanged(nameof(ImpulseLength));
-		    NotifyPropertyChanged(nameof(WindowMethod));
+		    NotifyPropertyChanged(nameof(Normalize));
+			NotifyPropertyChanged(nameof(WindowMethod));
 		    NotifyPropertyChanged(nameof(SamplerateReadout));
 		    NotifyPropertyChanged(nameof(ImpulseLengthReadout));
 			updateRateLimiter.Pulse();

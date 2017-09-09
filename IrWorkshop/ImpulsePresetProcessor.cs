@@ -71,12 +71,15 @@ namespace IrWorkshop
 			output = mixingOutputProcessor.ProcessOutputStage();
 
 			// normalize output
-			var norms= new[] { Math.Abs(output[0].Min()), Math.Abs(output[0].Max()), Math.Abs(output[1].Min()), Math.Abs(output[1].Max()) };
-			var normalizer = norms.Max();
-			if (normalizer < 0.01) normalizer = 0.01;
-			var normInv = 1 / normalizer;
-			output[0] = output[0].Select(x => x * normInv).ToArray();
-			output[1] = output[1].Select(x => x * normInv).ToArray();
+			if (preset.Normalize)
+			{
+				var norms = new[] { Math.Abs(output[0].Min()), Math.Abs(output[0].Max()), Math.Abs(output[1].Min()), Math.Abs(output[1].Max()) };
+				var normalizer = norms.Max();
+				if (normalizer < 0.01) normalizer = 0.01;
+				var normInv = 1 / normalizer;
+				output[0] = output[0].Select(x => x * normInv).ToArray();
+				output[1] = output[1].Select(x => x * normInv).ToArray();
+			}
 
 			return new []
 			{

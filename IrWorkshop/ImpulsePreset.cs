@@ -18,6 +18,7 @@ namespace IrWorkshop
 			PresetVersion = 1000;
 			Samplerate = 0.3333333;
 			ImpulseLength = 0.75;
+			Normalize = true;
 			ImpulseConfig = new ImpulseConfig[0];
 			MixingConfig = new MixingConfig();
 		}
@@ -26,6 +27,7 @@ namespace IrWorkshop
 		public MixingConfig MixingConfig { get; set; }
 
 		public int PresetVersion { get; set; }
+		public bool Normalize { get; set; }
 
 		public double Samplerate
 		{
